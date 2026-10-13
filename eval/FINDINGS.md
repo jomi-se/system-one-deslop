@@ -180,3 +180,15 @@ The two models fail differently. Opus overdoes maxims and formatting; Sol
 does that and also disclaims, and the most defensive document we have is
 the handoff a Sol session wrote for us. The READMEs are about 110 words, so
 one sentence moves their rate by 9; read those two rows as anecdotes.
+
+## 11. Checking our own README
+
+`npm run check` on the rewritten README (about 320 words) first flagged
+triplets, playful asides and a precaution. Two were fair: "any habit that
+runs more than three times too hot" was performed casualness, and the
+SECURITY.md pointer was a reminder nobody needed. After fixing those, two
+flags remain and both are choices: a real list of three tools, and an
+opening that quotes Sol's maxims, which the check counts as ours. At 300
+words one sentence moves a rate by three per thousand, so short texts need
+an interval rather than a ratio, and quoted material should not count
+toward the author's rate.
