@@ -32,5 +32,9 @@ jobs:
         run: ./scripts/quiet-run.sh "dependencies" npm ci
       - name: Typecheck
         run: npm run typecheck
+      - name: Lint with type information
+        run: npm run lint
+      - name: Check formatting
+        run: npm run format:check
       - name: Test offline
         run: npm test
