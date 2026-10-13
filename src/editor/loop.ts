@@ -11,7 +11,9 @@ import { runEditor } from "./providers.js";
 import type { EditorName } from "./providers.js";
 import { readBaseline, editorPrompt, habitRates, heldOutRates, densityTable } from "./prompt.js";
 import { blindComparison } from "./judge.js";
-import { GATES, gateEdits } from "./gates.js";
+import { reviewEdits } from "./review.js";
+import { otherEditor } from "./providers.js";
+import { DECISION_STAGES, GATES, gateEdits } from "./gates.js";
 
 function unifiedDiff(before: string, after: string): string {
   if (before === after) return "No changes.\n";
@@ -96,6 +98,10 @@ export async function deslop(
   const rejectedByGate: Record<string, number> = Object.fromEntries(GATES.map((id) => [id, 0]));
   let acceptedUnits = 0,
     rejectedUnits = 0;
+  const stageCounts: Record<string, number> = Object.fromEntries(
+    DECISION_STAGES.map((stage) => [stage, 0]),
+  );
+  const reviewerRuns = [];
   const editorRuns = [];
   const gateRecords: RequestRecord[] = [];
   const audits = [before];
@@ -125,7 +131,36 @@ export async function deslop(
     for (const [id, count] of Object.entries(gated.rejected_by_gate))
       rejectedByGate[id] = (rejectedByGate[id] ?? 0) + count;
     gateRecords.push(...gated.records);
+    // Retain all computed observations even if the later reviewer call fails.
+    await writeFile(join(directory, `gates-${round}.json`), JSON.stringify(gated, null, 2) + "\n", {
+      mode: 0o600,
+    });
+    onProgress(
+      `Round ${round}: ${otherEditor(editor)} reviewing ${gated.decisions.filter((decision) => decision.accepted).length} groups`,
+    );
+    const review = await reviewEdits(
+      text,
+      gated.decisions,
+      units,
+      document.code_blocks,
+      metadata,
+      editor,
+    );
+    await writeFile(
+      join(directory, `review-${round}.json`),
+      JSON.stringify(review, null, 2) + "\n",
+      { mode: 0o600 },
+    );
+    reviewerRuns.push({
+      round,
+      reviewer: review.reviewer,
+      duration_ms: review.response.duration_ms,
+      format: review.response.format,
+      accept: review.response.decisions.filter((decision) => decision.verdict === "accept").length,
+      reject: review.response.decisions.filter((decision) => decision.verdict === "reject").length,
+    });
     for (const decision of gated.decisions) {
+      stageCounts[decision.stage] = (stageCounts[decision.stage] ?? 0) + 1;
       if (decision.accepted) {
         accepted += 1;
         acceptedUnits += decision.proposal.unit_ids.length;
@@ -163,9 +198,7 @@ export async function deslop(
   }
   let judgment = null;
   if (options.judgeOther) {
-    onProgress(
-      `Blind comparison: ${editor === "opus" ? "sol" : "opus"} judging anonymous versions`,
-    );
+    onProgress(`Blind comparison: ${editor} judging anonymous versions (editor-model bias)`);
     judgment = await blindComparison(source, text, metadata, editor);
     await writeFile(join(directory, "judgment.json"), JSON.stringify(judgment, null, 2) + "\n", {
       mode: 0o600,
@@ -179,6 +212,8 @@ export async function deslop(
     baseline,
     rounds: editorRuns.length,
     editor_runs: editorRuns,
+    reviewer_runs: reviewerRuns,
+    stage_counts: stageCounts,
     accepted,
     rejected,
     accepted_units: acceptedUnits,
@@ -205,7 +240,7 @@ export async function deslop(
     "",
     `Editor: ${editor}; rounds: ${summary.rounds}; groups accepted: ${accepted}; groups rejected: ${rejected}.`,
     judgment
-      ? `Blind cross-model judge: ${judgment.judge}; outcome: ${judgment.outcome}. ${judgment.response.reason}`
+      ? `Blind editor-model judge: ${judgment.judge}; outcome: ${judgment.outcome}. ${judgment.bias} ${judgment.response.reason}`
       : "Blind comparison was not requested.",
     `Prose words: ${summary.words_before} → ${summary.words_after}. Estimated Jev cost: $${usage.estimated_usd.toFixed(8)}. Editor usage is on the configured CLI subscription.`,
     "",
@@ -217,7 +252,11 @@ export async function deslop(
     "",
     densityTable(before, audit, baseline, true),
     "",
-    "## Gate rejections (a group can fail more than one gate)",
+    "## Decisions by stage",
+    "",
+    ...Object.entries(stageCounts).map(([stage, count]) => `- ${stage}: ${count}`),
+    "",
+    "## Hard gate rejections (advisory/record-only questions never veto)",
     "",
     ...Object.entries(rejectedByGate).map(([id, count]) => `- ${id}: ${count}`),
     "",

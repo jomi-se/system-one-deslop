@@ -10,20 +10,46 @@ import type { EditGroup, EditUnit, EditDecision } from "./edits.js";
 import type { Span } from "../parse.js";
 
 export const GATES = ["a.V01", "a.V02", "a.V04", "a.V05", "b.uncertainty_change"] as const;
+export const HARD_GATES = ["a.V01", "b.uncertainty_change"] as const;
+export const DECISION_STAGES = [
+  "guard",
+  "hard-gate",
+  "reviewer",
+  "final-guard",
+  "accepted",
+] as const;
+export function gateMode(id: string): "hard" | "advisory" | "record" {
+  invariant(
+    GATES.some((gate) => gate === id),
+    "Unknown gate",
+  );
+  return HARD_GATES.some((gate) => gate === id) ? "hard" : id === "a.V05" ? "record" : "advisory";
+}
 export interface GatedEdit extends EditDecision {
+  group_id: string;
+  stage: (typeof DECISION_STAGES)[number];
+  window: { original: string; revised: string } | null;
+  review: { verdict: "accept" | "reject"; reason: string } | null;
   accepted: boolean;
   reason: string;
-  gates: { question_id: string; answer: Answer | null; rejected: boolean; record: RequestRecord }[];
+  gates: {
+    question_id: string;
+    mode: "hard" | "advisory" | "record";
+    answer: Answer | null;
+    rejected: boolean;
+    record: RequestRecord;
+  }[];
 }
 
 export function gateRejects(id: string, answer: Answer | null): boolean {
+  if (gateMode(id) !== "hard") return false;
   if (!answer) return true;
-  if (id === "a.V05" || id === "b.uncertainty_change") {
+  if (id === "b.uncertainty_change") {
     invariant(answer.type === "choice", "Expected a choice gate answer");
-    const probability = answer.probabilities[answer.choice] ?? 0;
-    return id === "a.V05"
-      ? answer.choice === "worse" && probability >= 0.5
-      : (answer.choice === "stronger" || answer.choice === "weaker") && probability >= 0.5;
+    return (
+      (answer.choice === "stronger" || answer.choice === "weaker") &&
+      (answer.probabilities[answer.choice] ?? 0) >= 0.5
+    );
   }
   invariant(answer.type === "noul", "Expected a noul gate answer");
   return answer.noul >= 0.5;
@@ -39,20 +65,31 @@ export async function gateEdits(
   client: TypeSafeClient,
   authorVoice = "as in the original",
 ) {
-  const decisions: GatedEdit[] = guardEdits(source, proposals, units, code).map((decision) => ({
-    ...decision,
-    accepted: decision.guard.accepted,
-    reason: decision.guard.reason,
-    gates: [],
-  }));
+  const decisions: GatedEdit[] = guardEdits(source, proposals, units, code).map(
+    (decision, index) => ({
+      ...decision,
+      group_id: `g${index + 1}`,
+      stage: decision.guard.accepted ? "accepted" : "guard",
+      window: null,
+      review: null,
+      accepted: decision.guard.accepted,
+      reason: decision.guard.reason,
+      gates: [],
+    }),
+  );
   const tasks: { decision: GatedEdit; group: RequestGroup }[] = [];
   for (const decision of decisions.filter((entry) => entry.accepted)) {
     const window = groupWindow(source, decision.proposal, units);
+    decision.window = window;
     const questions: Questions = {};
+    const advisory: Questions = {};
     for (const id of GATES) {
       const q = registry.questions.get(id);
       invariant(q, `Missing gate: ${id}`);
-      if (q.source === "a") questions[id] = q.question;
+      if (q.source === "a") {
+        if (gateMode(id) === "hard") questions[id] = q.question;
+        else advisory[id] = q.question;
+      }
     }
     const common = {
       document: { ...metadata, author_voice: authorVoice },
@@ -77,6 +114,8 @@ export async function gateEdits(
       });
     }
     add(common, questions);
+    // Observation-only failures must not invalidate the independent hard answer.
+    add(common, advisory);
     const uncertainty = registry.questions.get("b.uncertainty_change");
     invariant(uncertainty, "Missing uncertainty gate");
     add(
@@ -102,14 +141,16 @@ export async function gateEdits(
     invariant(task, "Gate response has no request");
     for (const id of Object.keys(record.request.questions)) {
       const answer = record.error ? null : (record.response?.answers[id] ?? null);
-      const rejected = Boolean(record.error) || gateRejects(id, answer);
-      task.decision.gates.push({ question_id: id, answer, rejected, record });
+      const mode = gateMode(id);
+      const rejected = mode === "hard" && (Boolean(record.error) || gateRejects(id, answer));
+      task.decision.gates.push({ question_id: id, mode, answer, rejected, record });
     }
   }
   for (const decision of decisions) {
     const rejected = decision.gates.filter((gate) => gate.rejected);
     if (rejected.length) {
       decision.accepted = false;
+      decision.stage = "hard-gate";
       decision.reason = rejected
         .map(
           (gate) => `${gate.question_id} rejected${gate.record.error ? " (request failed)" : ""}`,
@@ -132,6 +173,7 @@ export async function gateEdits(
     if (decision && checked && !checked.guard.accepted) {
       decision.accepted = false;
       decision.guard = checked.guard;
+      decision.stage = "guard";
       decision.reason = checked.guard.reason;
     }
   }

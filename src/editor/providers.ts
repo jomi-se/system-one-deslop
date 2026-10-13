@@ -54,6 +54,54 @@ export function validateJudgment(value: unknown): Judgment {
   return { better: result.better, reason: result.reason };
 }
 
+export const REVIEW_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["decisions"],
+  properties: {
+    decisions: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["group_id", "verdict", "reason"],
+        properties: {
+          group_id: { type: "string" },
+          verdict: { type: "string", enum: ["accept", "reject"] },
+          reason: { type: "string" },
+        },
+      },
+    },
+  },
+};
+export interface ReviewDecision {
+  group_id: string;
+  verdict: "accept" | "reject";
+  reason: string;
+}
+export function otherEditor(editor: EditorName): EditorName {
+  return editor === "opus" ? "sol" : "opus";
+}
+export function validateReview(value: unknown): ReviewDecision[] {
+  const result = object(value, "Reviewer result");
+  invariant(
+    Object.keys(result).length === 1 && Array.isArray(result.decisions),
+    "Reviewer must return only a decisions array",
+  );
+  return result.decisions.map((entry: unknown) => {
+    const decision = object(entry, "Review decision");
+    invariant(
+      Object.keys(decision).length === 3 &&
+        typeof decision.group_id === "string" &&
+        decision.group_id.length > 0 &&
+        (decision.verdict === "accept" || decision.verdict === "reject") &&
+        typeof decision.reason === "string",
+      "Invalid review decision",
+    );
+    return { group_id: decision.group_id, verdict: decision.verdict, reason: decision.reason };
+  });
+}
+
 function json(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
@@ -89,6 +137,14 @@ export function parseJudgeOutput(
 ): Judgment & { format: string } {
   const parsed = parseResult(editor, stdout);
   return { ...validateJudgment(parsed.value), format: parsed.format };
+}
+
+export function parseReviewOutput(
+  editor: EditorName,
+  stdout: string,
+): { decisions: ReviewDecision[]; format: string } {
+  const parsed = parseResult(editor, stdout);
+  return { decisions: validateReview(parsed.value), format: parsed.format };
 }
 
 export function editorEnvironment(): NodeJS.ProcessEnv {
@@ -251,6 +307,21 @@ export async function runJudge(editor: EditorName, prompt: string) {
   );
   return {
     ...validateJudgment(response.value),
+    editor,
+    format: response.format,
+    duration_ms: response.duration_ms,
+  };
+}
+
+export async function runReviewer(editor: EditorName, prompt: string) {
+  const response = await runProvider(
+    editor,
+    prompt + "\n\nOUTPUT SCHEMA\n" + JSON.stringify(REVIEW_SCHEMA),
+    REVIEW_SCHEMA,
+    "You are a careful reviewer.",
+  );
+  return {
+    decisions: validateReview(response.value),
     editor,
     format: response.format,
     duration_ms: response.duration_ms,

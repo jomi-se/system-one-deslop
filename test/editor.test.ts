@@ -194,7 +194,7 @@ await test("provider parsing keeps atomic maps and full blind judgments, rejecti
   );
 });
 
-await test("gate thresholds keep equivalent V05 advisory and reject voice/certainty regression atomically with matched windows", async () => {
+await test("hard gates reject specificity/certainty while meaning, voice and reader value remain recorded-only or advisory", async () => {
   const equivalent = choice("equivalent", {
     better: 0.05,
     equivalent: 0.85,
@@ -207,7 +207,7 @@ await test("gate thresholds keep equivalent V05 advisory and reject voice/certai
       "a.V05",
       choice("worse", { better: 0.1, equivalent: 0.1, worse: 0.5, unclear: 0.3 }),
     ),
-    true,
+    false,
   );
   assert.equal(
     gateRejects(
@@ -230,25 +230,33 @@ await test("gate thresholds keep equivalent V05 advisory and reject voice/certai
     ),
     true,
   );
+  assert.equal(gateRejects("a.V01", { type: "noul", noul: 0.5 }), true);
+  assert.equal(gateRejects("a.V02", { type: "noul", noul: 1 }), false);
+  assert.equal(gateRejects("a.V04", { type: "noul", noul: 1 }), false);
+  assert.equal(gateRejects("a.V05", null), false);
+  assert.equal(gateRejects("a.V04", null), false);
+  assert.equal(gateRejects("a.V01", null), true);
   const registry = await loadRegistry(),
     metadata = auditMetadata();
   const source = "# `unwrap()` is a claim\n\nIf clients trigger it, return an error.\n\nNeighbor.";
   const document = parseMarkdown(source),
     units = editUnits(document);
   const requests: Record<string, unknown>[] = [];
-  function client(regression: boolean) {
+  function client(regression: boolean, advisoryFailure = false) {
     return createJevClient({
       apiKey: "offline-fixture",
       fetch: async (_url, init) => {
         const request = payload(init?.body);
         requests.push(request.state);
+        if (advisoryFailure && Object.hasOwn(request.questions, "a.V02"))
+          return new Response("unavailable", { status: 502 });
         const answers = Object.fromEntries(
           Object.entries(request.questions).map(([id, q]) => [
             id,
             object(q, "Question").type === "noul"
-              ? { type: "noul", noul: id === "a.V04" && regression ? 0.8 : 0.01 }
+              ? { type: "noul", noul: id === "a.V04" ? 0.8 : id === "a.V02" ? 0.71 : 0.01 }
               : id === "a.V05"
-                ? equivalent
+                ? choice("worse", { better: 0, equivalent: 0, worse: 1, unclear: 0 })
                 : choice(regression ? "stronger" : "preserved", {
                     preserved: regression ? 0.1 : 0.9,
                     stronger: regression ? 0.8 : 0.05,
@@ -287,7 +295,7 @@ await test("gate thresholds keep equivalent V05 advisory and reject voice/certai
     ),
     source,
   );
-  assert.equal(rejected.rejected_by_gate["a.V04"], 1);
+  assert.equal(rejected.rejected_by_gate["a.V04"], 0);
   assert.equal(rejected.rejected_by_gate["b.uncertainty_change"], 1);
   assert.ok(
     rejected.decisions[0]?.gates.find((g) => g.question_id === "a.V05")?.answer?.type === "choice",
@@ -303,12 +311,31 @@ await test("gate thresholds keep equivalent V05 advisory and reject voice/certai
   );
   assert.equal(accepted.decisions[0]?.accepted, true);
   assert.equal(
+    accepted.decisions[0]?.gates.find((g) => g.question_id === "a.V05")?.rejected,
+    false,
+  );
+  assert.equal(
     applyEdits(
       source,
       accepted.decisions.filter((entry) => entry.accepted).map((entry) => entry.proposal),
       units,
     ).includes("# `unwrap()`"),
     false,
+  );
+  const advisoryFailed = await gateEdits(
+    source,
+    [proposal],
+    units,
+    document.code_blocks,
+    registry,
+    metadata,
+    client(false, true),
+  );
+  assert.equal(advisoryFailed.decisions[0]?.accepted, true);
+  assert.ok(
+    advisoryFailed.decisions[0]?.gates
+      .filter((g) => g.mode !== "hard")
+      .every((g) => g.answer === null && !g.rejected),
   );
   const a = requests.find((request) => Object.hasOwn(request, "candidate"));
   assert.deepEqual(a?.document, { ...metadata, author_voice: "as in the original" });

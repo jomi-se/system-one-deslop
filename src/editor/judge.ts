@@ -1,6 +1,6 @@
 import { randomInt } from "node:crypto";
 import type { AuditMetadata } from "../audit.js";
-import { runJudge } from "./providers.js";
+import { otherEditor, runJudge } from "./providers.js";
 import type { EditorName, Judgment } from "./providers.js";
 
 export function comparisonPrompt(
@@ -32,12 +32,16 @@ export async function blindComparison(
   revised: string,
   metadata: AuditMetadata,
   editor: EditorName,
+  provider: typeof runJudge = runJudge,
 ) {
   const pair = comparisonPrompt(original, revised, metadata, randomInt(2) === 1);
-  const judge = editor === "opus" ? "sol" : "opus";
-  const response = await runJudge(judge, pair.prompt);
+  const judge = editor;
+  const response = await provider(judge, pair.prompt);
   return {
     judge,
+    reviewer: otherEditor(editor),
+    judge_is_editor: true,
+    bias: "The editor’s own model judges its revision; this has a known self-preference bias.",
     original_version: pair.original_version,
     revised_version: pair.revised_version,
     outcome: judgmentOutcome(response, pair.revised_version),

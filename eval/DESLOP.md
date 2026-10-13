@@ -33,28 +33,35 @@ must each remain at least once in the whole document; duplicate mentions may
 be removed. After application, collapse three or more consecutive newlines to
 two outside code blocks, preserving fenced and indented code bytes.
 
-Each group is judged on the same touched units and immediate neighboring
-paragraphs before/after. V01 rejects unsupported specificity, V02 changed meaning,
-and V04 erased voice at noul >= 0.5. `document.author_voice` defaults to
-`"as in the original"`; `--author-voice` can supply an explicit description.
-B's uncertainty gate receives `original.claim` and `revision.claim` for that
-same window and rejects stronger/weaker certainty at probability >= 0.5.
-V05 is advisory: reject only `worse` at probability >= 0.5, preserving the full
-choice distribution. Failed gate requests reject the group. Re-run set guards
-after gate rejections so protected-detail moves cannot depend on rejected groups.
-Every proposal, guard and gate answer is recorded.
+Each group uses the same touched units and immediate neighboring paragraphs
+before/after. V01 is a hard specificity gate at noul >= 0.5; B's uncertainty gate
+receives `original.claim`/`revision.claim` for that window and rejects stronger
+or weaker certainty at probability >= 0.5. Missing hard answers reject the group.
+V02 (meaning change) and V04 (erased voice) are advisory only. V05's full
+reader-value distribution is recorded but never vetoes or reaches the reviewer.
+`document.author_voice` defaults to `"as in the original"`; `--author-voice` can
+supply a description. Re-run set guards after rejections to preserve dependent
+protected-detail moves.
+
+One call to the other CLI model reviews all surviving groups per document round.
+It receives reader/purpose/genre, matched windows, the editor's reasons, and neutral
+V02/V04 probability hints. The reasoning reviewer decides reader benefit, preserving
+claims, conditions and voice. Its verdict applies atomically; another set-guard
+check catches moves whose destinations it rejects. Editing now requires both saved
+CLI logins. Every proposal, observation, review and final decision is retained.
 
 Reports include observed habits and held-out mean/stdev sentence length,
 semicolons, clause-intro colons and em dashes per 1,000 prose words against a small
 selected human baseline (`n=13`). These are diagnostics, not quality targets.
 No number from these tables is passed to the editor.
 
-`--judge-other` additionally asks the other CLI model to judge full original
-and revised documents as randomized anonymous A/B versions. The judgment records
-the private mapping, reason and win/tie/loss outcome. This blind preference is the
-primary corpus quality signal, not a guarantee of factual fidelity. Ordinary
-editing requires only the selected editor; cross-model judging requires both
-saved CLI logins. The corpus experiment enables it for every run.
+`--judge-other` retains its flag name but now asks the **editor's own model** to
+judge full original/revised documents as randomized anonymous A/B versions in a
+fresh session. The judge never sees review decisions or knows which is the edit.
+It differs from the reviewer, but using the editor model introduces a known
+self-preference bias. This differs from v2's other-model blind judging; compare
+results with that change in mind. The private mapping, reason and win/tie/loss
+are recorded. The corpus experiment enables judging for every run.
 
 `opus` uses the saved Claude CLI subscription, safe mode, no tools, and its
 [`structured_output`](https://code.claude.com/docs/en/headless) JSON wrapper.
@@ -62,10 +69,11 @@ saved CLI logins. The corpus experiment enables it for every run.
 schema-constrained [final file](https://learn.chatgpt.com/docs/non-interactive-mode).
 Both use stdin, a fresh temporary directory, a fifteen-minute deadline and
 scratch cleanup. Provider and TypeSafe API-key environment variables are removed.
-Each process uses two Jev workers; editor/judge calls are sequential within a run.
+Each process uses two Jev workers; editor/reviewer/judge calls are sequential within a run.
 
 Output: `revised.md`, atomic-group `edits.jsonl`, `report.md` with before/after,
-held-out metrics, gate counts and unified diff, `summary.json`, and raw audit JSONs.
+held-out metrics, stage/gate counts and unified diff, `summary.json`, raw gate/audit
+JSONs and `review-N.json` with reviewer inputs and responses.
 Judged runs also write `judgment.json`. Files contain prose: retain them privately
 outside Git. Failures exit nonzero and write `failure.json`. No live provider calls
 run in tests or CI. Review the diff before using a revision.

@@ -87,9 +87,49 @@ cover the same stretch of text before and after.
 The labels are one rater's, and that rater is the same model family as one
 of the editors. Treat them as a smoke test, not ground truth.
 
-## 7. Editor v2
+## 7. Editor v2: no gaming, but the gates block good edits
 
-Editor v2 shows the marked sentences instead of rates and asks the editor
-to judge each one, keeps sentence length and punctuation hidden as a
-Goodhart alarm, and judges results with the other model in a blind A/B.
-Results below once the run finishes.
+v2 shows the editor the marked sentences instead of rates, keeps sentence
+length and punctuation hidden as a Goodhart alarm, and accepts an edit group
+only if it passes Jev's preservation checks and V05 does not call it worse.
+The other model then compares the whole original and revised document
+blind.
+
+- No gaming: sentence length, its spread and semicolon rate stayed flat.
+- Where the document changed, the blind judge preferred the edit 8 times,
+  tied twice, and preferred the original once. The loss deleted the line
+  "A panic in a handler is a bad day", which was carrying the voice.
+- Only 14 of 72 proposed groups got through. Reading 16 rejected ones: 8
+  were good edits (deleting "That's the whole philosophy.", "That last
+  option matters.", "Neither approach is universally correct."), 5 were
+  rightly stopped (they dropped a real claim or a voice line), 3 were close
+  calls. V05 did most of the blocking: it prefers the longer text whichever
+  side it is on.
+
+So Jev is good at narrow observations ("is this an aphorism?") and crisp
+preservation checks ("does the revision add a new fact?", "did certainty
+change?"), and not at "is this better for the reader?". Dossier B argued for
+that split before we had any data. Editor v3 hands the reader judgment to the
+other model as a reviewer and keeps Jev for detection and hard checks.
+
+## 8. Editor v3: good edits, small effect
+
+v3 keeps Jev for the hard checks (new facts, changed certainty) and lets the
+other model review each proposed edit as the reader would. Every one of the
+12 documents it changed won its blind comparison, the voice lines survived,
+and the hidden metrics did not move. The judge was the editor's own model
+this time, which flatters the editor, so read 12 of 12 as "no regressions"
+rather than as proof of a large gain.
+
+The catch is that the habit rates barely moved (maxims 23.3 to 22.8 per
+1,000 words against a human 4.1). The accepted edits are all of one kind:
+delete a sentence that restates its neighbour. The reviewer turned down 51
+other proposals, and on reading them it was mostly right. The deleted maxim
+was the post's thesis, or the next sentence pointed back at it.
+
+In these posts the maxims carry the argument. Opus and Sol write rule first
+and illustrate second, where Pike and the Rust book lead with a case and let
+the rule fall out of it. A meaning-preserving editor that may not invent
+examples cannot turn one into the other. The fix is probably upstream: ask
+the author for the case the rule needs, or brief the writer before it
+writes.
