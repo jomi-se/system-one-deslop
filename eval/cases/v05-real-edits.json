@@ -1,0 +1,362 @@
+[
+  {
+    "case_id": "a.V05.real.0",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "Slices are probably the most-used data structure in our codebase. You've written `append` a thousand times, and most of those times it did what you expected. This post covers the other times. Once you know what a slice actually is, those \"wait, why did that change?\" bugs mostly stop being mysterious."
+      },
+      "candidate": {
+        "text": "Slices are probably the most-used data structure in our codebase. You've written `append` a thousand times, and most of those times it did what you expected; this post covers the cases where it didn't. Once you know what a slice actually is, bugs involving unexpected changes mostly stop being mysterious."
+      }
+    },
+    "expected": "worse",
+    "note": "Accepted editor-v1 edit from go-slices.opus.reader.sol p1; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.1",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "“Parsing failed” adds little. Explaining why parsing must succeed helps a future reader evaluate the assumption."
+      },
+      "candidate": {
+        "text": "A message such as “Parsing failed” adds little, whereas explaining why parsing must succeed helps a future reader evaluate the assumption."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from rust-panic.sol.generic.sol p31; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.2",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "Same problem, harder to spot:"
+      },
+      "candidate": {
+        "text": "With two appends writing to one slot, the same problem is harder to spot:"
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from go-slices.opus.reader.sol p16; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.3",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "`s` contains `[30 40]`, has length two, and has capacity four. Its available region starts at `a[2]` and extends through `a[5]`."
+      },
+      "candidate": {
+        "text": "`s` contains `[30 40]` with length two and capacity four, because its available region starts at `a[2]` and extends through `a[5]`."
+      }
+    },
+    "expected": "worse",
+    "note": "Accepted editor-v1 edit from go-slices.sol.generic.opus p13; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.4",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "When slice code gets weird, draw the headers and the array. Mark each slice’s starting point, length, and capacity. Usually, the bug becomes embarrassingly obvious—and thankfully easy to fix."
+      },
+      "candidate": {
+        "text": "When slice code gets weird, draw the headers and the array, marking each slice’s starting point, length, and capacity. Usually the bug becomes embarrassingly obvious, and easy to fix."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from go-slices.sol.reader.opus p45; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.5",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "- A slice is `{ptr, len, cap}`. Copying a slice copies the header, not the data."
+      },
+      "candidate": {
+        "text": "To sum up:\n\n- A slice is `{ptr, len, cap}`. Copying a slice copies the header, not the data."
+      }
+    },
+    "expected": "worse",
+    "note": "Accepted editor-v1 edit from go-slices.opus.reader.opus p26; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.6",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "Public APIs can still have documented panic conditions, particularly for caller violations of a clear contract. But if misuse is common, externally driven, or easy to check, a fallible API often makes the better interface."
+      },
+      "candidate": {
+        "text": "Public APIs can still have documented panic conditions, particularly for caller violations of a clear contract. But a fallible API often makes the better interface when misuse is common or externally driven; it is also often the better interface when misuse is easy to check."
+      }
+    },
+    "expected": "worse",
+    "note": "Accepted editor-v1 edit from rust-panic.sol.reader.sol p25; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.7",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain error handling in Go and patterns that reduce repetitive error checks"
+      },
+      "original": {
+        "text": "Some operations naturally form a sequence where the first failure makes every later step pointless. Writing a document is a common example."
+      },
+      "candidate": {
+        "text": "Some operations naturally form a sequence where the first failure makes every later step pointless; writing a document is a common example."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from go-errors.sol.generic.opus p21; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.8",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "**Applications** have more freedom near the top level. If `main` can't open the database it depends on, there's often nothing sensible to do but report the error and exit. Even then, it's usually cleaner to propagate errors up to `main` with `?` and print a friendly message than to panic deep in the call stack. Crates like `anyhow` make this pleasant."
+      },
+      "candidate": {
+        "text": "Applications have more freedom near the top level: if `main` can't open the database it depends on, there's often nothing sensible to do but report the error and exit. Even then, it's usually cleaner to propagate errors up to `main` with `?` and print a friendly message than to panic deep in the call stack. Crates like `anyhow` make this pleasant."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from rust-panic.opus.generic.opus p23; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.9",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "The account might not exist. The database might be unavailable. A query might time out. None of those outcomes proves that our program is internally broken."
+      },
+      "candidate": {
+        "text": "The account might not exist, or the database might be unavailable; a query might also time out. None of those outcomes proves that our program is internally broken, so returning `Result` lets the caller decide what happens next: return a 404, retry a transient failure, serve cached data, or fail the request."
+      }
+    },
+    "expected": "worse",
+    "note": "Accepted editor-v1 edit from rust-panic.sol.reader.sol p6; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.10",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain error handling in Go and patterns that reduce repetitive error checks"
+      },
+      "original": {
+        "text": "When a function runs several independent stages, put them in a slice and loop over it:"
+      },
+      "candidate": {
+        "text": "The second pattern uses a slice of steps: when a function runs several independent stages, put them in a slice and loop over it:"
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from go-errors.opus.generic.sol p16; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.11",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "Nothing mystical happened. We had two windows into the same storage, and one window expanded."
+      },
+      "candidate": {
+        "text": "Nothing mystical happened: we had two windows into the same storage, and one window expanded. This bites hardest when functions return subslices, because a caller may reasonably append to the result without realizing it can overwrite another part of the original data."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from go-slices.sol.reader.opus p24; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.12",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "That's the real cost of overusing `Result`: every fallible signature is a question you're asking your caller. \"What do you want to do if this fails?\" If the honest answer is always \"nothing, it's a bug,\" you're just making them write boilerplate."
+      },
+      "candidate": {
+        "text": "Overusing `Result` has a cost because every fallible signature asks your caller, \"What do you want to do if this fails?\" If the honest answer is always \"nothing, it's a bug,\" you're just making them write boilerplate."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from rust-panic.opus.reader.sol p9; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.13",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "Now we’re panicking over deployment configuration. That’s something an operator can fix, so return a startup error with context: which setting failed, what format we expected, and how to correct it."
+      },
+      "candidate": {
+        "text": "This version panics over deployment configuration, which is something an operator can fix, so it should return a startup error with context: which setting failed, what format we expected, and how to correct it."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from rust-panic.sol.reader.opus p20; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.14",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "Malformed JSON, a Postgres timeout, a missing file, an upstream returning 503. None of these are bugs. They're Tuesday. The caller can usually do something useful about them: retry, fall back, return a 400, log and move on."
+      },
+      "candidate": {
+        "text": "Malformed JSON, a Postgres timeout, a missing file, an upstream returning 503: none of these are bugs. They're Tuesday, and the caller can usually do something useful about them: retry, fall back, return a 400, log and move on."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from rust-panic.opus.reader.opus p5; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.15",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain how Go slices work internally and the gotchas that follow"
+      },
+      "original": {
+        "text": "Assigning a slice copies its description, not its backing array:"
+      },
+      "candidate": {
+        "text": "Here, assigning `a` to `b` copies the slice description without copying the backing array:"
+      }
+    },
+    "expected": "better",
+    "note": "Accepted editor-v1 edit from go-slices.sol.generic.sol p14; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.16",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain error handling in Go and patterns that reduce repetitive error checks"
+      },
+      "original": {
+        "text": "A good Go function lets us scan the successful path and understand each exit. Sometimes that means a helper, sometimes an accumulated error, and sometimes three perfectly boring checks. Boring is fine. The checks earn their place when they make the behavior obvious."
+      },
+      "candidate": {
+        "text": "A good Go function lets us scan the successful path and understand each exit, whether it uses a helper or an accumulated error. Sometimes three ordinary checks make the behavior obvious, and that’s fine."
+      }
+    },
+    "expected": "better",
+    "note": "Accepted editor-v1 edit from go-errors.sol.reader.sol p28; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.17",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "- If reaching this point means someone wrote incorrect code, such as an invariant that was violated, an index that should have been in bounds, or a state that should be impossible, panic. The program is already wrong, and continuing risks making things worse."
+      },
+      "candidate": {
+        "text": "If reaching this point means someone wrote incorrect code, such as an invariant that was violated, an index that should have been in bounds, or a state that should be impossible, panic. Continuing risks making things worse because the program is already wrong. Where a `Result` says \"this might not work, and that's expected,\" a panic says \"this should never happen, and if it did, something is broken.\""
+      }
+    },
+    "expected": "worse",
+    "note": "Accepted editor-v1 edit from rust-panic.opus.generic.sol p4; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.18",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain error handling in Go and patterns that reduce repetitive error checks"
+      },
+      "original": {
+        "text": "Good helpers represent concepts: `loadConfig`, `saveReport`, or `fetchAccount`. Their names explain what succeeds or fails."
+      },
+      "candidate": {
+        "text": "Good helpers represent concepts, such as `loadConfig`, `saveReport`, or `fetchAccount`, and their names explain what succeeds or fails."
+      }
+    },
+    "expected": "equivalent",
+    "note": "Accepted editor-v1 edit from go-errors.sol.generic.opus p18; label by Claude."
+  },
+  {
+    "case_id": "a.V05.real.19",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced backend engineers",
+        "purpose": "explain when Rust code should panic and when it should return a Result"
+      },
+      "original": {
+        "text": "Rust gives you two ways to handle things going wrong. You can return a `Result<T, E>` and let the caller decide what to do, or you can `panic!` and stop the current thread. Newcomers often treat this as a style preference. It isn't. Each mechanism communicates something different about the failure, and choosing correctly makes your code easier to use, easier to debug, and more honest about its assumptions."
+      },
+      "candidate": {
+        "text": "Rust gives you two ways to handle things going wrong. You can return a `Result<T, E>` and let the caller decide what to do, or you can `panic!` and stop the current thread. Newcomers often treat this as a style preference, but it isn't one: each mechanism communicates something different about the failure, and choosing correctly makes your code easier to use, easier to debug, and more honest about its assumptions."
+      }
+    },
+    "expected": "better",
+    "note": "Accepted editor-v1 edit from rust-panic.opus.generic.opus p1; label by Claude."
+  }
+]
