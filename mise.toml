@@ -1,0 +1,3 @@
+# CI installs the same Node through jdx/mise-action.
+[tools]
+node = "26.11.1"
