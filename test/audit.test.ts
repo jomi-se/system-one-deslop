@@ -202,7 +202,7 @@ await test("offline audit retains all raw answers/offsets and ranks A defects wi
   });
   const result = await auditDocument(document, auditMetadata(), registry, client);
   assert.equal(result.requests.length, 5);
-  assert.equal(result.answers.length, 32);
+  assert.equal(result.answers.length, 27 + AUDIT_QUESTIONS.sentence.c.length);
   assert.ok(result.answers.every((answer) => answer.answer !== null && answer.error === null));
   assert.equal(result.answers.find((answer) => answer.question_id === "a.P04")?.normalized, 0.25);
   assert.equal(

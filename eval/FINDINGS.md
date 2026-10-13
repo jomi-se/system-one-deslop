@@ -133,3 +133,50 @@ the rule fall out of it. A meaning-preserving editor that may not invent
 examples cannot turn one into the other. The fix is probably upstream: ask
 the author for the case the rule needs, or brief the writer before it
 writes.
+
+## 9. A brief before writing beats any editor after it
+
+We regenerated the three topics with a short brief: lead each section with a
+concrete case and let the rule come out of it, no quotable one-liners to end
+paragraphs, headings only where a reader would jump, paragraphs over bullet
+lists, sentence length that varies like speech, no jokes for their own sake.
+
+| Per 1,000 words   |    Human | Opus plain | Opus briefed | Sol plain | Sol briefed |
+| ----------------- | -------: | ---------: | -----------: | --------: | ----------: |
+| general maxims    |      4.1 |       16.5 |          6.4 |      31.9 |        13.6 |
+| three-part series |      2.0 |        4.3 |          3.2 |       6.1 |         4.3 |
+| bullets, bold     | 2.5, 0.7 |   9.1, 8.5 |         0, 0 |  1.3, 0.9 |        0, 0 |
+
+Opus's briefed sentences average 18.6 words with a spread of 9.1, against
+15.9 and 9.0 for the human posts. Every briefed post won its blind comparison
+against the plain one (six of six, judged by the other model). The Rust post
+opens on a vendor CSV with a blank trailing line killing an overnight import,
+and the rule about whose mistake a failure is comes out of that. It reads
+like a person wrote it.
+
+Read together with §8: a model that writes rule-first cannot be edited into
+writing case-first without new material, but it can be asked to write that
+way. The cheapest deslop is the brief.
+
+## 10. The defensive register is the other kind of slop
+
+The first README in this repo was not cadence slop. It was defensive: "quality
+claims have not been established", "usage may be billed", "keep keys
+server-side". Two more catalogue C questions catch it. `disclaimer` asks
+whether a sentence mainly limits what something claims or guarantees, and
+`precaution` asks whether it tells the reader to protect secrets, data or
+cost.
+
+| Per 1,000 words         | Disclaimers | Precautions |
+| ----------------------- | ----------: | ----------: |
+| Human posts (n=13, max) |   1.1 (3.7) |   0.1 (0.9) |
+| Opus posts              |     0.3–0.8 |           0 |
+| Sol posts               |     3.7–6.7 |           0 |
+| Dossier A               |         6.6 |         0.2 |
+| Dossier B handoff       |        14.3 |         0.6 |
+| README v1               |         9.1 |        18.2 |
+
+The two models fail differently. Opus overdoes maxims and formatting; Sol
+does that and also disclaims, and the most defensive document we have is
+the handoff a Sol session wrote for us. The READMEs are about 110 words, so
+one sentence moves their rate by 9; read those two rows as anecdotes.

@@ -1,6 +1,6 @@
 {
   "catalogue": "c",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "experimental; written 2026-10-13 after corpus audit showed A's defect questions rate human writing as sloppier than frontier-model output",
   "rationale": "Frontier-model slop is mostly cadence, not emptiness: individually defensible moves (aphorisms, not-X-but-Y reframes, playful asides, set-up lines) repeated far more often than human writers use them. Jev observes each move per sentence; code computes rates per 1,000 words and compares them with a human baseline. Presence of one move is never a defect.",
   "state": "Each question reads `target.text` (one sentence) and `target.context` (the preceding and following sentence, possibly empty).",
@@ -59,13 +59,40 @@
         "true": "The sentence contains a three-part parallel series.",
         "false": "No series, or a series of two, four, or more items."
       }
+    },
+    "disclaimer": {
+      "type": "noul",
+      "instructions": {
+        "question": "Is the main job of `target.text` to disclaim: to say what something has not done, does not guarantee, has not been shown, or should not be taken to mean?",
+        "boundary": "A negative statement that explains how something works (\"the API does not retry\") is not a disclaimer. Do not judge whether the disclaimer is needed."
+      },
+      "criteria": {
+        "true": "The sentence mainly limits claims, status, guarantees or responsibility, such as \"Quality claims have not been established.\" or \"These results do not establish that the model will succeed.\"",
+        "false": "The sentence describes behaviour, gives an instruction, or makes a positive claim, even if it contains a negation."
+      }
+    },
+    "precaution": {
+      "type": "noul",
+      "instructions": {
+        "question": "Does `target.text` tell the reader to take a precaution or follow a handling rule whose purpose is protecting secrets, private data, cost, or compliance?",
+        "boundary": "Detect the precaution only; do not judge whether it belongs in this document."
+      },
+      "criteria": {
+        "true": "The sentence instructs or reminds the reader to protect something, such as \"Keep keys server-side and private prose out of logs and Git.\" or \"Usage may be billed.\"",
+        "false": "No such precaution: ordinary instructions, explanations, or descriptions."
+      }
     }
   },
   "cases": [
     {
       "case_id": "c.contrast_reframe.1",
       "question_id": "c.contrast_reframe",
-      "state": { "target": { "text": "`unwrap()` is a claim, not a convenience.", "context": "" } },
+      "state": {
+        "target": {
+          "text": "`unwrap()` is a claim, not a convenience.",
+          "context": ""
+        }
+      },
       "expected": "true"
     },
     {
@@ -93,7 +120,12 @@
     {
       "case_id": "c.contrast_reframe.4",
       "question_id": "c.contrast_reframe",
-      "state": { "target": { "text": "The test does not run on Windows.", "context": "" } },
+      "state": {
+        "target": {
+          "text": "The test does not run on Windows.",
+          "context": ""
+        }
+      },
       "expected": "false"
     },
     {
@@ -132,7 +164,12 @@
     {
       "case_id": "c.aphorism.4",
       "question_id": "c.aphorism",
-      "state": { "target": { "text": "Run the migration before you deploy.", "context": "" } },
+      "state": {
+        "target": {
+          "text": "Run the migration before you deploy.",
+          "context": ""
+        }
+      },
       "expected": "false"
     },
     {
@@ -150,14 +187,22 @@
       "case_id": "c.playful_flourish.2",
       "question_id": "c.playful_flourish",
       "state": {
-        "target": { "text": "Usually, the bug becomes embarrassingly obvious.", "context": "" }
+        "target": {
+          "text": "Usually, the bug becomes embarrassingly obvious.",
+          "context": ""
+        }
       },
       "expected": "true"
     },
     {
       "case_id": "c.playful_flourish.3",
       "question_id": "c.playful_flourish",
-      "state": { "target": { "text": "We'll get to that in a bit.", "context": "" } },
+      "state": {
+        "target": {
+          "text": "We'll get to that in a bit.",
+          "context": ""
+        }
+      },
       "expected": "false"
     },
     {
@@ -229,7 +274,12 @@
     {
       "case_id": "c.triplet.2",
       "question_id": "c.triplet",
-      "state": { "target": { "text": "It must be fast, cheap, and reliable.", "context": "" } },
+      "state": {
+        "target": {
+          "text": "It must be fast, cheap, and reliable.",
+          "context": ""
+        }
+      },
       "expected": "true"
     },
     {
@@ -246,7 +296,100 @@
     {
       "case_id": "c.triplet.4",
       "question_id": "c.triplet",
-      "state": { "target": { "text": "The cache is cold after a deploy.", "context": "" } },
+      "state": {
+        "target": {
+          "text": "The cache is cold after a deploy.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.disclaimer.1",
+      "question_id": "c.disclaimer",
+      "state": {
+        "target": {
+          "text": "This is pre-alpha scaffolding; detection and rewriting are not implemented, and quality claims have not been established.",
+          "context": ""
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.disclaimer.2",
+      "question_id": "c.disclaimer",
+      "state": {
+        "target": {
+          "text": "These results support localized evaluation; they do not establish that Jev will succeed.",
+          "context": ""
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.disclaimer.3",
+      "question_id": "c.disclaimer",
+      "state": {
+        "target": {
+          "text": "The API does not retry failed requests, so wrap calls in your own backoff.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.disclaimer.4",
+      "question_id": "c.disclaimer",
+      "state": {
+        "target": {
+          "text": "A nil map behaves like an empty map when reading, but attempts to write to a nil map cause a runtime panic.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.precaution.1",
+      "question_id": "c.precaution",
+      "state": {
+        "target": {
+          "text": "Keep keys server-side and private prose out of logs and Git.",
+          "context": ""
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.precaution.2",
+      "question_id": "c.precaution",
+      "state": {
+        "target": {
+          "text": "This sends one synthetic sentence to the hosted API; usage may be billed.",
+          "context": ""
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.precaution.3",
+      "question_id": "c.precaution",
+      "state": {
+        "target": {
+          "text": "Run npm ci, then npm run verify.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.precaution.4",
+      "question_id": "c.precaution",
+      "state": {
+        "target": {
+          "text": "Close the file when you are done with it so the descriptor is released.",
+          "context": ""
+        }
+      },
       "expected": "false"
     }
   ]

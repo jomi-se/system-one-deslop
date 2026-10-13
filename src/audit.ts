@@ -13,7 +13,15 @@ export const AUDIT_QUESTIONS = {
   sentence: {
     a: ["a.S01", "a.S02", "a.S03", "a.S04", "a.S05", "a.S06", "a.S07", "a.S12", "a.S14", "a.S15"],
     b: ["b.significance_assertion", "b.content_announcement", "b.authority_invocation"],
-    c: ["c.contrast_reframe", "c.aphorism", "c.playful_flourish", "c.setup_line", "c.triplet"],
+    c: [
+      "c.contrast_reframe",
+      "c.aphorism",
+      "c.playful_flourish",
+      "c.setup_line",
+      "c.triplet",
+      "c.disclaimer",
+      "c.precaution",
+    ],
   },
 } as const;
 
