@@ -9,14 +9,9 @@ import type { Registry } from "../registry.js";
 import { applyEdits, editUnits } from "./edits.js";
 import { runEditor } from "./providers.js";
 import type { EditorName } from "./providers.js";
-import {
-  readBaseline,
-  editorPrompt,
-  habitRates,
-  needsAnotherRound,
-  densityTable,
-} from "./prompt.js";
-import { gateEdits } from "./gates.js";
+import { readBaseline, editorPrompt, habitRates, heldOutRates, densityTable } from "./prompt.js";
+import { blindComparison } from "./judge.js";
+import { GATES, gateEdits } from "./gates.js";
 
 function unifiedDiff(before: string, after: string): string {
   if (before === after) return "No changes.\n";
@@ -73,7 +68,9 @@ export async function deslop(
   directory: string,
   registry: Registry,
   onProgress: (message: string) => void = () => {},
+  options: { authorVoice?: string; judgeOther?: boolean } = {},
 ) {
+  const authorVoice = options.authorVoice ?? "as in the original";
   const baseline = readBaseline(
     JSON.parse(await readFile("eval/baselines/human-tech-blog.json", "utf8")) as unknown,
   );
@@ -94,16 +91,18 @@ export async function deslop(
   await writeFile(join(directory, "edits.jsonl"), "", { mode: 0o600 });
   let text = source;
   let audit = before;
-  let feedback = "";
   let accepted = 0,
     rejected = 0;
+  const rejectedByGate: Record<string, number> = Object.fromEntries(GATES.map((id) => [id, 0]));
+  let acceptedUnits = 0,
+    rejectedUnits = 0;
   const editorRuns = [];
   const gateRecords: RequestRecord[] = [];
   const audits = [before];
   for (let round = 1; round <= rounds; round += 1) {
     const document = parseMarkdown(text);
     const units = editUnits(document);
-    const prompt = editorPrompt(template, text, units, audit, baseline, metadata, feedback);
+    const prompt = editorPrompt(template, text, units, audit, metadata);
     onProgress(`Round ${round}: ${editor} editing ${units.length} units`);
     const response = await runEditor(editor, prompt);
     editorRuns.push({
@@ -121,11 +120,19 @@ export async function deslop(
       registry,
       metadata,
       client,
+      authorVoice,
     );
+    for (const [id, count] of Object.entries(gated.rejected_by_gate))
+      rejectedByGate[id] = (rejectedByGate[id] ?? 0) + count;
     gateRecords.push(...gated.records);
     for (const decision of gated.decisions) {
-      if (decision.accepted) accepted += 1;
-      else rejected += 1;
+      if (decision.accepted) {
+        accepted += 1;
+        acceptedUnits += decision.proposal.unit_ids.length;
+      } else {
+        rejected += 1;
+        rejectedUnits += decision.proposal.unit_ids.length;
+      }
       await appendFile(
         join(directory, "edits.jsonl"),
         JSON.stringify({ round, ...decision }) + "\n",
@@ -153,27 +160,37 @@ export async function deslop(
     onProgress(
       `Round ${round}: ${gated.decisions.filter((decision) => decision.accepted).length} accepted, ${gated.decisions.filter((decision) => !decision.accepted).length} rejected`,
     );
-    feedback = gated.decisions
-      .map(
-        (decision) =>
-          `${decision.proposal.unit_id}: ${decision.accepted ? "accepted" : "rejected"}; ${decision.reason}`,
-      )
-      .join("\n");
-    if (!needsAnotherRound(audit, baseline)) break;
+  }
+  let judgment = null;
+  if (options.judgeOther) {
+    onProgress(
+      `Blind comparison: ${editor === "opus" ? "sol" : "opus"} judging anonymous versions`,
+    );
+    judgment = await blindComparison(source, text, metadata, editor);
+    await writeFile(join(directory, "judgment.json"), JSON.stringify(judgment, null, 2) + "\n", {
+      mode: 0o600,
+    });
   }
   const usage = tokenTotals([...audits.flatMap((entry) => entry.requests), ...gateRecords]);
   const summary = {
     editor,
     metadata,
+    author_voice: authorVoice,
     baseline,
     rounds: editorRuns.length,
     editor_runs: editorRuns,
     accepted,
     rejected,
+    accepted_units: acceptedUnits,
+    rejected_units: rejectedUnits,
+    rejected_by_gate: rejectedByGate,
+    judgment,
     words_before: before.density.prose_words,
     words_after: audit.density.prose_words,
     before: habitRates(before),
     after: habitRates(audit),
+    held_out_before: heldOutRates(before),
+    held_out_after: heldOutRates(audit),
     usage,
   };
   await writeFile(join(directory, "summary.json"), JSON.stringify(summary, null, 2) + "\n", {
@@ -186,12 +203,23 @@ export async function deslop(
   const report = [
     "# Deslop editor run",
     "",
-    `Editor: ${editor}; rounds: ${summary.rounds}; accepted: ${accepted}; rejected: ${rejected}.`,
+    `Editor: ${editor}; rounds: ${summary.rounds}; groups accepted: ${accepted}; groups rejected: ${rejected}.`,
+    judgment
+      ? `Blind cross-model judge: ${judgment.judge}; outcome: ${judgment.outcome}. ${judgment.response.reason}`
+      : "Blind comparison was not requested.",
     `Prose words: ${summary.words_before} → ${summary.words_after}. Estimated Jev cost: $${usage.estimated_usd.toFixed(8)}. Editor usage is on the configured CLI subscription.`,
     "",
     `Human baseline n=${baseline.n}. ${baseline.note}`,
     "",
     densityTable(before, audit, baseline),
+    "",
+    "## Held-out metrics (never sent to the editor)",
+    "",
+    densityTable(before, audit, baseline, true),
+    "",
+    "## Gate rejections (a group can fail more than one gate)",
+    "",
+    ...Object.entries(rejectedByGate).map(([id, count]) => `- ${id}: ${count}`),
     "",
     "Rates are diagnostics, not proof of quality. Number/code/URL guards and Jev gates are fallible; review the diff before using the result.",
     "",

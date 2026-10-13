@@ -16,11 +16,17 @@ try {
     "Usage: npm run deslop -- FILE.md --editor opus|sol [--rounds N] --out NEW_DIR",
   );
   let editor: EditorName | undefined;
-  let rounds = 2;
+  let rounds = 1;
+  let authorVoice = "as in the original";
+  let judgeOther = false;
   const metadata: Partial<AuditMetadata> = {};
   for (let index = 0; index < args.length; index += 1) {
-    const flag = args[index],
-      value = args[++index];
+    const flag = args[index];
+    if (flag === "--judge-other") {
+      judgeOther = true;
+      continue;
+    }
+    const value = args[++index];
     invariant(value && !value.startsWith("--"), "Deslop options require values");
     if (flag === "--editor") {
       invariant(value === "opus" || value === "sol", "Editor must be opus or sol");
@@ -29,10 +35,11 @@ try {
     else if (flag === "--rounds") {
       rounds = Number(value);
       invariant(
-        Number.isSafeInteger(rounds) && rounds >= 1 && rounds <= 10,
-        "Rounds must be between 1 and 10",
+        Number.isSafeInteger(rounds) && (rounds === 1 || rounds === 2),
+        "Rounds must be 1 or 2",
       );
-    } else if (flag === "--audience") metadata.audience = value;
+    } else if (flag === "--author-voice") authorVoice = value;
+    else if (flag === "--audience") metadata.audience = value;
     else if (flag === "--purpose") metadata.purpose = value;
     else if (flag === "--genre") metadata.genre = value;
     else throw new ValidationError("Unknown deslop option");
@@ -51,9 +58,10 @@ try {
     output,
     registry,
     (message) => console.log(message),
+    { authorVoice, judgeOther },
   );
   console.log(
-    `Done: ${summary.accepted} edits accepted, ${summary.rejected} rejected; ${summary.words_before} → ${summary.words_after} prose words. Output: ${output}`,
+    `Done: ${summary.accepted} groups accepted, ${summary.rejected} rejected; ${summary.words_before} → ${summary.words_after} prose words. Output: ${output}`,
   );
 } catch (error: unknown) {
   const message =

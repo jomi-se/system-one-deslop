@@ -1,34 +1,43 @@
-import type { JsonValue, Questions, TypeSafeClient } from "@typesafe-ai/sdk";
+import type { Questions, TypeSafeClient } from "@typesafe-ai/sdk";
+import type { Answer } from "../evaluation.js";
 import { runGroups, stateHash } from "../jev.js";
 import type { RequestGroup, RequestRecord } from "../jev.js";
 import { invariant } from "../registry.js";
 import type { Registry } from "../registry.js";
 import type { AuditMetadata } from "../audit.js";
-import { guardEdits, sectionAfter } from "./edits.js";
-import type { Edit, EditUnit, EditDecision } from "./edits.js";
+import { guardEdits, groupWindow } from "./edits.js";
+import type { EditGroup, EditUnit, EditDecision } from "./edits.js";
 import type { Span } from "../parse.js";
 
+export const GATES = ["a.V01", "a.V02", "a.V04", "a.V05", "b.uncertainty_change"] as const;
 export interface GatedEdit extends EditDecision {
   accepted: boolean;
   reason: string;
-  gates: {
-    attempt: number;
-    question_id: string;
-    answer: { type: "noul"; noul: number } | null;
-    error: RequestRecord["error"];
-    request: RequestRecord["request"];
-    usage: RequestRecord["usage"];
-  }[];
+  gates: { question_id: string; answer: Answer | null; rejected: boolean; record: RequestRecord }[];
+}
+
+export function gateRejects(id: string, answer: Answer | null): boolean {
+  if (!answer) return true;
+  if (id === "a.V05" || id === "b.uncertainty_change") {
+    invariant(answer.type === "choice", "Expected a choice gate answer");
+    const probability = answer.probabilities[answer.choice] ?? 0;
+    return id === "a.V05"
+      ? answer.choice === "worse" && probability >= 0.5
+      : (answer.choice === "stronger" || answer.choice === "weaker") && probability >= 0.5;
+  }
+  invariant(answer.type === "noul", "Expected a noul gate answer");
+  return answer.noul >= 0.5;
 }
 
 export async function gateEdits(
   source: string,
-  proposals: Edit[],
+  proposals: EditGroup[],
   units: EditUnit[],
   code: Span[],
   registry: Registry,
   metadata: AuditMetadata,
   client: TypeSafeClient,
+  authorVoice = "as in the original",
 ) {
   const decisions: GatedEdit[] = guardEdits(source, proposals, units, code).map((decision) => ({
     ...decision,
@@ -36,112 +45,80 @@ export async function gateEdits(
     reason: decision.guard.reason,
     gates: [],
   }));
-  const usageRecords: RequestRecord[] = [];
-  for (let attempt = 1; attempt <= proposals.length + 1; attempt += 1) {
-    const active = decisions.filter((decision) => decision.accepted);
-    const guarded = guardEdits(
-      source,
-      active.map((decision) => decision.proposal),
-      units,
-      code,
-    );
-    for (let index = 0; index < active.length; index += 1) {
-      const checked = guarded[index];
-      const decision = active[index];
-      if (decision && checked && !checked.guard.accepted) {
-        decision.accepted = false;
-        decision.guard = checked.guard;
-        decision.reason = checked.guard.reason;
-      }
+  const tasks: { decision: GatedEdit; group: RequestGroup }[] = [];
+  for (const decision of decisions.filter((entry) => entry.accepted)) {
+    const window = groupWindow(source, decision.proposal, units);
+    const questions: Questions = {};
+    for (const id of GATES) {
+      const q = registry.questions.get(id);
+      invariant(q, `Missing gate: ${id}`);
+      if (q.source === "a") questions[id] = q.question;
     }
-    const survivors = decisions.filter((decision) => decision.accepted);
-    const tasks: { decision: GatedEdit; group: RequestGroup }[] = [];
-    for (const decision of survivors) {
-      const unit = decision.unit;
-      invariant(unit, "Gate has no edit unit");
-      const deletion = decision.proposal.replacement.trim() === "";
-      // Only deletions need another semantic check when another edit was rejected.
-      if (attempt > 1 && !deletion) continue;
-      const state = {
-        document: { ...metadata },
-        original: { text: unit.text },
-        candidate: { text: decision.proposal.replacement },
-        evidence: { text: source },
-        focus: { paragraph: unit.paragraph },
-        constraints: {
-          edit_permission:
-            "Rewording, paragraph merges and heading changes are authorized. Preserve all claims, facts, qualifiers, commitments and implications. Moving source-backed content within a section is authorized; losing it is not.",
+    const common = {
+      document: { ...metadata, author_voice: authorVoice },
+      original: { text: window.original },
+      candidate: { text: window.revised },
+      evidence: { text: source },
+      constraints: {
+        edit_permission:
+          "Rewording and merges are authorized, preserving every fact, condition, qualifier, implication and deliberate voice. Compare the same passage before and after; unchanged neighbours provide context, not new candidate content.",
+      },
+    };
+    function add(state: RequestGroup["state"], qs: Questions): void {
+      tasks.push({
+        decision,
+        group: {
+          state,
+          state_hash: stateHash(state),
+          cases: [],
+          questions: qs,
+          variant: "original",
         },
-      };
-      function add(ids: string[], input: { [key: string]: JsonValue }): void {
-        const questions: Questions = {};
-        for (const id of ids) {
-          const q = registry.questions.get(id);
-          invariant(q, `Missing gate: ${id}`);
-          questions[id] = q.question;
-        }
-        tasks.push({
-          decision,
-          group: {
-            state: input,
-            state_hash: stateHash(input),
-            cases: [],
-            questions,
-            variant: "original",
-          },
-        });
-      }
-      if (!deletion) add(["a.V01", "a.V02"], state);
-      else {
-        if (attempt === 1) add(["a.V01"], state);
-        add(["a.V02"], {
-          ...state,
-          original: { text: unit.section.text },
-          candidate: {
-            text: sectionAfter(
-              source,
-              unit.section,
-              survivors.map((entry) => entry.proposal),
-              units,
-            ),
-          },
-        });
-      }
+      });
     }
-    if (!tasks.length) break;
-    const records = await runGroups(
-      tasks.map((task) => task.group),
-      client,
-      { concurrency: 2 },
+    add(common, questions);
+    const uncertainty = registry.questions.get("b.uncertainty_change");
+    invariant(uncertainty, "Missing uncertainty gate");
+    add(
+      {
+        document: { ...metadata },
+        original: { claim: window.original },
+        revision: { claim: window.revised },
+        context: {
+          shared_scope:
+            "The same source passage and immediate neighbours, with the group's changes applied. Compare certainty of corresponding propositions under the same conditions and caveats.",
+        },
+      },
+      { [uncertainty.id]: uncertainty.question },
     );
-    usageRecords.push(...records);
-    let removed = false;
-    for (const record of records) {
-      const task = tasks[record.index];
-      invariant(task, "Gate response has no request");
-      for (const id of Object.keys(record.request.questions)) {
-        const answer = record.error ? null : record.response?.answers[id];
-        invariant(record.error || answer?.type === "noul", "Invalid gate answer");
-        const noul = answer?.type === "noul" ? answer : null;
-        task.decision.gates.push({
-          attempt,
-          question_id: id,
-          answer: noul,
-          error: record.error,
-          request: record.request,
-          usage: record.usage,
-        });
-        if (record.error || !noul || noul.noul >= 0.5) {
-          task.decision.accepted = false;
-          task.decision.reason = record.error ? "Jev gate failed" : `${id} rejected at noul >= 0.5`;
-          removed = true;
-        }
-      }
-    }
-    if (!removed) break;
   }
-  // A final whole-document check catches protected-detail moves whose destination
-  // failed a gate. No rejected edit is silently resurrected.
+  const records = await runGroups(
+    tasks.map((task) => task.group),
+    client,
+    { concurrency: 2 },
+  );
+  for (const record of records) {
+    const task = tasks[record.index];
+    invariant(task, "Gate response has no request");
+    for (const id of Object.keys(record.request.questions)) {
+      const answer = record.error ? null : (record.response?.answers[id] ?? null);
+      const rejected = Boolean(record.error) || gateRejects(id, answer);
+      task.decision.gates.push({ question_id: id, answer, rejected, record });
+    }
+  }
+  for (const decision of decisions) {
+    const rejected = decision.gates.filter((gate) => gate.rejected);
+    if (rejected.length) {
+      decision.accepted = false;
+      decision.reason = rejected
+        .map(
+          (gate) => `${gate.question_id} rejected${gate.record.error ? " (request failed)" : ""}`,
+        )
+        .join("; ");
+    }
+  }
+  // A rejected destination may invalidate another group's protected-token move.
+  // Rechecking rejects the entire dependent group, never a subset of its units.
   const active = decisions.filter((decision) => decision.accepted);
   const final = guardEdits(
     source,
@@ -158,5 +135,13 @@ export async function gateEdits(
       decision.reason = checked.guard.reason;
     }
   }
-  return { decisions, records: usageRecords };
+  const rejectedByGate = Object.fromEntries(
+    GATES.map((id) => [
+      id,
+      decisions.filter((decision) =>
+        decision.gates.some((gate) => gate.question_id === id && gate.rejected),
+      ).length,
+    ]),
+  );
+  return { decisions, records, rejected_by_gate: rejectedByGate };
 }

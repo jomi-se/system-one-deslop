@@ -34,6 +34,13 @@ await test("code metrics exclude code/URL destinations and use population varian
   assert.equal(punctuation.clause_intro_colons, 1);
   assert.equal(punctuation.em_dashes, 1);
   assert.equal(punctuation.bold_spans, 2);
+  const semicolons = codeMetrics(
+    parseMarkdown(
+      "Visible; **thing** `hidden; value` [link](https://example.com/;)\n\n```\nhidden; too\n```",
+    ),
+  );
+  assert.equal(semicolons.semicolons, 1);
+  assert.equal(semicolons.semicolons_per_1000_words, 1_000 / semicolons.prose_words);
   const boundary = codeMetrics(
     parseMarkdown(
       "one two three four five six seven eight nine ten eleven twelve.\n\none two three four five six seven eight nine ten eleven twelve thirteen.",

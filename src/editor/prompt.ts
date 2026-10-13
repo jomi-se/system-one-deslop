@@ -1,7 +1,6 @@
 import type { AuditMetadata, auditDocument } from "../audit.js";
 import { invariant, object } from "../registry.js";
 import type { EditUnit } from "./edits.js";
-import { EDIT_SCHEMA } from "./providers.js";
 
 export type TextureAudit = Awaited<ReturnType<typeof auditDocument>>;
 export const HABITS = {
@@ -14,12 +13,19 @@ export const BASELINE_METRICS = [
   "headings_per_1000_words",
   "bullets_per_1000_words",
   "bold_spans_per_1000_words",
-  "mean_sentence_length_words",
 ];
+export const HELD_OUT_METRICS = [
+  "sentence_length_mean_words",
+  "sentence_length_stdev_words",
+  "semicolons_per_1000_words",
+  "clause_intro_colons_per_1000_words",
+  "em_dashes_per_1000_words",
+] as const;
 export interface Baseline {
   n: number;
   note: string;
   metrics: Record<string, number>;
+  held_out: Record<string, number>;
 }
 
 export function readBaseline(input: unknown): Baseline {
@@ -31,16 +37,25 @@ export function readBaseline(input: unknown): Baseline {
       typeof value.note === "string",
     "Invalid human baseline metadata",
   );
-  const metrics = object(value.metrics, "Human baseline metrics");
-  const entries: [string, number][] = BASELINE_METRICS.map((key) => {
-    const number = metrics[key];
-    invariant(
-      typeof number === "number" && Number.isFinite(number) && number >= 0,
-      `Missing baseline metric: ${key}`,
+  function read(key: string, names: readonly string[]): Record<string, number> {
+    const metrics = object(value[key], `Baseline ${key}`);
+    return Object.fromEntries(
+      names.map((name) => {
+        const number = metrics[name];
+        invariant(
+          typeof number === "number" && Number.isFinite(number) && number >= 0,
+          `Missing baseline metric: ${name}`,
+        );
+        return [name, number];
+      }),
     );
-    return [key, number];
-  });
-  return { n: value.n, note: value.note, metrics: Object.fromEntries(entries) };
+  }
+  return {
+    n: value.n,
+    note: value.note,
+    metrics: read("metrics", BASELINE_METRICS),
+    held_out: read("held_out", HELD_OUT_METRICS),
+  };
 }
 
 export function habitRates(audit: TextureAudit): Record<string, number> {
@@ -55,19 +70,21 @@ export function habitRates(audit: TextureAudit): Record<string, number> {
     "headings_per_1000_words",
     "bullets_per_1000_words",
     "bold_spans_per_1000_words",
-    "sentence_length_mean_words",
   ] as const) {
     const rate = code[key];
     invariant(typeof rate === "number", `Undefined code metric: ${key}`);
-    entries.push([key === "sentence_length_mean_words" ? "mean_sentence_length_words" : key, rate]);
+    entries.push([key, rate]);
   }
   return Object.fromEntries(entries);
 }
 
-export function needsAnotherRound(audit: TextureAudit, baseline: Baseline): boolean {
-  return Object.entries(habitRates(audit)).some(
-    ([key, value]) =>
-      key !== "mean_sentence_length_words" && value > 1.5 * (baseline.metrics[key] ?? 0),
+export function heldOutRates(audit: TextureAudit): Record<string, number> {
+  return Object.fromEntries(
+    HELD_OUT_METRICS.map((key) => {
+      const value = audit.density.code?.[key];
+      invariant(typeof value === "number", `Undefined held-out metric: ${key}`);
+      return [key, value];
+    }),
   );
 }
 
@@ -75,37 +92,54 @@ export function densityTable(
   before: TextureAudit,
   after: TextureAudit,
   baseline: Baseline,
+  heldOut = false,
 ): string {
-  const a = habitRates(before),
-    b = habitRates(after);
+  const a = heldOut ? heldOutRates(before) : habitRates(before);
+  const b = heldOut ? heldOutRates(after) : habitRates(after);
+  const reference = heldOut ? baseline.held_out : baseline.metrics;
   return [
     "| Habit / metric | Before | After | Human baseline |",
     "| --- | ---: | ---: | ---: |",
-    ...BASELINE_METRICS.map(
+    ...(heldOut ? HELD_OUT_METRICS : BASELINE_METRICS).map(
       (key) =>
-        `| ${key} | ${a[key]?.toFixed(3)} | ${b[key]?.toFixed(3)} | ${baseline.metrics[key]?.toFixed(3)} |`,
+        `| ${key} | ${a[key]?.toFixed(3)} | ${b[key]?.toFixed(3)} | ${reference[key]?.toFixed(3)} |`,
     ),
   ].join("\n");
 }
 
 function markedText(unit: EditUnit, audit: TextureAudit): string {
   const labels = new Map<number, string[]>();
-  for (const [habit, id] of Object.entries(HABITS)) {
-    for (const row of audit.answers.filter(
-      (answer) =>
-        answer.question_id === id && answer.answer?.type === "noul" && answer.answer.noul >= 0.5,
-    )) {
-      if (row.offsets[0] < unit.start || row.offsets[1] > unit.end) continue;
-      const at = row.offsets[1] - unit.start;
-      const values = labels.get(at) ?? [];
-      values.push(habit.replace("_per_1000_words", ""));
-      labels.set(at, values);
+  function mark(at: number, name: string): void {
+    const values = labels.get(at) ?? [];
+    values.push(name);
+    labels.set(at, values);
+  }
+  for (const [id, name] of [
+    ["c.aphorism", "maxim"],
+    ["c.triplet", "triplet"],
+    ["c.playful_flourish", "flourish"],
+  ]) {
+    for (const row of audit.answers) {
+      if (
+        row.question_id === id &&
+        row.answer?.type === "noul" &&
+        row.answer.noul >= 0.5 &&
+        row.offsets[0] >= unit.start &&
+        row.offsets[1] <= unit.end
+      )
+        mark(row.offsets[1] - unit.start, name ?? "");
     }
   }
+  if (unit.kind === "heading") mark(unit.text.length, "heading");
+  if (unit.list_item) mark(unit.text.length, "bullets");
+  const boldView = unit.text.replace(/(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g, (code) =>
+    " ".repeat(code.length),
+  );
+  for (const match of boldView.matchAll(/(\*\*|__)(?=\S)[\s\S]*?\S\1/g))
+    mark(match.index + match[0].length, "bold");
   let text = unit.text;
-  for (const [offset, names] of [...labels].sort(([a], [b]) => b - a)) {
+  for (const [offset, names] of [...labels].sort(([a], [b]) => b - a))
     text = text.slice(0, offset) + names.map((name) => ` «${name}»`).join("") + text.slice(offset);
-  }
   return text;
 }
 
@@ -114,9 +148,7 @@ export function editorPrompt(
   source: string,
   units: EditUnit[],
   audit: TextureAudit,
-  baseline: Baseline,
   metadata: AuditMetadata,
-  feedback = "",
 ): string {
   let filled = template;
   for (const key of ["audience", "purpose", "genre"] as const)
@@ -124,21 +156,15 @@ export function editorPrompt(
   invariant(!/{{[^}]+}}/.test(filled), "Unfilled editor prompt slots");
   const pieces = [
     filled,
-    "\nDETECTOR REPORT\n",
-    densityTable(audit, audit, baseline),
-    `\nBaseline n=${baseline.n}. ${baseline.note}`,
-    "\nOnly edit numbered units. Markers are annotations: never copy them into replacements. Read-only gaps include code blocks and must remain untouched. Headings may be replaced or deleted using their h ids. Return the exact JSON schema below.",
-    JSON.stringify(EDIT_SCHEMA),
-    feedback ? `\nPREVIOUS ROUND FEEDBACK (previous unit ids)\n${feedback}` : "",
-    "\nNUMBERED UNITS\n",
+    "Detector note: These habits are much more frequent than in human writing; judge each marked instance for reader benefit.",
+    "Only edit numbered units. Markers are annotations: never copy them into replacements. Read-only gaps include code blocks. Put dependent units in a single atomic group; each changed unit appears in exactly one group.",
+    "NUMBERED UNITS",
   ];
   let cursor = 0;
   for (const unit of units) {
     const gap = source.slice(cursor, unit.start);
     if (gap.trim()) pieces.push(`[READ ONLY CONTEXT]\n${gap}\n[/READ ONLY CONTEXT]`);
-    pieces.push(
-      `[${unit.id}] ${unit.kind} [${unit.start},${unit.end})\n${markedText(unit, audit)}`,
-    );
+    pieces.push(`[${unit.id}] ${unit.kind}\n${markedText(unit, audit)}`);
     cursor = unit.end;
   }
   if (source.slice(cursor).trim())

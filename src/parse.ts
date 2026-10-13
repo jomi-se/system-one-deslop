@@ -80,6 +80,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
   const segmenter = new Intl.Segmenter("en", { granularity: "sentence" });
   const sections: Section[] = [];
   const codeBlocks: Span[] = [];
+  let indentedBlock: Span | null = null;
   let section: Section = {
     ...span(source, "section", 0, source.length),
     kind: "section",
@@ -170,6 +171,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
       !(fenceMatch[1][0] === "`" && fenceMatch[2]?.includes("`"))
     ) {
       flushParagraph();
+      indentedBlock = null;
       fence = {
         character: fenceMatch[1][0] ?? "`",
         length: fenceMatch[1].length,
@@ -190,9 +192,16 @@ export function parseMarkdown(source: string): MarkdownDocument {
       listContext && indent >= listContext.contentIndent && indent < listContext.contentIndent + 4;
     if (indent >= 4 && !listItem && !continuation) {
       flushParagraph();
-      codeBlocks.push(span(source, "code", line.start, line.end));
+      if (indentedBlock && !source.slice(indentedBlock.end, line.start).trim()) {
+        indentedBlock = span(source, "code", indentedBlock.start, line.end);
+        codeBlocks[codeBlocks.length - 1] = indentedBlock;
+      } else {
+        indentedBlock = span(source, "code", line.start, line.end);
+        codeBlocks.push(indentedBlock);
+      }
       continue;
     }
+    indentedBlock = null;
     if (linkOnly(line.text)) {
       flushParagraph();
       continue;

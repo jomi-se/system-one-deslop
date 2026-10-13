@@ -9,6 +9,8 @@ export interface CodeMetrics {
   short_single_sentence_paragraph_share: number | null;
   em_dashes: number;
   em_dashes_per_1000_words: number | null;
+  semicolons: number;
+  semicolons_per_1000_words: number | null;
   clause_intro_colons: number;
   clause_intro_colons_per_1000_words: number | null;
   bold_spans: number;
@@ -26,6 +28,8 @@ export const CODE_METRICS = [
   "short_single_sentence_paragraph_share",
   "em_dashes",
   "em_dashes_per_1000_words",
+  "semicolons",
+  "semicolons_per_1000_words",
   "clause_intro_colons",
   "clause_intro_colons_per_1000_words",
   "bold_spans",
@@ -75,6 +79,7 @@ export function codeMetrics(document: MarkdownDocument): CodeMetrics {
     (p) => p.sentences.length === 1 && wordCount(p.sentences[0]?.text ?? "") <= 12,
   ).length;
   const em_dashes = (text.match(/—/g) ?? []).length;
+  const semicolons = (text.match(/;/g) ?? []).length;
   // Deliberately approximate: colon + whitespace + a capital/numeric/quoted opening.
   const clause_intro_colons = (text.match(/:\s+(?=[\p{Lu}\p{N}“"‘'])/gu) ?? []).length;
   const bold_spans = prose.reduce(
@@ -90,6 +95,8 @@ export function codeMetrics(document: MarkdownDocument): CodeMetrics {
     short_single_sentence_paragraph_share: paragraphs.length ? short / paragraphs.length : null,
     em_dashes,
     em_dashes_per_1000_words: rate(em_dashes, prose_words),
+    semicolons,
+    semicolons_per_1000_words: rate(semicolons, prose_words),
     clause_intro_colons,
     clause_intro_colons_per_1000_words: rate(clause_intro_colons, prose_words),
     bold_spans,

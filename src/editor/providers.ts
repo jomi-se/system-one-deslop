@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { invariant, object, ValidationError } from "../registry.js";
 import { validateEdits } from "./edits.js";
-import type { Edit } from "./edits.js";
+import type { EditGroup } from "./edits.js";
 
 export type EditorName = "opus" | "sol";
 export const EDIT_SCHEMA = {
@@ -17,16 +17,42 @@ export const EDIT_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["unit_id", "replacement", "reason"],
+        required: ["unit_ids", "replacements", "reason"],
         properties: {
-          unit_id: { type: "string" },
-          replacement: { type: "string" },
+          unit_ids: { type: "array", items: { type: "string" } },
+          replacements: {
+            type: "object",
+            properties: {},
+            required: [],
+            additionalProperties: { type: "string" },
+          },
           reason: { type: "string" },
         },
       },
     },
   },
 };
+export const JUDGE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["better", "reason"],
+  properties: { better: { type: "string", enum: ["A", "B", "tie"] }, reason: { type: "string" } },
+};
+export interface Judgment {
+  better: "A" | "B" | "tie";
+  reason: string;
+}
+
+export function validateJudgment(value: unknown): Judgment {
+  const result = object(value, "Judge result");
+  invariant(
+    Object.keys(result).length === 2 &&
+      (result.better === "A" || result.better === "B" || result.better === "tie") &&
+      typeof result.reason === "string",
+    "Invalid judge result",
+  );
+  return { better: result.better, reason: result.reason };
+}
 
 function json(text: string): unknown {
   try {
@@ -36,12 +62,9 @@ function json(text: string): unknown {
   }
 }
 
-export function parseProviderOutput(
-  editor: EditorName,
-  stdout: string,
-): { edits: Edit[]; format: string } {
-  const result = object(json(stdout.trim()), "Editor output");
-  if (editor === "sol") return { edits: validateEdits(result), format: "schema-file" };
+function parseResult(editor: EditorName, stdout: string): { value: unknown; format: string } {
+  const result = object(json(stdout.trim()), "Provider output");
+  if (editor === "sol") return { value: result, format: "schema-file" };
   invariant(
     result.type === "result" &&
       result.is_error !== true &&
@@ -49,9 +72,23 @@ export function parseProviderOutput(
     "Claude returned a failed or unexpected result wrapper",
   );
   if (Object.hasOwn(result, "structured_output"))
-    return { edits: validateEdits(result.structured_output), format: "structured_output" };
+    return { value: result.structured_output, format: "structured_output" };
   invariant(typeof result.result === "string", "Claude result has no structured output");
-  return { edits: validateEdits(json(result.result)), format: "result-json" };
+  return { value: json(result.result), format: "result-json" };
+}
+export function parseProviderOutput(
+  editor: EditorName,
+  stdout: string,
+): { edits: EditGroup[]; format: string } {
+  const parsed = parseResult(editor, stdout);
+  return { edits: validateEdits(parsed.value), format: parsed.format };
+}
+export function parseJudgeOutput(
+  editor: EditorName,
+  stdout: string,
+): Judgment & { format: string } {
+  const parsed = parseResult(editor, stdout);
+  return { ...validateJudgment(parsed.value), format: parsed.format };
 }
 
 export function editorEnvironment(): NodeJS.ProcessEnv {
@@ -131,13 +168,18 @@ async function command(
   });
 }
 
-export async function runEditor(editor: EditorName, prompt: string) {
+async function runProvider(
+  editor: EditorName,
+  prompt: string,
+  outputSchema: object,
+  systemPrompt: string,
+) {
   const directory = await mkdtemp(join(tmpdir(), "deslop-editor-"));
   const started = Date.now();
   try {
     const schema = join(directory, "schema.json");
     const output = join(directory, "output.json");
-    await writeFile(schema, JSON.stringify(EDIT_SCHEMA), { mode: 0o600 });
+    await writeFile(schema, JSON.stringify(outputSchema), { mode: 0o600 });
     const stdout =
       editor === "opus"
         ? await command(
@@ -153,9 +195,9 @@ export async function runEditor(editor: EditorName, prompt: string) {
               "--output-format",
               "json",
               "--json-schema",
-              JSON.stringify(EDIT_SCHEMA),
+              JSON.stringify(outputSchema),
               "--system-prompt",
-              "You are a careful editor.",
+              systemPrompt,
             ],
             prompt,
             directory,
@@ -179,12 +221,38 @@ export async function runEditor(editor: EditorName, prompt: string) {
             prompt,
             directory,
           );
-    const parsed = parseProviderOutput(
-      editor,
-      editor === "opus" ? stdout : await readFile(output, "utf8"),
-    );
+    const parsed = parseResult(editor, editor === "opus" ? stdout : await readFile(output, "utf8"));
     return { ...parsed, editor, duration_ms: Date.now() - started };
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+}
+
+export async function runEditor(editor: EditorName, prompt: string) {
+  const response = await runProvider(
+    editor,
+    prompt + "\n\nOUTPUT SCHEMA\n" + JSON.stringify(EDIT_SCHEMA),
+    EDIT_SCHEMA,
+    "You are a careful editor.",
+  );
+  return {
+    edits: validateEdits(response.value),
+    editor,
+    format: response.format,
+    duration_ms: response.duration_ms,
+  };
+}
+export async function runJudge(editor: EditorName, prompt: string) {
+  const response = await runProvider(
+    editor,
+    prompt + "\n\nOUTPUT SCHEMA\n" + JSON.stringify(JUDGE_SCHEMA),
+    JUDGE_SCHEMA,
+    "You are a careful reader judging two anonymous versions.",
+  );
+  return {
+    ...validateJudgment(response.value),
+    editor,
+    format: response.format,
+    duration_ms: response.duration_ms,
+  };
 }

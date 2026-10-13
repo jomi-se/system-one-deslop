@@ -1,48 +1,71 @@
 # Guarded editor loop
 
 ```sh
-mise x -- npm run deslop -- document.md --editor opus --rounds 2 --audience "maintainers" --purpose "explain the tradeoff" --genre "technical blog post" --out ../artifacts/deslop-run
+mise x -- npm run deslop -- document.md --editor opus --audience "maintainers" --purpose "explain the tradeoff" --genre "technical blog post" --out ../artifacts/deslop-run
 ```
 
-The source is never modified. `--out` must be a new directory. Baseline and
-revision audits run `sentence-c,code`; the editor sees only general maxims,
-triplets, playful flourishes, headings/bullets/bold densities, and mean sentence
-length. The baseline is a small selected human corpus (`n=13`), not a universal
-style prescription. The prompt template is `eval/editor-prompt.md`.
+The source is never modified and `--out` must be new. Default: one round;
+`--rounds 2` explicitly requests a second. Baseline/revision audits use
+`sentence-c,code`. The editor receives only inline `«maxim»`, `«triplet»`,
+`«flourish»`, `«heading»`, `«bullets»`, and `«bold»` marks with reader metadata
+and a qualitative frequency note. It sees no density targets, baseline numbers,
+sentence-length measurements, or held-out metrics. The owner-maintained prompt
+is `eval/editor-prompt.md`.
 
-Every prose paragraph/list item and heading gets a round-local `p1`/`h1` ID
-with original UTF-16 offsets. Other source spans are read-only context. Number,
-inline-code and URL multisets cannot shrink, but details may move between units.
-Duplicate IDs, unknown units, edits overlapping code, and newly introduced code
-blocks are rejected. Edits apply in reverse offset order. Code bytes are never
-part of an editable unit.
+Prose paragraphs/list items and headings have round-local `p1`/`h1` IDs and
+UTF-16 offsets. Code and other gaps are read-only context. Edits have this shape:
 
-Jev V01 checks unsupported specificity using the source as evidence; V02 checks
-meaning with explicit authorization for rewording and merges, preserving all
-facts and qualifiers. Deletions compare the containing section before/after.
-Gate probabilities >= 0.5 and failed gate calls reject edits. Guards are re-run
-after gate rejections; surviving deletions are re-gated against the remaining
-section edits. Every answer and decision is recorded. These gates are fallible;
-inspect the diff before using the revision.
+```json
+{
+  "edits": [
+    {
+      "unit_ids": ["h1", "p1"],
+      "replacements": { "h1": "", "p1": "The full replacement paragraph." },
+      "reason": "The heading split a continuous argument."
+    }
+  ]
+}
+```
 
-`opus` uses the user's logged-in Claude CLI subscription, safe mode, no tools,
-and structured output. Claude's JSON is a wrapper whose
-[`structured_output`](https://code.claude.com/docs/en/headless) holds the edits.
-`sol` uses the logged-in Codex CLI with `gpt-6.1-sol`, read-only sandboxing,
-ephemeral sessions, and a schema-constrained
-[final-output file](https://learn.chatgpt.com/docs/non-interactive-mode).
-Both receive stdin in a fresh temporary directory, have a fifteen-minute
-deadline, and clean up their scratch files. TypeSafe and provider API-key
-environment variables are removed; saved subscription authentication is reused.
-No auth setup or credentials are copied. Editors may consume subscription usage.
+Dependent units belong in one group. Groups apply or reject atomically; units
+cannot appear in multiple groups. Protected numbers, inline-code spans and URLs
+must each remain at least once in the whole document; duplicate mentions may
+be removed. After application, collapse three or more consecutive newlines to
+two outside code blocks, preserving fenced and indented code bytes.
 
-After each round, re-audit and continue if a selected frequency is above 1.5x
-baseline and rounds remain. Mean sentence length is context, not an extra
-frequency threshold. Defaults to two rounds, with a maximum of ten.
-Each process uses two concurrent Jev workers so four batch runs remain bounded.
+Each group is judged on the same touched units and immediate neighboring
+paragraphs before/after. V01 rejects unsupported specificity, V02 changed meaning,
+and V04 erased voice at noul >= 0.5. `document.author_voice` defaults to
+`"as in the original"`; `--author-voice` can supply an explicit description.
+B's uncertainty gate receives `original.claim` and `revision.claim` for that
+same window and rejects stronger/weaker certainty at probability >= 0.5.
+V05 is advisory: reject only `worse` at probability >= 0.5, preserving the full
+choice distribution. Failed gate requests reject the group. Re-run set guards
+after gate rejections so protected-detail moves cannot depend on rejected groups.
+Every proposal, guard and gate answer is recorded.
 
-Output: `revised.md`, `edits.jsonl`, `report.md` with before/after densities and a
-unified diff, `summary.json`, and raw before/round audit JSONs. Files are private
-and contain source prose. Keep output in an artifact directory outside Git.
-An incomplete run exits nonzero and writes `failure.json`; it is not a successful
-edit outcome. No editor or live audit runs in tests or CI.
+Reports include observed habits and held-out mean/stdev sentence length,
+semicolons, clause-intro colons and em dashes per 1,000 prose words against a small
+selected human baseline (`n=13`). These are diagnostics, not quality targets.
+No number from these tables is passed to the editor.
+
+`--judge-other` additionally asks the other CLI model to judge full original
+and revised documents as randomized anonymous A/B versions. The judgment records
+the private mapping, reason and win/tie/loss outcome. This blind preference is the
+primary corpus quality signal, not a guarantee of factual fidelity. Ordinary
+editing requires only the selected editor; cross-model judging requires both
+saved CLI logins. The corpus experiment enables it for every run.
+
+`opus` uses the saved Claude CLI subscription, safe mode, no tools, and its
+[`structured_output`](https://code.claude.com/docs/en/headless) JSON wrapper.
+`sol` uses `gpt-6.1-sol` with read-only sandboxing, ephemeral sessions and a
+schema-constrained [final file](https://learn.chatgpt.com/docs/non-interactive-mode).
+Both use stdin, a fresh temporary directory, a fifteen-minute deadline and
+scratch cleanup. Provider and TypeSafe API-key environment variables are removed.
+Each process uses two Jev workers; editor/judge calls are sequential within a run.
+
+Output: `revised.md`, atomic-group `edits.jsonl`, `report.md` with before/after,
+held-out metrics, gate counts and unified diff, `summary.json`, and raw audit JSONs.
+Judged runs also write `judgment.json`. Files contain prose: retain them privately
+outside Git. Failures exit nonzero and write `failure.json`. No live provider calls
+run in tests or CI. Review the diff before using a revision.

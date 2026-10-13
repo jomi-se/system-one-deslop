@@ -9,7 +9,13 @@
     "playful_flourish_per_1000_words": 0.6364867015435531,
     "headings_per_1000_words": 3.8380427776140618,
     "bullets_per_1000_words": 2.5385295656543048,
-    "bold_spans_per_1000_words": 0.7034028773159208,
-    "mean_sentence_length_words": 15.8549467567896
+    "bold_spans_per_1000_words": 0.7034028773159208
+  },
+  "held_out": {
+    "sentence_length_mean_words": 15.8549467567896,
+    "sentence_length_stdev_words": 8.95342498847221,
+    "semicolons_per_1000_words": 2.532782397658685,
+    "clause_intro_colons_per_1000_words": 7.863980485867866,
+    "em_dashes_per_1000_words": 0.1450231829589262
   }
 }
