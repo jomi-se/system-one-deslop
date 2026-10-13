@@ -3,6 +3,8 @@
 Planned: a tool to detect and rewrite “AI slop” in prose using TypeSafe
 System One judgments (Jev). This is pre-alpha scaffolding; detection and
 rewriting are not implemented, and quality claims have not been established.
+The [eval harness](eval/README.md) measures Jev against author-proposed synthetic
+labels in the two [research catalogues](research/README.md).
 
 Requires Node.js 26+ and npm; `mise.toml` pins the exact version CI uses.
 

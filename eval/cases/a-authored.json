@@ -1,0 +1,1501 @@
+[
+  {
+    "case_id": "a.S01.1",
+    "question_id": "a.S01",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "This is a significant development worth noting.",
+        "paragraph": "Our deploys now take four minutes instead of nineteen. This is a significant development worth noting. The main change was caching the dependency layer."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S01.2",
+    "question_id": "a.S01",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "In conclusion, there are many factors to consider when choosing a database.",
+        "paragraph": "Postgres gave us transactions; DynamoDB gave us predictable latency at scale. We picked Postgres because billing needs multi-row transactions. In conclusion, there are many factors to consider when choosing a database."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S01.3",
+    "question_id": "a.S01",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The first requests after a deploy still hit the database.",
+        "paragraph": "The cache is cold after a deploy. The first requests after a deploy still hit the database."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S01.4",
+    "question_id": "a.S01",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "That was the fast path; the slow path is where things break.",
+        "paragraph": "Reads hit the cache and return in 2 ms. That was the fast path; the slow path is where things break. On a miss we take a lock, and under load the lock queue grows unbounded."
+      }
+    },
+    "expected": "false",
+    "note": "Transition with a real job"
+  },
+  {
+    "case_id": "a.S02.1",
+    "question_id": "a.S02",
+    "state": {
+      "document": {
+        "genre": "changelog",
+        "audience": "Developers using the library"
+      },
+      "focus": {
+        "text": "The new logging format marks a pivotal moment in our engineering journey."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S02.2",
+    "question_id": "a.S02",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "This small refactor stands as a testament to the team's unwavering commitment to excellence."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S02.3",
+    "question_id": "a.S02",
+    "state": {
+      "document": {
+        "genre": "changelog",
+        "audience": "Developers using the library"
+      },
+      "focus": {
+        "text": "This release adds CSV export."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S02.4",
+    "question_id": "a.S02",
+    "state": {
+      "document": {
+        "genre": "encyclopedic",
+        "audience": "General readers"
+      },
+      "focus": {
+        "text": "The 2003 Northeast blackout was one of the largest power outages in North American history, affecting about 55 million people."
+      }
+    },
+    "expected": "false",
+    "note": "Significance grounded by a specific figure"
+  },
+  {
+    "case_id": "a.S03.1",
+    "question_id": "a.S03",
+    "state": {
+      "document": {
+        "genre": "API reference",
+        "audience": "Developers integrating the SDK"
+      },
+      "focus": {
+        "text": "Our blazing-fast, best-in-class SDK delivers an unparalleled developer experience."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S03.2",
+    "question_id": "a.S03",
+    "state": {
+      "document": {
+        "genre": "incident postmortem",
+        "audience": "Engineering leadership and incident reviewers"
+      },
+      "focus": {
+        "text": "Thanks to our world-class on-call team, the outage was resolved in record time."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S03.3",
+    "question_id": "a.S03",
+    "state": {
+      "document": {
+        "genre": "product landing page",
+        "audience": "Prospective customers"
+      },
+      "focus": {
+        "text": "Sync your notes across every device in seconds."
+      }
+    },
+    "expected": "false",
+    "note": "Marketing register fits the genre"
+  },
+  {
+    "case_id": "a.S03.4",
+    "question_id": "a.S03",
+    "state": {
+      "document": {
+        "genre": "API reference",
+        "audience": "Developers integrating the SDK"
+      },
+      "focus": {
+        "text": "The SDK has no runtime dependencies and ships ESM and CommonJS builds."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S04.1",
+    "question_id": "a.S04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "Let's delve into the multifaceted tapestry of considerations that underpin robust caching strategies."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S04.2",
+    "question_id": "a.S04",
+    "state": {
+      "document": {
+        "genre": "internal engineering blog",
+        "audience": "Engineers at the company"
+      },
+      "focus": {
+        "text": "This approach serves as a cornerstone for fostering seamless collaboration across the ever-evolving landscape of modern teams."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S04.3",
+    "question_id": "a.S04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "We use a write-through cache, so reads never see stale data."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S04.4",
+    "question_id": "a.S04",
+    "state": {
+      "document": {
+        "genre": "book review",
+        "audience": "History readers"
+      },
+      "focus": {
+        "text": "The authors delve into the 1871 census records to trace where the families moved."
+      }
+    },
+    "expected": "false",
+    "note": "A flagged word used plainly"
+  },
+  {
+    "case_id": "a.S05.1",
+    "question_id": "a.S05",
+    "state": {
+      "document": {
+        "genre": "app store description",
+        "audience": "Prospective users"
+      },
+      "focus": {
+        "text": "It's not just a to-do app; it's a whole new way of living."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S05.2",
+    "question_id": "a.S05",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "This isn't about speed; it's about respecting the user's time.",
+        "paragraph": "Our pages took 6 seconds to load. This isn't about speed; it's about respecting the user's time. We cut load time to 1.2 seconds."
+      }
+    },
+    "expected": "true",
+    "note": "Speed and the user's time are the same thing here"
+  },
+  {
+    "case_id": "a.S05.3",
+    "question_id": "a.S05",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "For this workload, the batch API reduces cost rather than latency."
+      }
+    },
+    "expected": "false",
+    "note": "Dossier A example C"
+  },
+  {
+    "case_id": "a.S05.4",
+    "question_id": "a.S05",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The bug was not in the parser but in the tokenizer, which split on the wrong delimiter."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S06.1",
+    "question_id": "a.S06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The update makes the app faster, quicker, and more responsive."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S06.2",
+    "question_id": "a.S06",
+    "state": {
+      "document": {
+        "genre": "team page",
+        "audience": "Candidates"
+      },
+      "focus": {
+        "text": "Our team values innovation, excellence, and innovative thinking."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S06.3",
+    "question_id": "a.S06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "Install the CLI, run init, and commit the generated config."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S06.4",
+    "question_id": "a.S06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The function takes a path, a mode, and a callback."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S07.1",
+    "question_id": "a.S07",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "Experts agree that microservices are the future of software."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S07.2",
+    "question_id": "a.S07",
+    "state": {
+      "document": {
+        "genre": "opinion column",
+        "audience": "Managers"
+      },
+      "focus": {
+        "text": "Studies have shown that remote teams are more productive."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S07.3",
+    "question_id": "a.S07",
+    "state": {
+      "document": {
+        "genre": "opinion column",
+        "audience": "Managers"
+      },
+      "focus": {
+        "text": "A 2024 Nature paper by Bloom, Han and Liang found hybrid work did not reduce productivity."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S07.4",
+    "question_id": "a.S07",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "I think the second design is easier to maintain."
+      }
+    },
+    "expected": "false",
+    "note": "Clearly the author's own opinion"
+  },
+  {
+    "case_id": "a.S08.1",
+    "question_id": "a.S08",
+    "state": {
+      "document": {
+        "genre": "business news",
+        "audience": "Investors"
+      },
+      "focus": {
+        "text": "Revenue grew 4% last quarter, highlighting the company's enduring resilience and vision."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S08.2",
+    "question_id": "a.S08",
+    "state": {
+      "document": {
+        "genre": "local news",
+        "audience": "Residents"
+      },
+      "focus": {
+        "text": "The city added two bike lanes, underscoring its commitment to a sustainable future."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S08.3",
+    "question_id": "a.S08",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The script exits early, leaving the lock file in place."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S08.4",
+    "question_id": "a.S08",
+    "state": {
+      "document": {
+        "genre": "fiction",
+        "audience": "Adult readers"
+      },
+      "focus": {
+        "text": "She closed the laptop, ending the call before he could answer."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S12.1",
+    "question_id": "a.S12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "This could potentially perhaps help in some cases to somewhat improve performance."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S12.2",
+    "question_id": "a.S12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "It may possibly be generally somewhat advisable to consider reviewing the logs."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S12.3",
+    "question_id": "a.S12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "On ARM machines, and only with the JIT disabled, the benchmark may regress slightly."
+      }
+    },
+    "expected": "false",
+    "note": "Each qualifier is a distinct condition"
+  },
+  {
+    "case_id": "a.S12.4",
+    "question_id": "a.S12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The fix probably works, but we have not tested it on Windows."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S14.1",
+    "question_id": "a.S14",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "Everything changed.",
+        "paragraph": "We bumped the logging library from 2.3 to 2.4. And then? Everything changed. Log lines now include the request ID."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S14.2",
+    "question_id": "a.S14",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "The result? Game-changing.",
+        "paragraph": "We moved the save button from the bottom of the form to the top. The result? Game-changing."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S14.3",
+    "question_id": "a.S14",
+    "state": {
+      "document": {
+        "genre": "fiction",
+        "audience": "Adult readers"
+      },
+      "focus": {
+        "text": "Nobody came.",
+        "paragraph": "He waited. Then he waited some more. Nobody came."
+      }
+    },
+    "expected": "false",
+    "note": "Dossier A example E"
+  },
+  {
+    "case_id": "a.S14.4",
+    "question_id": "a.S14",
+    "state": {
+      "document": {
+        "genre": "incident postmortem",
+        "audience": "Engineers"
+      },
+      "focus": {
+        "text": "Then the backup failed too.",
+        "paragraph": "At 02:10 the primary disk filled up and writes stopped. We started the restore from the nightly backup. Then the backup failed too. It had been writing empty archives since the March upgrade."
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.S15.1",
+    "question_id": "a.S15",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "In this article, we will explore the various aspects of caching."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S15.2",
+    "question_id": "a.S15",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "So what does this mean for developers? Let's take a closer look."
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.S15.3",
+    "question_id": "a.S15",
+    "state": {
+      "document": {
+        "genre": "60-page operations manual",
+        "audience": "Operators"
+      },
+      "focus": {
+        "text": "Section 4 covers authentication; skip it if you only use API keys."
+      }
+    },
+    "expected": "false",
+    "note": "A roadmap that saves the reader time"
+  },
+  {
+    "case_id": "a.S15.4",
+    "question_id": "a.S15",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers"
+      },
+      "focus": {
+        "text": "Why does the cache miss after every deploy?",
+        "paragraph": "Why does the cache miss after every deploy? Because the cache key includes the build hash, so each build starts with an empty keyspace."
+      }
+    },
+    "expected": "false",
+    "note": "Frames a real problem answered at once"
+  },
+  {
+    "case_id": "a.P02.1",
+    "question_id": "a.P02",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "In other words, by adding a cache we were able to make responses considerably faster. The cache has had a very positive effect on how quickly the service responds."
+      },
+      "neighbors": {
+        "previous": "Adding a read-through cache cut p95 latency from 450 ms to 220 ms."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P02.2",
+    "question_id": "a.P02",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "To summarize what we just covered: the cache makes reads faster because it keeps recent results in memory instead of querying the database each time."
+      },
+      "neighbors": {
+        "previous": "The cache keeps the last 10,000 results in memory, so most reads skip the database. That is where the latency win comes from."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P02.3",
+    "question_id": "a.P02",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "The win has a cost: cached entries can be up to 60 seconds stale, so the billing page bypasses the cache entirely."
+      },
+      "neighbors": {
+        "previous": "Adding a read-through cache cut p95 latency from 450 ms to 220 ms."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P02.4",
+    "question_id": "a.P02",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "The one place it did not help is the search endpoint, where 90% of queries are unique and the hit rate stays under 5%."
+      },
+      "neighbors": {
+        "previous": "Adding a read-through cache cut p95 latency from 450 ms to 220 ms across the API."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P04.1",
+    "question_id": "a.P04",
+    "state": {
+      "document": {
+        "genre": "internal update",
+        "audience": "Engineering managers",
+        "purpose": "Report what changed in onboarding and whether it worked"
+      },
+      "focus": {
+        "text": "Our new onboarding process significantly improves the experience for new hires by streamlining various steps and leveraging modern tools to drive better outcomes."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P04.2",
+    "question_id": "a.P04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "The algorithm uses advanced techniques to optimize performance across a wide range of scenarios, ensuring efficient and reliable results."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P04.3",
+    "question_id": "a.P04",
+    "state": {
+      "document": {
+        "genre": "internal update",
+        "audience": "Engineering managers",
+        "purpose": "Report what changed in onboarding and whether it worked"
+      },
+      "focus": {
+        "text": "New hires now get a laptop, accounts and an assigned buddy before day one. Last quarter the median time to a first merged PR dropped from 9 days to 4."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P04.4",
+    "question_id": "a.P04",
+    "state": {
+      "document": {
+        "genre": "status update",
+        "audience": "On-call engineers",
+        "purpose": "Say whether the deploy finished"
+      },
+      "focus": {
+        "text": "Deploy is green and rolled out to 100% at 14:05."
+      }
+    },
+    "expected": "low",
+    "note": "Short status needs no more detail"
+  },
+  {
+    "case_id": "a.P06.1",
+    "question_id": "a.P06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "It is important to note that backups are important. Backups help ensure that data is not lost. In other words, having backups means you can recover your data if something goes wrong, which is why backups matter."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P06.2",
+    "question_id": "a.P06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "Before we begin, it's worth taking a moment to understand what we'll be covering. As mentioned, this guide covers installation. Installation is the first step. Run npm install."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P06.3",
+    "question_id": "a.P06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "The cache is cold after a deploy. The first requests still hit the database, so the improvement appears after warm-up."
+      }
+    },
+    "expected": "low",
+    "note": "Dossier A example D"
+  },
+  {
+    "case_id": "a.P06.4",
+    "question_id": "a.P06",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "Set CACHE_TTL to 60. Higher values cut database load further but make the billing page show stale balances."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P10.1",
+    "question_id": "a.P10",
+    "state": {
+      "document": {
+        "genre": "incident postmortem",
+        "audience": "Engineering leadership and incident reviewers",
+        "purpose": "Explain what failed and what changes"
+      },
+      "focus": {
+        "text": "Wow, what a ride! Our amazing database decided to take a little nap, but our rockstar team crushed it and we're back stronger than ever!"
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P10.2",
+    "question_id": "a.P10",
+    "state": {
+      "document": {
+        "genre": "team chat message",
+        "audience": "Close teammates in a casual channel",
+        "purpose": "Say the fix is merged"
+      },
+      "focus": {
+        "text": "Pursuant to the aforementioned discussion, I hereby confirm that the requisite modifications have been effectuated."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P10.3",
+    "question_id": "a.P10",
+    "state": {
+      "document": {
+        "genre": "incident postmortem",
+        "audience": "Engineering leadership and incident reviewers",
+        "purpose": "Explain what failed and what changes"
+      },
+      "focus": {
+        "text": "At 03:12 the TLS certificate on the API gateway expired and all external requests failed until 03:58, when the on-call engineer installed a renewed certificate."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P10.4",
+    "question_id": "a.P10",
+    "state": {
+      "document": {
+        "genre": "team chat message",
+        "audience": "Close teammates in a casual channel",
+        "purpose": "Say the fix is merged"
+      },
+      "focus": {
+        "text": "merged the fix, should be live in 10 min. ping me if the dashboard still looks weird"
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P13.1",
+    "question_id": "a.P13",
+    "state": {
+      "document": {
+        "genre": "engineering blog",
+        "audience": "Developers",
+        "purpose": "Describe a new database release"
+      },
+      "focus": {
+        "text": "It's not just fast. It's not just reliable. It's transformative. Speed, reliability, and scale: that's what we deliver. Not tomorrow. Today."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P13.2",
+    "question_id": "a.P13",
+    "state": {
+      "document": {
+        "genre": "engineering blog",
+        "audience": "Developers",
+        "purpose": "Explain a change to the code review process"
+      },
+      "focus": {
+        "text": "This isn't about code; it's about people. This isn't about tools; it's about trust. And it isn't about the past; it's about the future."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P13.3",
+    "question_id": "a.P13",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "Run the migration first. It adds a nullable column, so the old code keeps working. Deploy the new code, backfill the column, then make it non-null."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P13.4",
+    "question_id": "a.P13",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "Cold start: 3 s. Warm start: 200 ms. Cached: 20 ms."
+      }
+    },
+    "expected": "low",
+    "note": "Parallel form that carries the comparison"
+  },
+  {
+    "case_id": "a.P14.1",
+    "question_id": "a.P14",
+    "state": {
+      "document": {
+        "genre": "incident postmortem",
+        "audience": "Engineering leadership and incident reviewers",
+        "purpose": "Explain what failed and what changes"
+      },
+      "focus": {
+        "text": "We believe it may be fair to say that the outage was arguably somewhat related to what appears to have possibly been the expired certificate."
+      },
+      "neighbors": {
+        "previous": "The certificate expired at 03:12. Every failed request from 03:12 to 03:58 shows a TLS handshake error."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P14.2",
+    "question_id": "a.P14",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "It might perhaps be the case that the test could possibly be failing, in some sense, because the environment may potentially differ."
+      },
+      "neighbors": {
+        "previous": "The test passes locally on Node 26 and fails in CI, which runs Node 24; the failing assertion uses Array.fromAsync, added in Node 25."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P14.3",
+    "question_id": "a.P14",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "The fix likely works on Linux. We have not tested macOS or Windows."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P14.4",
+    "question_id": "a.P14",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a caching change to the team"
+      },
+      "focus": {
+        "text": "Early results suggest a 5% improvement, but the sample is two days of weekend traffic."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P17.1",
+    "question_id": "a.P17",
+    "state": {
+      "document": {
+        "genre": "how-to guide",
+        "audience": "Developers setting up a local database",
+        "purpose": "Get Postgres running locally for this project"
+      },
+      "focus": {
+        "text": "Databases have been a cornerstone of computing for decades, and their importance only continues to grow in today's data-driven world."
+      },
+      "neighbors": {
+        "next": "Install Postgres 17 with your package manager, then run createdb app_dev."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P17.2",
+    "question_id": "a.P17",
+    "state": {
+      "document": {
+        "genre": "how-to guide",
+        "audience": "Developers setting up a local database",
+        "purpose": "Get Postgres running locally for this project"
+      },
+      "focus": {
+        "text": "In summary, as we've seen, setting up a database is a powerful step. By applying the ideas above, you'll be well on your way. Happy coding!"
+      },
+      "neighbors": {
+        "previous": "Run the migrations with npm run db:migrate and seed test data with npm run db:seed."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.P17.3",
+    "question_id": "a.P17",
+    "state": {
+      "document": {
+        "genre": "how-to guide",
+        "audience": "Developers setting up a local database",
+        "purpose": "Get Postgres running locally for this project"
+      },
+      "focus": {
+        "text": "Install Postgres 17 with your package manager, then run createdb app_dev. The app reads DATABASE_URL, so add it to .env."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.P17.4",
+    "question_id": "a.P17",
+    "state": {
+      "document": {
+        "genre": "how-to guide",
+        "audience": "Developers setting up a local database",
+        "purpose": "Get Postgres running locally for this project"
+      },
+      "focus": {
+        "text": "Do not use Postgres 15: the project uses MERGE ... RETURNING, which needs 17."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.D04.1",
+    "question_id": "a.D04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Help a team improve its code reviews",
+        "text": "# The Importance of Code Review\n\nIn today's fast-paced software landscape, code review has become more important than ever. Code review is a crucial practice that helps teams build better software.\n\n## Why Code Review Matters\n\nCode review matters because it improves quality. When developers review each other's code, they can catch issues and share knowledge. This fosters collaboration and helps teams grow.\n\n## Best Practices\n\nThere are many best practices for code review. It is important to be respectful, thorough, and timely. Communication is key.\n\n## Conclusion\n\nIn conclusion, code review is an essential part of modern software development. By embracing code review, teams can unlock their full potential."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.D04.2",
+    "question_id": "a.D04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain how this team should test its payment service",
+        "text": "# Why Testing Is Essential\n\nTesting is an essential part of software development. Without testing, software may have bugs. Bugs can cause problems for users. Therefore, testing helps prevent problems.\n\nThere are many types of testing, each with its own benefits. By leveraging the right testing strategy, teams can deliver high-quality software that delights users.\n\nUltimately, investing in testing is investing in success."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.D04.3",
+    "question_id": "a.D04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Let an on-call engineer rotate the signing key safely",
+        "text": "# Rotating the API signing key\n\nDo this when the key is older than 90 days or may have leaked.\n\n1. Generate a key: `openssl genpkey -algorithm ed25519 -out new.pem`.\n2. Add the public half to `config/keys.json` under `next`. Deploy. Both keys now verify; only the old one signs.\n3. After 24 hours (the longest token lifetime), move `next` to `current`. Deploy.\n4. Delete the old key from the secret store.\n\nIf step 3 goes out early, tokens signed in the last 24 hours fail with 401. Roll back by restoring the old `current`."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.D04.4",
+    "question_id": "a.D04",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Explain a latency regression to the team",
+        "text": "# Why our p95 doubled on 3 March\n\nThe 2.14 release moved session lookup from Redis to Postgres. Session reads went from 0.4 ms to 9 ms, and the checkout page does 11 of them, so p95 rose from 210 ms to 390 ms. Reverting the lookup in 2.14.1 brought it back to 215 ms. The longer fix is to load the session once per request; that is tracked in PAY-412."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.D11.1",
+    "question_id": "a.D11",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Help an engineer fix nginx 502 errors",
+        "text": "In today's fast-paced digital landscape, web servers play a pivotal role in delivering content to users around the globe. As technology continues to evolve, understanding how to configure them has never been more important. In this comprehensive guide, we'll embark on a journey through the world of nginx.\n\nTo fix 502 errors, first check the upstream logs."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.D11.2",
+    "question_id": "a.D11",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Make Docker builds faster",
+        "text": "Have you ever wondered why your deploys are slow? You're not alone! Many developers face this challenge. In this post, we'll explore some ideas that might help.\n\nThe biggest win is caching the dependency layer in your Docker build."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.D11.3",
+    "question_id": "a.D11",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Help an engineer fix nginx 502 errors",
+        "text": "nginx returns 502 when the upstream closes the connection before sending headers. To find which upstream, grep the error log for 'upstream prematurely closed'."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.D11.4",
+    "question_id": "a.D11",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Let an on-call engineer rotate the signing key safely",
+        "text": "# Rotating the API signing key\n\nDo this when the key is older than 90 days or may have leaked.\n\n1. Generate a key: `openssl genpkey -algorithm ed25519 -out new.pem`.\n2. Add the public half to `config/keys.json` under `next`. Deploy. Both keys now verify; only the old one signs.\n3. After 24 hours (the longest token lifetime), move `next` to `current`. Deploy.\n4. Delete the old key from the secret store.\n\nIf step 3 goes out early, tokens signed in the last 24 hours fail with 401. Roll back by restoring the old `current`."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.D12.1",
+    "question_id": "a.D12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Help engineers choose a caching strategy",
+        "text": "# Caching strategies\n\nUse read-through caching for hot keys. Invalidate on write for user data. Use TTLs for reference data.\n\nIn conclusion, the future of caching is bright. By embracing these strategies, you'll be well on your way to success. Let me know if you'd like me to expand on any section!"
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.D12.2",
+    "question_id": "a.D12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Tell the team what changed in the Node 26 migration",
+        "text": "# Migrating to Node 26\n\nNode 26 removes the legacy url.parse fallback, so we replaced 14 call sites with new URL(). The test suite passes. The Docker base image is node:26-slim.\n\nTo summarize, in this document we covered why we migrated, the changes we made, and the new base image."
+      }
+    },
+    "expected": "high"
+  },
+  {
+    "case_id": "a.D12.3",
+    "question_id": "a.D12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Tell the team what changed in the Node 26 migration",
+        "text": "# Migrating to Node 26\n\nNode 26 removes the legacy url.parse fallback, so we replaced 14 call sites with new URL(). The test suite passes.\n\nOne thing is left: the PDF worker still pins node:24 because its native canvas module has no 26 build yet. Until upstream ships one, leave that service alone."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.D12.4",
+    "question_id": "a.D12",
+    "state": {
+      "document": {
+        "genre": "technical_explanation",
+        "audience": "Experienced software engineers",
+        "purpose": "Let an on-call engineer rotate the signing key safely",
+        "text": "# Rotating the API signing key\n\nDo this when the key is older than 90 days or may have leaked.\n\n1. Generate a key: `openssl genpkey -algorithm ed25519 -out new.pem`.\n2. Add the public half to `config/keys.json` under `next`. Deploy. Both keys now verify; only the old one signs.\n3. After 24 hours (the longest token lifetime), move `next` to `current`. Deploy.\n4. Delete the old key from the secret store.\n\nIf step 3 goes out early, tokens signed in the last 24 hours fail with 401. Roll back by restoring the old `current`."
+      }
+    },
+    "expected": "low"
+  },
+  {
+    "case_id": "a.V01.1",
+    "question_id": "a.V01",
+    "state": {
+      "original": {
+        "text": "Industry experts widely agree that the system has transformed developer productivity."
+      },
+      "candidate": {
+        "text": "A 2026 study found a 38% increase in developer productivity after adopting the system."
+      },
+      "evidence": []
+    },
+    "expected": "true",
+    "note": "Dossier A example B"
+  },
+  {
+    "case_id": "a.V01.2",
+    "question_id": "a.V01",
+    "state": {
+      "original": {
+        "text": "The cache made the checkout service faster."
+      },
+      "candidate": {
+        "text": "The cache cut p95 latency on the checkout service by 51%."
+      },
+      "evidence": []
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.V01.3",
+    "question_id": "a.V01",
+    "state": {
+      "original": {
+        "text": "The caching initiative marks a pivotal milestone in our ongoing journey toward unprecedented speed, scalability, and operational excellence. In fact, it reduced p95 latency from 450 ms to 220 ms."
+      },
+      "candidate": {
+        "text": "The cache reduced p95 latency from 450 ms to 220 ms."
+      },
+      "evidence": []
+    },
+    "expected": "false",
+    "note": "Dossier A example A"
+  },
+  {
+    "case_id": "a.V01.4",
+    "question_id": "a.V01",
+    "state": {
+      "original": {
+        "text": "The cache made the checkout service faster."
+      },
+      "candidate": {
+        "text": "The cache made checkout faster; see the March latency report."
+      },
+      "evidence": [
+        {
+          "id": "src-1",
+          "excerpt": "March latency report: checkout p95 fell after the cache rollout."
+        }
+      ]
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.V02.1",
+    "question_id": "a.V02",
+    "state": {
+      "original": {
+        "text": "The fix probably works on Linux; we have not tested macOS."
+      },
+      "candidate": {
+        "text": "The fix works on Linux and macOS."
+      },
+      "evidence": []
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.V02.2",
+    "question_id": "a.V02",
+    "state": {
+      "original": {
+        "text": "Only admin users can delete projects."
+      },
+      "candidate": {
+        "text": "Users can delete projects."
+      },
+      "evidence": []
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.V02.3",
+    "question_id": "a.V02",
+    "state": {
+      "original": {
+        "text": "The caching initiative marks a pivotal milestone in our ongoing journey toward unprecedented speed, scalability, and operational excellence. In fact, it reduced p95 latency from 450 ms to 220 ms."
+      },
+      "candidate": {
+        "text": "The cache reduced p95 latency from 450 ms to 220 ms."
+      },
+      "evidence": []
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.V02.4",
+    "question_id": "a.V02",
+    "state": {
+      "original": {
+        "text": "It is important to note that the API is rate-limited to 100 requests per minute."
+      },
+      "candidate": {
+        "text": "The API is rate-limited to 100 requests per minute."
+      },
+      "evidence": []
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.V04.1",
+    "question_id": "a.V04",
+    "state": {
+      "original": {
+        "text": "The cache is a liar with a 60-second memory: fast, confident, and occasionally wrong."
+      },
+      "candidate": {
+        "text": "The cache may return data that is up to 60 seconds old."
+      },
+      "evidence": [],
+      "document": {
+        "author_voice": "Dry humor, opinionated, direct",
+        "audience": "Experienced software engineers"
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.V04.2",
+    "question_id": "a.V04",
+    "state": {
+      "original": {
+        "text": "Look, nobody reads the release notes. So here's the one thing you need: run the migration before you deploy."
+      },
+      "candidate": {
+        "text": "Please ensure that the database migration is executed prior to deployment."
+      },
+      "evidence": [],
+      "document": {
+        "author_voice": "Blunt, informal, talks straight to the reader",
+        "audience": "Experienced software engineers"
+      }
+    },
+    "expected": "true"
+  },
+  {
+    "case_id": "a.V04.3",
+    "question_id": "a.V04",
+    "state": {
+      "original": {
+        "text": "We are thrilled to announce that this pivotal release marks an exciting milestone: CSV export is here!"
+      },
+      "candidate": {
+        "text": "This release adds CSV export."
+      },
+      "evidence": [],
+      "document": {
+        "author_voice": "Plain and factual",
+        "audience": "Experienced software engineers"
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.V04.4",
+    "question_id": "a.V04",
+    "state": {
+      "original": {
+        "text": "Look, nobody reads the release notes. So here's the one thing you need - run the migration before you deploy."
+      },
+      "candidate": {
+        "text": "Look, nobody reads the release notes. So here's the one thing you need: run the migration before you deploy."
+      },
+      "evidence": [],
+      "document": {
+        "author_voice": "Blunt, informal, talks straight to the reader",
+        "audience": "Experienced software engineers"
+      }
+    },
+    "expected": "false"
+  },
+  {
+    "case_id": "a.V05.1",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced software engineers",
+        "purpose": "Report the effect of the cache"
+      },
+      "original": {
+        "text": "The caching initiative marks a pivotal milestone in our ongoing journey toward unprecedented speed, scalability, and operational excellence. In fact, it reduced p95 latency from 450 ms to 220 ms."
+      },
+      "candidate": {
+        "text": "The cache reduced p95 latency from 450 ms to 220 ms."
+      }
+    },
+    "expected": "better"
+  },
+  {
+    "case_id": "a.V05.2",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced software engineers",
+        "purpose": "Report the effect of the cache"
+      },
+      "original": {
+        "text": "The cache is cold after a deploy. The first requests still hit the database, so the improvement appears after warm-up."
+      },
+      "candidate": {
+        "text": "A robust warm-up strategy is critical for optimizing scalability."
+      }
+    },
+    "expected": "worse"
+  },
+  {
+    "case_id": "a.V05.3",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced software engineers",
+        "purpose": "Report the effect of the cache"
+      },
+      "original": {
+        "text": "The function returns null if the key is missing."
+      },
+      "candidate": {
+        "text": "If the key is missing, the function returns null."
+      }
+    },
+    "expected": "equivalent"
+  },
+  {
+    "case_id": "a.V05.4",
+    "question_id": "a.V05",
+    "state": {
+      "document": {
+        "audience": "Experienced software engineers",
+        "purpose": "Report the effect of the cache"
+      },
+      "original": {
+        "text": "The cache reduced p95 latency from 450 ms to 220 ms, except on the search endpoint."
+      },
+      "candidate": {
+        "text": "The cache significantly reduced latency."
+      }
+    },
+    "expected": "worse"
+  }
+]

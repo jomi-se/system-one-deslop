@@ -8,6 +8,7 @@ coverage/
 /reports/
 /logs/
 /tmp/
+/runs/
 
 # Credentials and local operator state
 .env
@@ -35,3 +36,6 @@ coverage/
 Thumbs.db
 *.swp
 *.swo
+
+# Claude Code session scheduler state
+.claude/scheduled_tasks.lock

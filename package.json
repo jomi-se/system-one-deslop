@@ -13,7 +13,8 @@
     "format": "./scripts/quiet-run.sh \"format\" oxfmt --write .",
     "format:check": "./scripts/quiet-run.sh \"format check\" oxfmt --check .",
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm test",
-    "smoke": "npm run build --silent && node --env-file=.env dist/scripts/smoke.js"
+    "smoke": "npm run build --silent && node --env-file=.env dist/scripts/smoke.js",
+    "eval": "npm run build --silent && node --env-file=.env dist/scripts/eval.js"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "0.6.0"
