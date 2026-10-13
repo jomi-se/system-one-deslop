@@ -1,27 +1,42 @@
-# System One Deslop
+# system-one-deslop
 
-Planned: a tool to detect and rewrite “AI slop” in prose using TypeSafe
-System One judgments (Jev). This is pre-alpha: the audit returns uncalibrated
-prose signals, and proposed rewrites need human review.
-The [eval harness](eval/README.md) measures Jev against author-proposed synthetic
-labels in the two [research catalogues](research/README.md).
-The [read-only audit CLI](eval/AUDIT.md) runs those judgments over Markdown prose.
-The [guarded editor loop](eval/DESLOP.md) asks a local model CLI for proposed edits.
+Ask Sol for a blog post on when Rust code should panic and you get a correct,
+tight post with lines like "Optimism is not an invariant." and "`unwrap()` is
+a claim, not a convenience." Each is fine. The trouble is that it has about 40 of
+those quotable rules per thousand words, where chapters of the Rust book and
+posts on the Go blog average about four. Readers who have read a lot of model output
+hear that rate as an accent, even when every sentence is accurate.
 
-Requires Node.js 26+ and npm; `mise.toml` pins the exact version CI uses.
+This repository measures that accent and tries to remove it. TypeSafe's Jev
+model answers narrow questions about each sentence (is this a general maxim?
+a three-part series? a disclaimer?), code counts the answers per thousand
+words, and the counts are compared with 13 technical posts written before
+LLMs. What we found the first night is in [eval/FINDINGS.md](eval/FINDINGS.md).
+The short version: Opus and Sol write rule-first where human writers lead
+with a case, editing the result afterwards barely helps, and a short brief
+before writing fixes most of it. That brief is packaged as an agent skill in
+[skills/deslop-writing](skills/deslop-writing/SKILL.md).
+
+To check a draft against the baseline:
 
 ```sh
 npm ci
-npm run verify
-npm run build
+cp .env.example .env    # add your TYPESAFE_API_KEY
+npm run check -- draft.md --genre "blog post" --audience "Backend engineers"
 ```
 
-Verification includes typechecking, type-aware oxlint, oxfmt, and offline
-`node:test` tests against compiled TypeScript. Run `npm run format` to format
-supported source and documentation files. To check the
-live [TypeSafe SDK](https://docs.typesafe.ai/sdk/javascript.md), create `.env`
-from `.env.example`, set `TYPESAFE_API_KEY`, and run `npm run smoke`.
-This sends one synthetic sentence and one
-`noul` question to the hosted API, with retries disabled; usage may be billed.
-The smoke call never runs in CI. Keep keys server-side and private prose out
-of logs and Git. See [SECURITY.md](SECURITY.md). MIT licensed.
+It prints each habit's rate next to the human rate and lists the sentences
+behind any habit that occurs more than three times as often as in the
+human posts. A check of a
+2,000-word post costs a fraction of a cent.
+
+The rest of the tooling is for research. `npm run eval` scores Jev on
+labelled cases from the question catalogues in [research](research/README.md)
+and [eval/questions](eval/questions/c-texture.json). `npm run audit` runs every
+question over a Markdown file ([eval/AUDIT.md](eval/AUDIT.md)), and
+`npm run deslop` is the experimental editor loop that asks Opus or Sol, through
+their CLIs, for edits and gates them ([eval/DESLOP.md](eval/DESLOP.md)).
+
+Development needs Node 26 (pinned in `mise.toml`). `npm run verify` runs the
+typecheck, oxlint, oxfmt and the offline tests; nothing in it calls the API.
+MIT licensed. See [SECURITY.md](SECURITY.md).
