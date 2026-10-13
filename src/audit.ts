@@ -198,12 +198,14 @@ export async function auditDocument(
   registry: Registry,
   client?: TypeSafeClient,
   passes: readonly AuditPass[] = AUDIT_PASSES,
+  options: { concurrency?: number } = {},
 ) {
   const plan = buildAuditPlan(document, metadata, registry, passes);
   const records = plan.length
     ? await runGroups(
         plan.map((task) => task.group),
         client ?? createJevClient(),
+        options,
       )
     : [];
   const answers = collectAuditAnswers(plan, records, registry);

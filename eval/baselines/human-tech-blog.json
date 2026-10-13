@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "n": 13,
+  "note": "Small selected sample (n=13), not a universal style target or a validated authorship threshold.",
+  "source": "Unweighted document means from eval/corpus/human.",
+  "metrics": {
+    "general_maxim_per_1000_words": 4.0665639767131365,
+    "triplet_per_1000_words": 2.0221402597675864,
+    "playful_flourish_per_1000_words": 0.6364867015435531,
+    "headings_per_1000_words": 3.8380427776140618,
+    "bullets_per_1000_words": 2.5385295656543048,
+    "bold_spans_per_1000_words": 0.7034028773159208,
+    "mean_sentence_length_words": 15.8549467567896
+  }
+}

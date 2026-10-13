@@ -3,7 +3,7 @@
 ## Supported version
 
 Security fixes apply to the current `main` branch. System One Deslop is
-pre-alpha scaffolding; it has no implemented detection or rewriting features.
+pre-alpha; its audits and proposed rewrites require human review.
 
 ## Reporting a vulnerability
 
@@ -21,6 +21,11 @@ it to page users. `.env` is local and ignored; `.env.example` has no key.
 Text inputs may be private. Hosted judgments send text to TypeSafe; disclose
 this boundary before processing real user content and keep that content out
 of logs, diagnostics, test fixtures, and vulnerability reports.
+
+The optional editor loop also sends the document to the selected CLI's model
+provider using its saved subscription login. API-key environment variables
+are removed from editor processes. Audit and edit artifacts contain source
+prose; keep them private and outside Git.
 
 The optional smoke script sends only synthetic text, disables SDK logging and
 retries, and omits raw errors. Offline tests use a mock transport and need no

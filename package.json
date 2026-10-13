@@ -16,7 +16,8 @@
     "smoke": "npm run build --silent && node --env-file=.env dist/scripts/smoke.js",
     "eval": "npm run build --silent && node --env-file=.env dist/scripts/eval.js",
     "audit": "npm run build --silent && node --env-file-if-exists=.env dist/scripts/audit.js",
-    "corpus-report": "npm run build --silent && node dist/scripts/corpus-report.js"
+    "corpus-report": "npm run build --silent && node dist/scripts/corpus-report.js",
+    "deslop": "npm run build --silent && node --env-file=.env dist/scripts/deslop.js"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "0.6.0"

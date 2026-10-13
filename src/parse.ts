@@ -25,6 +25,7 @@ export interface Section extends Span {
 export interface MarkdownDocument extends Span {
   kind: "document";
   sections: Section[];
+  code_blocks: Span[];
 }
 interface Line {
   start: number;
@@ -78,6 +79,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
   const lines = linesOf(source);
   const segmenter = new Intl.Segmenter("en", { granularity: "sentence" });
   const sections: Section[] = [];
+  const codeBlocks: Span[] = [];
   let section: Section = {
     ...span(source, "section", 0, source.length),
     kind: "section",
@@ -87,7 +89,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
   let paragraphLines: Line[] = [];
   let paragraphIsList = false;
   let listContext: { indent: number; contentIndent: number } | null = null;
-  let fence: { character: string; length: number; indent: number } | null = null;
+  let fence: { character: string; length: number; indent: number; start: number } | null = null;
   let frontMatter: string | null = null;
   const first = lines[0]?.text.replace(/^\uFEFF/, "");
   if (first === "---" || first === "+++") frontMatter = first;
@@ -150,8 +152,10 @@ export function parseMarkdown(source: string): MarkdownDocument {
         fenceMatch[1]?.[0] === fence.character &&
         fenceMatch[1].length >= fence.length &&
         !fenceMatch[2]?.trim()
-      )
+      ) {
+        codeBlocks.push(span(source, "code", fence.start, line.end));
         fence = null;
+      }
       continue;
     }
     const fenceAllowed =
@@ -166,7 +170,12 @@ export function parseMarkdown(source: string): MarkdownDocument {
       !(fenceMatch[1][0] === "`" && fenceMatch[2]?.includes("`"))
     ) {
       flushParagraph();
-      fence = { character: fenceMatch[1][0] ?? "`", length: fenceMatch[1].length, indent };
+      fence = {
+        character: fenceMatch[1][0] ?? "`",
+        length: fenceMatch[1].length,
+        indent,
+        start: line.start,
+      };
       continue;
     }
     if (!structural.trim()) {
@@ -181,6 +190,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
       listContext && indent >= listContext.contentIndent && indent < listContext.contentIndent + 4;
     if (indent >= 4 && !listItem && !continuation) {
       flushParagraph();
+      codeBlocks.push(span(source, "code", line.start, line.end));
       continue;
     }
     if (linkOnly(line.text)) {
@@ -230,6 +240,12 @@ export function parseMarkdown(source: string): MarkdownDocument {
     paragraphLines.push(line);
   }
   flushParagraph();
+  if (fence) codeBlocks.push(span(source, "code", fence.start, source.length));
   if (section.text || section.heading) sections.push(section);
-  return { ...span(source, "document", 0, source.length), kind: "document", sections };
+  return {
+    ...span(source, "document", 0, source.length),
+    kind: "document",
+    sections,
+    code_blocks: codeBlocks,
+  };
 }
