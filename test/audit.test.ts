@@ -157,7 +157,7 @@ await test("audit states match each source, retain context and never fabricate m
   for (const task of plan) {
     assert.ok(
       Object.keys(task.group.questions).every((id) =>
-        id.startsWith(task.pass === "sentence-b" ? "b." : "a."),
+        id.startsWith(task.pass === "sentence-b" ? "b." : task.pass === "sentence-c" ? "c." : "a."),
       ),
     );
   }
@@ -201,8 +201,8 @@ await test("offline audit retains all raw answers/offsets and ranks A defects wi
     },
   });
   const result = await auditDocument(document, auditMetadata(), registry, client);
-  assert.equal(result.requests.length, 4);
-  assert.equal(result.answers.length, 27);
+  assert.equal(result.requests.length, 5);
+  assert.equal(result.answers.length, 32);
   assert.ok(result.answers.every((answer) => answer.answer !== null && answer.error === null));
   assert.equal(result.answers.find((answer) => answer.question_id === "a.P04")?.normalized, 0.25);
   assert.equal(

@@ -13,7 +13,9 @@ has a 60-second total deadline and up to three SDK retries for 429/529.
 
 Both research catalogues load at runtime. A projects only `type`, `instructions`,
 and `criteria`; B uses its `question` unchanged and supplies synthetic cases
-automatically. Additional `eval/cases/*.json` files each contain an array:
+automatically. Catalogue C loads from `eval/questions/c-texture.json`, including
+its labelled cases. Use `--filter c.` to evaluate texture observations separately.
+Additional `eval/cases/*.json` files each contain an array:
 
 ```json
 [

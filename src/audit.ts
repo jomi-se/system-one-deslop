@@ -1,10 +1,11 @@
-import type { JsonValue, Questions } from "@typesafe-ai/sdk";
+import type { JsonValue, Questions, TypeSafeClient } from "@typesafe-ai/sdk";
 import { createJevClient, MODEL, runGroups, stateHash, tokenTotals } from "./jev.js";
 import type { RequestGroup, RequestRecord } from "./jev.js";
 import { invariant } from "./registry.js";
 import type { Registry } from "./registry.js";
 import type { Answer } from "./evaluation.js";
 import type { MarkdownDocument, Span } from "./parse.js";
+import { measureDensity } from "./density.js";
 
 export const AUDIT_QUESTIONS = {
   document: ["a.D01", "a.D04", "a.D05", "a.D10", "a.D11", "a.D12", "a.D13"],
@@ -12,6 +13,7 @@ export const AUDIT_QUESTIONS = {
   sentence: {
     a: ["a.S01", "a.S02", "a.S03", "a.S04", "a.S05", "a.S06", "a.S07", "a.S12", "a.S14", "a.S15"],
     b: ["b.significance_assertion", "b.content_announcement", "b.authority_invocation"],
+    c: ["c.contrast_reframe", "c.aphorism", "c.playful_flourish", "c.setup_line", "c.triplet"],
   },
 } as const;
 
@@ -20,10 +22,27 @@ export interface AuditMetadata {
   purpose: string;
   genre: string;
 }
-export type AuditPass = "document" | "paragraph" | "sentence-a" | "sentence-b";
+export const AUDIT_PASSES = [
+  "document",
+  "paragraph",
+  "sentence-a",
+  "sentence-b",
+  "sentence-c",
+  "code",
+] as const;
+export type AuditPass = (typeof AUDIT_PASSES)[number];
+export function auditPasses(value?: string): AuditPass[] {
+  if (value === undefined) return [...AUDIT_PASSES];
+  const names = value.split(",");
+  invariant(
+    names.length > 0 && names.every((name) => AUDIT_PASSES.some((pass) => pass === name)),
+    "Unknown or empty audit pass",
+  );
+  return AUDIT_PASSES.filter((pass) => names.includes(pass));
+}
 export interface AuditRequest {
   unit: Span;
-  pass: AuditPass;
+  pass: Exclude<AuditPass, "code">;
   group: RequestGroup;
 }
 export interface AuditAnswer {
@@ -48,15 +67,17 @@ export function buildAuditPlan(
   document: MarkdownDocument,
   metadata: AuditMetadata,
   registry: Registry,
+  passes: readonly AuditPass[] = AUDIT_PASSES,
 ): AuditRequest[] {
   const plan: AuditRequest[] = [];
   const paragraphs = document.sections.flatMap((section) => section.paragraphs);
   function add(
     unit: Span,
-    pass: AuditPass,
+    pass: AuditRequest["pass"],
     ids: readonly string[],
     state: { [key: string]: JsonValue },
   ): void {
+    if (!passes.includes(pass)) return;
     const questions: Questions = {};
     for (const id of ids) {
       const q = registry.questions.get(id);
@@ -105,6 +126,16 @@ export function buildAuditPlan(
       add(sentence, "sentence-b", AUDIT_QUESTIONS.sentence.b, {
         target: { text: sentence.text },
         context: { ...metadata, paragraph: paragraph.text, neighbors: sentenceNeighbors },
+      });
+      const targetContext = [
+        sentenceNeighbors.previous ? `Previous: ${sentenceNeighbors.previous}` : "",
+        sentenceNeighbors.next ? `Next: ${sentenceNeighbors.next}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      add(sentence, "sentence-c", AUDIT_QUESTIONS.sentence.c, {
+        document: { ...metadata },
+        target: { text: sentence.text, context: targetContext },
       });
     }
   }
@@ -165,23 +196,31 @@ export async function auditDocument(
   document: MarkdownDocument,
   metadata: AuditMetadata,
   registry: Registry,
-  client = createJevClient(),
+  client?: TypeSafeClient,
+  passes: readonly AuditPass[] = AUDIT_PASSES,
 ) {
-  const plan = buildAuditPlan(document, metadata, registry);
-  const records = await runGroups(
-    plan.map((task) => task.group),
-    client,
-  );
+  const plan = buildAuditPlan(document, metadata, registry, passes);
+  const records = plan.length
+    ? await runGroups(
+        plan.map((task) => task.group),
+        client ?? createJevClient(),
+      )
+    : [];
   const answers = collectAuditAnswers(plan, records, registry);
   return {
     schema_version: "1.0",
     model: MODEL,
     generated_at: new Date().toISOString(),
     metadata,
+    passes,
     document,
     answers,
     question_means: questionMeans(answers),
     totals: tokenTotals(records),
+    density: measureDensity(document, answers, AUDIT_QUESTIONS.sentence.c, {
+      code: passes.includes("code"),
+      texture: passes.includes("sentence-c"),
+    }),
     requests: records.map((record) => {
       const task = plan[record.index];
       invariant(task, "Missing audit request metadata");
@@ -224,7 +263,7 @@ export function renderAuditReport(result: Awaited<ReturnType<typeof auditDocumen
     .sort((a, b) => (b.worst?.normalized ?? 0) - (a.worst?.normalized ?? 0));
   const failures = result.requests.filter((request) => request.error).length;
   const lines = [
-    `Audit: ${result.document.sections.flatMap((section) => section.paragraphs).length} paragraphs; ${result.answers.filter((answer) => answer.question_id === "a.S01").length} sentences; ${result.requests.length} requests; ${failures} failures.`,
+    `Audit: ${result.document.sections.flatMap((section) => section.paragraphs).length} paragraphs; ${result.document.sections.flatMap((section) => section.paragraphs.flatMap((paragraph) => paragraph.sentences)).length} sentences; ${result.requests.length} requests; ${failures} failures.`,
     `Context: audience=${JSON.stringify(result.metadata.audience)}, purpose=${JSON.stringify(result.metadata.purpose)}, genre=${JSON.stringify(result.metadata.genre)}.`,
     `Input tokens: ${result.totals.input_tokens}; estimated cost: $${result.totals.estimated_usd.toFixed(8)} USD.`,
     "",
@@ -243,6 +282,13 @@ export function renderAuditReport(result: Awaited<ReturnType<typeof auditDocumen
     lines.push(
       `${row.question_id.padEnd(28)} ${row.mean?.toFixed(3) ?? "—"}  n=${row.n} valid=${row.valid}`,
     );
+  lines.push("", "Texture density per 1,000 prose words (noul >= 0.5):");
+  for (const [id, row] of Object.entries(result.density.questions)) {
+    lines.push(
+      `${id.padEnd(28)} ${row.per_1000_words?.toFixed(3) ?? "—"}  count=${row.count ?? "—"} valid=${row.valid}/${row.expected}`,
+    );
+  }
+  if (result.density.code) lines.push("", `Code metrics: ${JSON.stringify(result.density.code)}`);
   lines.push(
     "",
     "Signals are uncalibrated judgments, not instructions to delete or rewrite. Source text is unchanged.",

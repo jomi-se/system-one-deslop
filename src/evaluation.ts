@@ -1,7 +1,7 @@
 import type { ChoiceResponse, NoulResponse, Question, ScoreResponse } from "@typesafe-ai/sdk";
 import { INPUT_USD_PER_MILLION, MODEL, tokenTotals } from "./jev.js";
 import type { RequestRecord } from "./jev.js";
-import { invariant } from "./registry.js";
+import { invariant, SOURCES } from "./registry.js";
 import type { EvalCase, RegisteredQuestion, Source } from "./registry.js";
 
 export type Answer = NoulResponse | ChoiceResponse | ScoreResponse;
@@ -124,10 +124,7 @@ export function summarize(
     failed_requests: records.filter((r) => r.error).length,
     overall: metrics(results),
     sources: Object.fromEntries(
-      (["a", "b"] as const).map((source) => [
-        source,
-        metrics(results.filter((r) => r.source === source)),
-      ]),
+      SOURCES.map((source) => [source, metrics(results.filter((r) => r.source === source))]),
     ),
     questions: questions.map((q) => ({
       id: q.id,
@@ -170,7 +167,7 @@ export function renderReport(
     "| Source | n | Correct | Accuracy | Mean decisiveness | Errors |",
     "| --- | ---: | ---: | ---: | ---: | ---: |",
   ];
-  for (const source of ["a", "b"] as const) {
+  for (const source of SOURCES) {
     const m = summary.sources[source];
     invariant(m, "Missing source summary");
     lines.push(

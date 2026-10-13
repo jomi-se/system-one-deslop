@@ -2,7 +2,8 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { EntryType, JsonValue, Question } from "@typesafe-ai/sdk";
 
-export type Source = "a" | "b";
+export const SOURCES = ["a", "b", "c"] as const;
+export type Source = (typeof SOURCES)[number];
 export interface RegisteredQuestion {
   id: string;
   source: Source;
@@ -193,11 +194,25 @@ async function readJson(path: string): Promise<unknown> {
 }
 
 export async function loadRegistry(root = process.cwd()): Promise<Registry> {
-  const [a, b] = await Promise.all([
+  const [a, b, c] = await Promise.all([
     readJson(join(root, "research/a-dossier/jev-questions.json")),
     readJson(join(root, "research/b-handoff/system-one-deslop-multipass-questions.json")),
+    readJson(join(root, "eval/questions/c-texture.json")),
   ]);
-  return normalizeCatalogues(a, b);
+  const registry = normalizeCatalogues(a, b);
+  const catalogue = object(c, "C catalogue");
+  invariant(catalogue.catalogue === "c", "C catalogue: unexpected catalogue name");
+  const questions = object(catalogue.questions, "C questions");
+  invariant(Object.keys(questions).length > 0, "C questions must not be empty");
+  for (const [localId, question] of Object.entries(questions)) {
+    invariant(/^[a-z][a-z0-9_]*$/.test(localId), "C: unexpected question ID");
+    const id = `c.${localId}`;
+    assertQuestion(question, id);
+    invariant(question.type === "noul", `${id}: texture questions must be noul`);
+    registry.questions.set(id, { id, source: "c", type: question.type, question });
+  }
+  addCases(registry, catalogue.cases, "C cases");
+  return registry;
 }
 
 export async function loadCaseFiles(registry: Registry, root = process.cwd()): Promise<void> {

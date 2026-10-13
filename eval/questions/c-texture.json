@@ -1,0 +1,253 @@
+{
+  "catalogue": "c",
+  "version": "0.1.0",
+  "status": "experimental; written 2026-10-13 after corpus audit showed A's defect questions rate human writing as sloppier than frontier-model output",
+  "rationale": "Frontier-model slop is mostly cadence, not emptiness: individually defensible moves (aphorisms, not-X-but-Y reframes, playful asides, set-up lines) repeated far more often than human writers use them. Jev observes each move per sentence; code computes rates per 1,000 words and compares them with a human baseline. Presence of one move is never a defect.",
+  "state": "Each question reads `target.text` (one sentence) and `target.context` (the preceding and following sentence, possibly empty).",
+  "questions": {
+    "contrast_reframe": {
+      "type": "noul",
+      "instructions": {
+        "question": "Does `target.text` reframe its subject by first denying one description and then asserting a replacement, as in \"X isn't A; it's B\", \"not A but B\", or \"less about A, more about B\"?",
+        "boundary": "The denial may sit in the preceding sentence in `target.context` when `target.text` supplies the replacement. Detect the construction only; do not judge whether it is apt."
+      },
+      "criteria": {
+        "true": "The sentence, alone or completing the preceding sentence, negates one framing of a subject and substitutes another framing of the same subject.",
+        "false": "No deny-then-replace framing. Plain negation, a comparison such as \"X is faster than Y\", or choosing between two concrete options does not count."
+      }
+    },
+    "aphorism": {
+      "type": "noul",
+      "instructions": {
+        "question": "Is `target.text` a compact general maxim: a short, quotable statement of a broad principle that would still make sense lifted out of this document?",
+        "boundary": "Judge form and generality, not truth or quality."
+      },
+      "criteria": {
+        "true": "A short sentence stating a general principle or verdict, such as \"Optimism is not an invariant.\" or \"Boring is fine.\"",
+        "false": "A specific fact, instruction, example, definition, or a longer explanatory sentence tied to this document's particulars."
+      }
+    },
+    "playful_flourish": {
+      "type": "noul",
+      "instructions": {
+        "question": "Does `target.text` include a joke, slang, playful personification, or deliberately casual aside, such as \"databases occasionally choose violence\"?",
+        "boundary": "Detect the flourish only; do not judge whether it is funny or appropriate."
+      },
+      "criteria": {
+        "true": "At least one phrase is there for humor or casual tone rather than information.",
+        "false": "The wording is plain, even if informal or conversational in grammar."
+      }
+    },
+    "setup_line": {
+      "type": "noul",
+      "instructions": {
+        "question": "Does `target.text` mainly point ahead to a point instead of making it, as a teaser, a rhetorical question answered next, or a lead-in like \"Here's the thing:\" or \"That's the useful starting point.\"?",
+        "boundary": "Use `target.context` to see whether the next sentence delivers the point. Do not judge whether the setup is useful."
+      },
+      "criteria": {
+        "true": "The sentence's main job is to announce, tease, or frame the following sentence rather than carry its own information.",
+        "false": "The sentence carries its own claim, fact, instruction or example."
+      }
+    },
+    "triplet": {
+      "type": "noul",
+      "instructions": {
+        "question": "Does `target.text` contain a series of exactly three parallel items, phrases, or clauses?",
+        "boundary": "Count only coordinated parallel elements in this sentence, such as \"fast, cheap, and reliable\" or three clauses with the same structure. Do not judge necessity."
+      },
+      "criteria": {
+        "true": "The sentence contains a three-part parallel series.",
+        "false": "No series, or a series of two, four, or more items."
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "c.contrast_reframe.1",
+      "question_id": "c.contrast_reframe",
+      "state": { "target": { "text": "`unwrap()` is a claim, not a convenience.", "context": "" } },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.contrast_reframe.2",
+      "question_id": "c.contrast_reframe",
+      "state": {
+        "target": {
+          "text": "It's making each failure tell the truth.",
+          "context": "Previous: The goal isn't zero panics or maximum error enums."
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.contrast_reframe.3",
+      "question_id": "c.contrast_reframe",
+      "state": {
+        "target": {
+          "text": "For this workload, the batch API is cheaper than the streaming API.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.contrast_reframe.4",
+      "question_id": "c.contrast_reframe",
+      "state": { "target": { "text": "The test does not run on Windows.", "context": "" } },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.aphorism.1",
+      "question_id": "c.aphorism",
+      "state": {
+        "target": {
+          "text": "Optimism is not an invariant.",
+          "context": "Previous: Or are we just feeling optimistic about a third-party response?"
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.aphorism.2",
+      "question_id": "c.aphorism",
+      "state": {
+        "target": {
+          "text": "Boring is fine.",
+          "context": "Previous: Sometimes that means three perfectly boring checks."
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.aphorism.3",
+      "question_id": "c.aphorism",
+      "state": {
+        "target": {
+          "text": "A slice header holds a pointer, a length and a capacity.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.aphorism.4",
+      "question_id": "c.aphorism",
+      "state": { "target": { "text": "Run the migration before you deploy.", "context": "" } },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.playful_flourish.1",
+      "question_id": "c.playful_flourish",
+      "state": {
+        "target": {
+          "text": "Requests are messy, networks are unreliable, and databases occasionally choose violence.",
+          "context": ""
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.playful_flourish.2",
+      "question_id": "c.playful_flourish",
+      "state": {
+        "target": { "text": "Usually, the bug becomes embarrassingly obvious.", "context": "" }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.playful_flourish.3",
+      "question_id": "c.playful_flourish",
+      "state": { "target": { "text": "We'll get to that in a bit.", "context": "" } },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.playful_flourish.4",
+      "question_id": "c.playful_flourish",
+      "state": {
+        "target": {
+          "text": "Unwinding runs destructors, but it does not roll back database writes.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.setup_line.1",
+      "question_id": "c.setup_line",
+      "state": {
+        "target": {
+          "text": "That's the useful starting point.",
+          "context": "Next: \"Expected versus unexpected\" gets us close, but it's fuzzy."
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.setup_line.2",
+      "question_id": "c.setup_line",
+      "state": {
+        "target": {
+          "text": "The result?",
+          "context": "Next: Builds dropped from nineteen minutes to four."
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.setup_line.3",
+      "question_id": "c.setup_line",
+      "state": {
+        "target": {
+          "text": "Returning `Result` preserves that choice.",
+          "context": "Previous: The caller can decide what happens next."
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.setup_line.4",
+      "question_id": "c.setup_line",
+      "state": {
+        "target": {
+          "text": "Suppose we're loading an account, and the database is down.",
+          "context": "Next: The caller can retry or return a 503."
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.triplet.1",
+      "question_id": "c.triplet",
+      "state": {
+        "target": {
+          "text": "Requests are messy, networks are unreliable, and databases occasionally choose violence.",
+          "context": ""
+        }
+      },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.triplet.2",
+      "question_id": "c.triplet",
+      "state": { "target": { "text": "It must be fast, cheap, and reliable.", "context": "" } },
+      "expected": "true"
+    },
+    {
+      "case_id": "c.triplet.3",
+      "question_id": "c.triplet",
+      "state": {
+        "target": {
+          "text": "Return a 404, retry a transient failure, serve cached data, or fail the request.",
+          "context": ""
+        }
+      },
+      "expected": "false"
+    },
+    {
+      "case_id": "c.triplet.4",
+      "question_id": "c.triplet",
+      "state": { "target": { "text": "The cache is cold after a deploy.", "context": "" } },
+      "expected": "false"
+    }
+  ]
+}
