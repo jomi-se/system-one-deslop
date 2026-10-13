@@ -1,14 +1,18 @@
 {
   "schema_version": "1.0",
   "n": 13,
-  "note": "Small selected sample (n=13), not a universal style target or a validated authorship threshold.",
-  "source": "Unweighted document means from eval/corpus/human.",
+  "note": "Tiny selected sample (n=13), one genre (technical blog posts); not a universal style target or a validated authorship threshold.",
+  "source": "Unweighted document means from eval/corpus/human; catalogue C 0.2.",
   "metrics": {
-    "general_maxim_per_1000_words": 4.0665639767131365,
-    "triplet_per_1000_words": 2.0221402597675864,
-    "playful_flourish_per_1000_words": 0.6364867015435531,
-    "headings_per_1000_words": 3.8380427776140618,
-    "bullets_per_1000_words": 2.5385295656543048,
+    "general_maxim_per_1000_words": 4.482454864381755,
+    "triplet_per_1000_words": 1.9518266611176076,
+    "playful_flourish_per_1000_words": 0.6547522828367435,
+    "disclaimer_per_1000_words": 1.0634902219629059,
+    "precaution_per_1000_words": 0.07031359864997891,
+    "contrast_reframe_per_1000_words": 3.3439100086392624,
+    "setup_line_per_1000_words": 12.305651348427165,
+    "headings_per_1000_words": 3.8380427776140627,
+    "bullets_per_1000_words": 2.538529565654305,
     "bold_spans_per_1000_words": 0.7034028773159208
   },
   "held_out": {
