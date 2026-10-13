@@ -1,0 +1,25 @@
+{
+  "name": "system-one-deslop",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pre-alpha scaffolding for prose judgments with TypeSafe System One.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "./scripts/quiet-run.sh \"typecheck\" tsc --noEmit",
+    "test": "npm run build --silent && ./scripts/quiet-run.sh \"tests\" node --test dist/test/*.test.js",
+    "build": "./scripts/quiet-run.sh \"build\" tsc",
+    "verify": "npm run typecheck && npm test",
+    "smoke": "npm run build --silent && node --env-file=.env dist/scripts/smoke.js"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "0.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "7.0.2"
+  }
+}
