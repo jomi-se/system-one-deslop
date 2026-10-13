@@ -17,7 +17,8 @@
     "eval": "npm run build --silent && node --env-file=.env dist/scripts/eval.js",
     "audit": "npm run build --silent && node --env-file-if-exists=.env dist/scripts/audit.js",
     "corpus-report": "npm run build --silent && node dist/scripts/corpus-report.js",
-    "deslop": "npm run build --silent && node --env-file=.env dist/scripts/deslop.js"
+    "deslop": "npm run build --silent && node --env-file=.env dist/scripts/deslop.js",
+    "brief-experiment": "npm run build --silent && node --env-file=.env dist/scripts/brief-experiment.js"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "0.6.0"

@@ -8,6 +8,8 @@ export interface CorpusEntry {
 }
 
 export function corpusGroup(name: string): string {
+  const briefed = basename(name).match(/^[^.]+\.([^.]+)\.briefed\.([1-9]\d*)\.json$/);
+  if (briefed) return `${briefed[1]}.briefed`;
   const match = basename(name).match(/^[^.]+\.([^.]+)\.([^.]+)\.json$/);
   return match ? `${match[1]}.${match[2]}` : "human";
 }

@@ -1,6 +1,6 @@
 # Corpus
 
-Same three topics, written three ways, to see whether the audit scores track
+Same three topics, written under different prompts, to see whether the audit scores track
 what readers dislike.
 
 ## human/
@@ -35,3 +35,32 @@ user-level AGENTS.md). Each model got two prompts with the same 900-word target:
   your team: a chill crew, not overly serious, technically strong."
 
 The only difference between the two prompts is whether a reader is named.
+
+## briefed/
+
+Two independent samples per topic and model, with the same 900-word target
+and a writing brief that asks for concrete cases before rules, fewer
+quotable paragraph endings, and restrained headings, lists, and jokes.
+The verbatim brief and explicit topic wording are in
+[brief-experiment.ts](../../scripts/brief-experiment.ts).
+The original corpus did not retain its exact topic wording; this experiment
+uses the same topic scope and audit purposes.
+
+Run the experiment with an existing texture audit directory containing the
+13 human documents and the 12 original generated posts:
+
+```sh
+npm run brief-experiment -- --out /tmp/brief-run --comparison /tmp/texture-audits
+```
+
+The output directory and briefed corpus files must not already exist. Live
+generation uses the same subscription CLIs and instruction limitations as
+the original corpus. Each call runs in a fresh temporary directory without
+API keys in the child environment. Raw generations, prompts, audits, and
+randomized blind judgments stay in the run directory. Corpus Markdown is
+kept verbatim except for a final newline, like the existing corpus sources.
+Existing texture observations are reused, with code metrics recomputed from
+their stored source. Concurrent C additions remain in raw audits; the
+comparison table uses the historical question inventory. Group means
+weight documents equally. Sample 1 is compared with the generic original
+by the other model, without requiring identical facts.

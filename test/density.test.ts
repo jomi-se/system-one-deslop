@@ -95,6 +95,10 @@ await test("corpus groups exact generated names, averages documents equally and 
   assert.equal(corpusGroup("/some/path/rust-panic.sol.generic.json"), "sol.generic");
   assert.equal(corpusGroup("go-errors-are-values.json"), "human");
   assert.equal(corpusGroup("extra.part.opus.reader.json"), "human");
+  assert.equal(corpusGroup("go-errors.opus.briefed.1.json"), "opus.briefed");
+  assert.equal(corpusGroup("/some/path/rust-panic.sol.briefed.2.json"), "sol.briefed");
+  assert.equal(corpusGroup("go-errors.opus.briefed.0.json"), "human");
+  assert.equal(corpusGroup("go-errors.opus.reader.1.json"), "human");
   const entries = [
     { name: "human-one.json", metrics: { rate: 10, zero: 0, missing: null } },
     { name: "human-two.json", metrics: { rate: 30, zero: 0, missing: null } },
