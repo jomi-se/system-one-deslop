@@ -1,10 +1,11 @@
 # System One Deslop
 
 Planned: a tool to detect and rewrite “AI slop” in prose using TypeSafe
-System One judgments (Jev). This is pre-alpha scaffolding; detection and
-rewriting are not implemented, and quality claims have not been established.
+System One judgments (Jev). This is pre-alpha: the audit returns uncalibrated
+prose signals, and automatic rewriting is not implemented.
 The [eval harness](eval/README.md) measures Jev against author-proposed synthetic
 labels in the two [research catalogues](research/README.md).
+The [read-only audit CLI](eval/AUDIT.md) runs those judgments over Markdown prose.
 
 Requires Node.js 26+ and npm; `mise.toml` pins the exact version CI uses.
 
