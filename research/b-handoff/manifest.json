@@ -1,0 +1,41 @@
+{
+  "version": "0.3",
+  "files": {
+    "README.md": {
+      "bytes": 1784,
+      "sha256": "bee475abd7cdef9e2fa28a910ca6779ece64ad828e788718d03ac37f03203717"
+    },
+    "research/README.md": {
+      "bytes": 889,
+      "sha256": "f48af1ba45f8e590c3c0e825b67dcfdd1f80a84734f7f9088f90e13b6f704dbb"
+    },
+    "system-one-deslop-implementation-handoff.md": {
+      "bytes": 38989,
+      "sha256": "8e312b8b881cb47585ce5b53131b3e7611a02bf39750a5808e46499ad017ba9f"
+    },
+    "system-one-deslop-implementation-handoff.docx": {
+      "bytes": 54790,
+      "sha256": "350f4f48a91591b28885bf0fe255a444ac20af4363b922bb0750e0aa370b19a5"
+    },
+    "system-one-deslop-current-questions.md": {
+      "bytes": 25850,
+      "sha256": "020de1bd7b55a59b8acc2b83543ffedccb323101346a5ebeeac0c5e4f25cd054"
+    },
+    "system-one-deslop-multipass-questions.json": {
+      "bytes": 66489,
+      "sha256": "01cca66712d70f608c4b22d7d60fb2a63e9fea2e156668c9f2ae7d044bfcd53e"
+    },
+    "research/full-research-dossier.md": {
+      "bytes": 36386,
+      "sha256": "98a4a0ff27b17cc3d6ef79cc7cd8ce4e71cbe4adea2494efc6270c5c40261562"
+    },
+    "research/astra-deslop-review.md": {
+      "bytes": 30586,
+      "sha256": "d68915f6a6c32ad150b80961aa4b0dd2290165d2a91ff20686dc3a9fc57a1419"
+    },
+    "research/astra-earlier-question-proposals.json": {
+      "bytes": 32967,
+      "sha256": "f6a208c9207d6c2436613547df0e7c0197eedd89c6a0baac3f48a2d03e8815ab"
+    }
+  }
+}

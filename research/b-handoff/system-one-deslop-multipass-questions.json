@@ -1,0 +1,1486 @@
+{
+  "project": "system-one-deslop",
+  "version": "0.3",
+  "as_of": "2026-10-13",
+  "status": "Proposed bounded signal catalogue; no Jev calls or reader validation performed",
+  "purpose": "Jev supplies typed semantic signals. A reasoning model interprets, edits, and reassesses. Reader pleasure and value are outcome measures.",
+  "initial_pilot_candidates": [
+    "significance_assertion",
+    "content_announcement",
+    "example_instance",
+    "claim_relationship",
+    "limitation_presence"
+  ],
+  "usage": {
+    "api_question_payload": "Only question_definitions[id].question belongs in the API question map.",
+    "adapter": "Build required state fields from immutable source spans. Validate field presence and semantic coverage before sending.",
+    "no_inference_chain_in_request": "Independent questions in a request cannot see one another's answers; construct dependent state in a later request.",
+    "probability_meaning": "Probability that a defined condition or label applies, not probability an edit improves writing.",
+    "default_score_policy": "No broad Score questions in the initial candidate catalogue. Add concrete ordinal dimensions only after validating their boundaries.",
+    "examples": "Synthetic author-proposed labels; do not treat as observed model outputs or performance estimates."
+  },
+  "question_definitions": {
+    "significance_assertion": {
+      "question": {
+        "type": "noul",
+        "instructions": {
+          "question": "Does `target.text` explicitly portray its subject as important, exceptional, historic, transformative, or consequential?",
+          "boundary": "Do not judge whether the asserted importance is justified. Evaluate the speaker's assertion, not an attributed claim that the speaker explicitly rejects."
+        },
+        "criteria": {
+          "true": "The text makes a positive assertion of importance, exceptional status, or consequential impact.",
+          "false": "No such assertion is made. Technical description, an ordinary outcome, or quoting and rejecting such a claim does not establish this signal."
+        }
+      },
+      "family": "rhetorical_act",
+      "scope": "sentence_or_passage",
+      "required_fields": [
+        "target.text"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "initial_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Inspect the claim against evidence and genre before retaining, qualifying, supporting, or removing it.",
+      "ancestry": [
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community complaints about inflated significance",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S19",
+          "source_url": "https://github.com/blader/humanizer",
+          "evidence_class": "C",
+          "supported_concern": "Derivative implementation of those complaints",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "significance_assertion_1",
+          "state": {
+            "target": {
+              "text": "This release marks a historic turning point for software development."
+            }
+          },
+          "intended_label": "true",
+          "note": "Presence only; truth and rhetorical merit remain undecided.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "significance_assertion_2",
+          "state": {
+            "target": {
+              "text": "This release adds CSV export."
+            }
+          },
+          "intended_label": "false",
+          "note": "A feature description does not assert exceptional significance.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "significance_assertion_3",
+          "state": {
+            "target": {
+              "text": "The vendor calls it revolutionary, but the change is only a new icon."
+            }
+          },
+          "intended_label": "false",
+          "note": "The narrator rejects the quoted significance claim.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "reader_praise": {
+      "question": {
+        "type": "noul",
+        "instructions": {
+          "question": "Does `target.text` positively evaluate `context.addressee`, their idea, ability, or action?",
+          "boundary": "Do not infer insincerity, excess, or factual correctness. The addressee must be identified."
+        },
+        "criteria": {
+          "true": "The speaker explicitly praises the addressee or positively evaluates their idea, ability, or action.",
+          "false": "The speaker does not praise the addressee. Thanks, acknowledgment, emotional sympathy, and factual agreement alone are not praise."
+        }
+      },
+      "family": "rhetorical_act",
+      "scope": "sentence_or_passage",
+      "required_fields": [
+        "target.text",
+        "context.addressee"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Let the editor assess proportion, relationship, and purpose. Keep emotional acknowledgment distinct from praise.",
+      "ancestry": [
+        {
+          "source_id": "S05",
+          "source_url": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2096bafd3073a2224f6f0adb594068df-Abstract-Conference.html",
+          "evidence_class": "D",
+          "supported_concern": "Controlled sycophancy perturbations motivate separating related features",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community reports of excessive praise",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "reader_praise_1",
+          "state": {
+            "target": {
+              "text": "That is a brilliant idea."
+            },
+            "context": {
+              "addressee": "the user"
+            }
+          },
+          "intended_label": "true",
+          "note": "Not a judgment that praise is excessive.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "reader_praise_2",
+          "state": {
+            "target": {
+              "text": "I understand why that was frustrating."
+            },
+            "context": {
+              "addressee": "the user"
+            }
+          },
+          "intended_label": "false",
+          "note": "Emotional acknowledgment is not a positive evaluation.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "reader_praise_3",
+          "state": {
+            "target": {
+              "text": "Yes, the cache uses Redis."
+            },
+            "context": {
+              "addressee": "the user"
+            }
+          },
+          "intended_label": "false",
+          "note": "Agreement with a factual statement is not praise.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "content_announcement": {
+      "question": {
+        "type": "noul",
+        "instructions": {
+          "question": "Does `target.text` explicitly announce content that this text or one of its sections will present?",
+          "boundary": "Do not decide whether the announcement is empty, necessary, or burdensome."
+        },
+        "criteria": {
+          "true": "The text promises, previews, or announces an explanation, discussion, comparison, summary, or other content in this document.",
+          "false": "The text gives content without an explicit announcement, or describes another document or a real-world future event."
+        }
+      },
+      "family": "rhetorical_act",
+      "scope": "sentence_or_passage",
+      "required_fields": [
+        "target.text"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "initial_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Inspect its location and navigation function. Never delete signposting solely because this signal is present.",
+      "ancestry": [
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community complaints about empty staging and formulaic transitions",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "content_announcement_1",
+          "state": {
+            "target": {
+              "text": "The next section explains cache invalidation."
+            }
+          },
+          "intended_label": "true",
+          "note": "Useful navigation can still trigger this signal.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "content_announcement_2",
+          "state": {
+            "target": {
+              "text": "The cache expires after ten minutes."
+            }
+          },
+          "intended_label": "false",
+          "note": "Substantive statement without an announcement.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "content_announcement_3",
+          "state": {
+            "target": {
+              "text": "The release will add caching next month."
+            }
+          },
+          "intended_label": "false",
+          "note": "Future product behavior, not upcoming text.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "authority_invocation": {
+      "question": {
+        "type": "noul",
+        "instructions": {
+          "question": "Does `target.text` invoke a person, institution, study, expert group, or consensus as a basis for accepting a claim?",
+          "boundary": "Detect the invocation only. Do not require a citation and do not verify the claim from memory."
+        },
+        "criteria": {
+          "true": "An authority, research finding, or consensus is invoked to support acceptance of a claim.",
+          "false": "No authority is invoked as support. Merely naming a researcher or describing an organization is not sufficient."
+        }
+      },
+      "family": "rhetorical_act",
+      "scope": "sentence_or_passage",
+      "required_fields": [
+        "target.text"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Retrieve supplied evidence where available, then inspect attribution specificity and support.",
+      "ancestry": [
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community concern about vague attribution and authority claims",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "authority_invocation_1",
+          "state": {
+            "target": {
+              "text": "Experts agree that this is the safest approach."
+            }
+          },
+          "intended_label": "true",
+          "note": "Support status is a separate judgment.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "authority_invocation_2",
+          "state": {
+            "target": {
+              "text": "The experiment by Lee measured a 12 ms median latency."
+            }
+          },
+          "intended_label": "true",
+          "note": "Legitimate attribution also triggers the feature.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "authority_invocation_3",
+          "state": {
+            "target": {
+              "text": "Lee joined the team in April."
+            }
+          },
+          "intended_label": "false",
+          "note": "A name alone is not an appeal to authority.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "example_instance": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does `target.text` give a particular instance of the general proposition in `claim.text`?",
+          "boundary": "Do not judge explanatory value or whether an example is needed. An abstract claim may be sufficient for its purpose."
+        },
+        "criteria": {
+          "instance_present": "A particular situation, entity, event, or worked case instantiates the target proposition.",
+          "no_instance": "No particular instance of that proposition is supplied. Rewording the general proposition or adding unrelated names or numbers is not an instance.",
+          "insufficient_context": "The proposition or passage is too ambiguous or incomplete to determine the relation."
+        }
+      },
+      "family": "development_relation",
+      "scope": "passage_and_claim",
+      "required_fields": [
+        "target.text",
+        "claim.text"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "initial_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "The editor decides whether to add, improve, retain, or omit an example using the brief and available facts.",
+      "ancestry": [
+        {
+          "source_id": "S10",
+          "source_url": "https://arxiv.org/html/2409.14509v3",
+          "evidence_class": "D",
+          "supported_concern": "Expert creative edits address specificity and development",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community complaints about generic assertions",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "example_instance_1",
+          "state": {
+            "claim": {
+              "text": "Caching can avoid repeated computations."
+            },
+            "target": {
+              "text": "Reopening the same document reuses its stored embedding."
+            }
+          },
+          "intended_label": "instance_present",
+          "note": "A specific situation instantiates the general claim.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "example_instance_2",
+          "state": {
+            "claim": {
+              "text": "Caching can avoid repeated computations."
+            },
+            "target": {
+              "text": "Caching makes repeated computations unnecessary."
+            }
+          },
+          "intended_label": "no_instance",
+          "note": "Paraphrase is not an example.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "example_instance_3",
+          "state": {
+            "claim": {
+              "text": "Caching can avoid repeated computations."
+            },
+            "target": {
+              "text": "The office has 42 chairs."
+            }
+          },
+          "intended_label": "no_instance",
+          "note": "A concrete number is not relevant specificity.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "causal_mechanism": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "What explanation does `target.text` supply for how `relation.cause` produces `relation.effect`?",
+          "boundary": "Do not require full scientific derivation, verify causal truth, or infer that the reader needs a mechanism."
+        },
+        "criteria": {
+          "intermediate_process": "It describes at least one intervening process or operative interaction linking the supplied cause to the supplied effect.",
+          "association_only": "It asserts that the cause produces or accompanies the effect, but supplies no intervening process or operative interaction.",
+          "no_explanation": "It does not describe that causal relation.",
+          "insufficient_context": "The cause, effect, or passage is too ambiguous to classify."
+        }
+      },
+      "family": "development_relation",
+      "scope": "passage_and_cause_effect",
+      "required_fields": [
+        "target.text",
+        "relation.cause",
+        "relation.effect"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Use only where the reasoning model or user has identified a particular explanatory need.",
+      "ancestry": [
+        {
+          "source_id": "S01",
+          "source_url": "https://arxiv.org/html/2509.19163v2",
+          "evidence_class": "D",
+          "supported_concern": "Bounded slop taxonomy includes concerns about substance and development",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S04",
+          "source_url": "https://arxiv.org/html/2610.00531v1",
+          "evidence_class": "H",
+          "supported_concern": "Transfer from scientific argument and evidence diagnostics",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "causal_mechanism_1",
+          "state": {
+            "relation": {
+              "cause": "cache reuse",
+              "effect": "lower compute work"
+            },
+            "target": {
+              "text": "A hit returns the stored embedding and skips the embedding model call."
+            }
+          },
+          "intended_label": "intermediate_process",
+          "note": "Operative interaction is explicit; truth is not certified.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "causal_mechanism_2",
+          "state": {
+            "relation": {
+              "cause": "cache reuse",
+              "effect": "lower compute work"
+            },
+            "target": {
+              "text": "Caching reduces compute work."
+            }
+          },
+          "intended_label": "association_only",
+          "note": "A perfectly appropriate short statement can fit this label.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "causal_mechanism_3",
+          "state": {
+            "relation": {
+              "cause": "cache reuse",
+              "effect": "lower compute work"
+            },
+            "target": {
+              "text": "The cache expires every ten minutes."
+            }
+          },
+          "intended_label": "no_explanation",
+          "note": "Describes the cache without explaining this effect.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "claim_relationship": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "What semantic relationship holds between the single propositions in `pair.a.text` and `pair.b.text`, under `context.conditions`?",
+          "boundary": "Inputs must be single source-backed propositions, not invented summaries. Do not assess redundancy, usefulness, or truth. Ambiguous compound claims should be split or return insufficient_context."
+        },
+        "criteria": {
+          "equivalent": "A and B assert substantially the same proposition under the supplied conditions.",
+          "b_narrows_a": "B expresses a restricted case or weaker reach of A; the restriction makes B narrower rather than an equivalent paraphrase.",
+          "b_broadens_a": "B asserts the proposition over a wider scope or with fewer restrictions than A.",
+          "compatible_distinct": "They concern the same issue and can both hold, but neither is an equivalent, narrower, or broader version of the other.",
+          "incompatible": "They cannot both hold under the same supplied conditions.",
+          "unrelated": "They do not address the same proposition or a related issue.",
+          "insufficient_context": "Missing scope, ambiguity, multiple unsplit propositions, or unknown conditions prevent a reliable classification."
+        }
+      },
+      "family": "semantic_relation",
+      "scope": "claim_pair",
+      "required_fields": [
+        "pair.a.text",
+        "pair.b.text",
+        "context.conditions"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "initial_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "The editor uses position, audience, and genre to decide whether equivalent claims are helpful repetition. Use broader claims as candidates for scope review.",
+      "ancestry": [
+        {
+          "source_id": "S01",
+          "source_url": "https://arxiv.org/html/2509.19163v2",
+          "evidence_class": "D",
+          "supported_concern": "Localized repetition is among studied concerns",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S04",
+          "source_url": "https://arxiv.org/html/2610.00531v1",
+          "evidence_class": "H",
+          "supported_concern": "Transfer from scientific redundancy and consistency measures",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "claim_relationship_1",
+          "state": {
+            "pair": {
+              "a": {
+                "text": "A cache hit reuses the stored embedding."
+              },
+              "b": {
+                "text": "On a cache hit, the stored embedding is used again."
+              }
+            },
+            "context": {
+              "conditions": "Same cache and same operation."
+            }
+          },
+          "intended_label": "equivalent",
+          "note": "Does not imply harmful repetition.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "claim_relationship_2",
+          "state": {
+            "pair": {
+              "a": {
+                "text": "Every request is cached."
+              },
+              "b": {
+                "text": "Read requests are cached."
+              }
+            },
+            "context": {
+              "conditions": "Same system; read requests are a proper subset of all requests."
+            }
+          },
+          "intended_label": "b_narrows_a",
+          "note": "Scope differs; do not call an equivalent paraphrase.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "claim_relationship_3",
+          "state": {
+            "pair": {
+              "a": {
+                "text": "The default TTL is ten minutes."
+              },
+              "b": {
+                "text": "The default TTL is twenty minutes."
+              }
+            },
+            "context": {
+              "conditions": "Same version, configuration, and time."
+            }
+          },
+          "intended_label": "incompatible",
+          "note": "Conflict is anchored to explicitly comparable conditions.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "claim_relationship_4",
+          "state": {
+            "pair": {
+              "a": {
+                "text": "The TTL was ten minutes in version 1."
+              },
+              "b": {
+                "text": "The TTL is twenty minutes in version 2."
+              }
+            },
+            "context": {
+              "conditions": "Different versions."
+            }
+          },
+          "intended_label": "compatible_distinct",
+          "note": "A change over time is not a contradiction.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "contrast_relationship": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "How do the propositions `contrast.a` and `contrast.b` relate under `context.definitions`?",
+          "boundary": "Compatibility is not a verdict on rhetorical payoff. Emphasis can deliberately contrast compatible properties."
+        },
+        "criteria": {
+          "mutually_exclusive": "The propositions cannot both be true of the same subject under the supplied definitions.",
+          "compatible": "The propositions can both be true of the same subject under the supplied definitions.",
+          "insufficient_context": "Definitions, referents, or scope are insufficient to decide compatibility."
+        }
+      },
+      "family": "semantic_relation",
+      "scope": "contrast_pair",
+      "required_fields": [
+        "contrast.a",
+        "contrast.b",
+        "context.definitions"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Inspect whether the surrounding sentence promises a distinction it actually explains; the reasoning model owns that assessment.",
+      "ancestry": [
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community complaints about decorative negative parallelisms",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "contrast_relationship_1",
+          "state": {
+            "contrast": {
+              "a": "The release adds a feature.",
+              "b": "The release is important."
+            },
+            "context": {
+              "definitions": "Same release; adding a feature does not exclude importance."
+            }
+          },
+          "intended_label": "compatible",
+          "note": "Compatibility alone does not make a rhetorical contrast bad.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "contrast_relationship_2",
+          "state": {
+            "contrast": {
+              "a": "The operation is permitted.",
+              "b": "The operation is forbidden."
+            },
+            "context": {
+              "definitions": "Same policy, time, actor, and operation; permission and prohibition are exclusive."
+            }
+          },
+          "intended_label": "mutually_exclusive",
+          "note": "A genuine categorical distinction.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "contrast_relationship_3",
+          "state": {
+            "contrast": {
+              "a": "It is light.",
+              "b": "It is heavy."
+            },
+            "context": {
+              "definitions": "No referent or meaning of light is supplied."
+            }
+          },
+          "intended_label": "insufficient_context",
+          "note": "Do not invent the intended dimension.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "limitation_presence": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Is the limitation in `limitation.text` expressed as applying to the target claim in `target.text`, considering `target.context`?",
+          "boundary": "Assess expression, not importance or truth. Absence is restricted to the supplied view. Do not infer permission to remove a limitation."
+        },
+        "criteria": {
+          "expressed": "The limitation applies explicitly or through an unambiguous qualifier in supplied context.",
+          "absent_in_supplied_view": "The supplied target and context do not express the limitation as applying to that claim.",
+          "explicitly_contradicted": "The supplied view explicitly denies or overrides that limitation.",
+          "insufficient_context": "Scope attachment or wording is too ambiguous to decide."
+        }
+      },
+      "family": "preservation_relation",
+      "scope": "claim_with_context",
+      "required_fields": [
+        "target.text",
+        "target.context",
+        "limitation.text"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "initial_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Use as a targeted preservation gate when the limitation is required by the edit mandate; escalate ambiguous attachment.",
+      "ancestry": [
+        {
+          "source_id": "S04",
+          "source_url": "https://arxiv.org/html/2610.00531v1",
+          "evidence_class": "H",
+          "supported_concern": "Preserving evidence and limitations during metric-guided revision",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S10",
+          "source_url": "https://arxiv.org/html/2409.14509v3",
+          "evidence_class": "H",
+          "supported_concern": "Transfer from editing evaluation to constraint preservation",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "limitation_presence_1",
+          "state": {
+            "target": {
+              "text": "Median latency was 12 ms.",
+              "context": "The following results apply only to warm-cache requests."
+            },
+            "limitation": {
+              "text": "Measured only with a warm cache."
+            }
+          },
+          "intended_label": "expressed",
+          "note": "Context can preserve the qualifier without verbatim repetition.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "limitation_presence_2",
+          "state": {
+            "target": {
+              "text": "Median latency was 12 ms.",
+              "context": ""
+            },
+            "limitation": {
+              "text": "Measured only with a warm cache."
+            }
+          },
+          "intended_label": "absent_in_supplied_view",
+          "note": "Local absence; document-wide deletion cannot be concluded from incomplete coverage.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "limitation_presence_3",
+          "state": {
+            "target": {
+              "text": "The result holds for both warm and cold caches.",
+              "context": ""
+            },
+            "limitation": {
+              "text": "The result is limited to warm caches."
+            }
+          },
+          "intended_label": "explicitly_contradicted",
+          "note": "The limitation is explicitly overridden.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "evidence_relation": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "How does the supplied excerpt `evidence.text` relate to the single proposition `claim.text`?",
+          "boundary": "Do not search from memory or verify source credibility. No relevant support in an excerpt is not proof of falsity or evidence absence everywhere."
+        },
+        "criteria": {
+          "supports_as_stated": "The excerpt supports the proposition at its stated scope and strength.",
+          "supports_narrower_claim": "It supports a narrower or weaker form, but not the full proposition as stated.",
+          "contradicts": "It supplies evidence incompatible with the proposition under matching conditions.",
+          "no_relevant_support": "It neither supports nor contradicts the proposition in the supplied view.",
+          "insufficient_context": "Ambiguity or missing contextual conditions prevent determining the relation."
+        }
+      },
+      "family": "support_relation",
+      "scope": "claim_and_excerpt",
+      "required_fields": [
+        "claim.text",
+        "evidence.text",
+        "evidence.coverage"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "The editor may retrieve more evidence, qualify the claim, or ask for support. Supplied evidence coverage must remain visible.",
+      "ancestry": [
+        {
+          "source_id": "S04",
+          "source_url": "https://arxiv.org/html/2610.00531v1",
+          "evidence_class": "H",
+          "supported_concern": "Scientific evidence-gap measures motivate scoped evidence comparisons",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        },
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community concern about unsupported authority",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "evidence_relation_1",
+          "state": {
+            "claim": {
+              "text": "The default TTL is ten minutes."
+            },
+            "evidence": {
+              "text": "The default TTL is 600 seconds.",
+              "coverage": "One supplied configuration excerpt."
+            }
+          },
+          "intended_label": "supports_as_stated",
+          "note": "Unit conversion is allowed; code should also check exact values.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "evidence_relation_2",
+          "state": {
+            "claim": {
+              "text": "All requests complete below 20 ms."
+            },
+            "evidence": {
+              "text": "Median warm-cache latency is 12 ms.",
+              "coverage": "One supplied result excerpt."
+            }
+          },
+          "intended_label": "supports_narrower_claim",
+          "note": "Median and warm-cache scope do not support the universal assertion.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "evidence_relation_3",
+          "state": {
+            "claim": {
+              "text": "The default TTL is ten minutes."
+            },
+            "evidence": {
+              "text": "The cache uses Redis.",
+              "coverage": "One supplied architecture excerpt."
+            }
+          },
+          "intended_label": "no_relevant_support",
+          "note": "Not proof that the claim is false or unsupported elsewhere.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "uncertainty_change": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Compared with `original.claim`, how does `revision.claim` express certainty about the same proposition within `context.shared_scope`?",
+          "boundary": "Do not compare different propositions or confuse deontic permission with epistemic possibility. Code and the reasoning model must establish candidate alignment."
+        },
+        "criteria": {
+          "preserved": "The versions express materially equivalent epistemic certainty.",
+          "stronger": "The revision presents the proposition as more certain, established, or unconditional in epistemic terms.",
+          "weaker": "The revision presents it as less certain or more tentative.",
+          "insufficient_context": "The propositions are not aligned, scope differs, or uncertainty language cannot be interpreted reliably."
+        }
+      },
+      "family": "revision_relation",
+      "scope": "aligned_claim_pair",
+      "required_fields": [
+        "original.claim",
+        "revision.claim",
+        "context.shared_scope"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Block unauthorized certainty changes on protected claims; ask the editor to resolve ambiguous alignment.",
+      "ancestry": [
+        {
+          "source_id": "S04",
+          "source_url": "https://arxiv.org/html/2610.00531v1",
+          "evidence_class": "H",
+          "supported_concern": "Preservation during scientific revision motivates explicit certainty checks",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "uncertainty_change_1",
+          "state": {
+            "original": {
+              "claim": "The change may reduce latency."
+            },
+            "revision": {
+              "claim": "The change reduces latency."
+            },
+            "context": {
+              "shared_scope": "Same change, system, and conditions."
+            }
+          },
+          "intended_label": "stronger",
+          "note": "Whether this change is authorized is determined separately.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "uncertainty_change_2",
+          "state": {
+            "original": {
+              "claim": "The result might reflect sampling error."
+            },
+            "revision": {
+              "claim": "Sampling error could explain the result."
+            },
+            "context": {
+              "shared_scope": "Same result and explanation."
+            }
+          },
+          "intended_label": "preserved",
+          "note": "Meaningful certainty, not literal hedge matching.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "uncertainty_change_3",
+          "state": {
+            "original": {
+              "claim": "The change reduces latency."
+            },
+            "revision": {
+              "claim": "The change may reduce latency."
+            },
+            "context": {
+              "shared_scope": "Same change, system, and conditions."
+            }
+          },
+          "intended_label": "weaker",
+          "note": "Weaker certainty can also be unauthorized drift.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "attribution_change": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does `revision.claim` attribute the aligned proposition to the same source or speaker as `original.claim`, using `context.speakers`?",
+          "boundary": "Do not judge credibility or whether attribution is stylistically desirable. Distinguish identity changes from omitted citation formatting."
+        },
+        "criteria": {
+          "preserved": "The same source or speaker remains responsible for the claim, including clear pronoun resolution.",
+          "removed": "An attributed claim becomes an unattributed assertion by the current narrator.",
+          "changed": "The revision attributes it to a different source or speaker.",
+          "not_applicable": "The original and revision contain no attribution for this proposition.",
+          "insufficient_context": "Claim alignment or speaker identity is unclear."
+        }
+      },
+      "family": "revision_relation",
+      "scope": "aligned_claim_pair",
+      "required_fields": [
+        "original.claim",
+        "revision.claim",
+        "context.speakers"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Check the edit mandate before accepting any attribution change; preserve sourced uncertainty and responsibility.",
+      "ancestry": [
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "H",
+          "supported_concern": "Transfer from vague attribution concerns to explicit edit preservation",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "attribution_change_1",
+          "state": {
+            "original": {
+              "claim": "The vendor reports 12 ms latency."
+            },
+            "revision": {
+              "claim": "Latency is 12 ms."
+            },
+            "context": {
+              "speakers": "The current narrator is not the vendor."
+            }
+          },
+          "intended_label": "removed",
+          "note": "A report became an assertion.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "attribution_change_2",
+          "state": {
+            "original": {
+              "claim": "Lee measured 12 ms latency."
+            },
+            "revision": {
+              "claim": "Her measurement was 12 ms."
+            },
+            "context": {
+              "speakers": "Her refers unambiguously to Lee."
+            }
+          },
+          "intended_label": "preserved",
+          "note": "Paraphrase can retain attribution.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "attribution_change_3",
+          "state": {
+            "original": {
+              "claim": "Lee measured 12 ms latency."
+            },
+            "revision": {
+              "claim": "Kim measured 12 ms latency."
+            },
+            "context": {
+              "speakers": "Lee and Kim are different people."
+            }
+          },
+          "intended_label": "changed",
+          "note": "Source identity changed.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    },
+    "personal_experience_assertion": {
+      "question": {
+        "type": "noul",
+        "instructions": {
+          "question": "Does `target.text` assert a factual personal experience, action, feeling, or background fact about `context.speaker`?",
+          "boundary": "Do not infer truth or novelty from the sentence alone. Newness requires comparison with source material; fiction and author permissions need separate handling."
+        },
+        "criteria": {
+          "true": "The passage asserts or unambiguously implies a factual personal experience, action, feeling, or background fact about the identified speaker.",
+          "false": "It does not make such an assertion. Hypotheticals, clearly fictional narration, quoted others, and instructions alone do not count."
+        }
+      },
+      "family": "revision_candidate",
+      "scope": "sentence_or_passage",
+      "required_fields": [
+        "target.text",
+        "context.speaker",
+        "context.mode"
+      ],
+      "coverage_requirements": "Provide the exact source units and coverage metadata. Missing required inputs means skipped_missing_context; an unclear answer is not a negative answer.",
+      "pilot_priority": "optional_candidate",
+      "interpretation": "Observed semantic signal only. Presence or high probability does not imply a defect, edit instruction, or probability of reader benefit.",
+      "editor_use": "Compare detected claims with the original and supplied author facts. Unsupported additions are candidates for rejection, not evidence of author dishonesty.",
+      "ancestry": [
+        {
+          "source_id": "S18",
+          "source_url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+          "evidence_class": "C",
+          "supported_concern": "Community complaints about manufactured human experience",
+          "transfer_limit": "Motivates testing this signal; does not validate these labels, the proposed question, Jev accuracy, or editing benefit."
+        }
+      ],
+      "validation_status": {
+        "jev_tested": false,
+        "exact_question_validated": false,
+        "editor_utility_tested": false
+      },
+      "synthetic_cases": [
+        {
+          "case_id": "personal_experience_assertion_1",
+          "state": {
+            "target": {
+              "text": "I spent three weeks debugging this issue."
+            },
+            "context": {
+              "speaker": "the nonfiction article author",
+              "mode": "nonfiction"
+            }
+          },
+          "intended_label": "true",
+          "note": "Detection does not establish that the experience is invented.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "personal_experience_assertion_2",
+          "state": {
+            "target": {
+              "text": "Imagine spending three weeks debugging this issue."
+            },
+            "context": {
+              "speaker": "the nonfiction article author",
+              "mode": "nonfiction"
+            }
+          },
+          "intended_label": "false",
+          "note": "An invitation to imagine is not autobiography.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        },
+        {
+          "case_id": "personal_experience_assertion_3",
+          "state": {
+            "target": {
+              "text": "Lee said, “I spent three weeks debugging this.”"
+            },
+            "context": {
+              "speaker": "the article narrator, not Lee",
+              "mode": "nonfiction"
+            }
+          },
+          "intended_label": "false",
+          "note": "The statement belongs to another speaker.",
+          "label_status": "Author-proposed boundary example; not human ground truth or a Jev result"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "S01",
+      "title": "Measuring AI “Slop” in Text",
+      "authors": "Shaib, Chakrabarty, Garcia-Olano and Wallace",
+      "date": "2026-01-24 (v2; first preprint 2025-09)",
+      "status": "Research paper; COLM 2026 acceptance separately verified",
+      "url": "https://arxiv.org/html/2509.19163v2",
+      "artifact": "https://github.com/cshaib/slop",
+      "access": "Full v2 read; linked repository currently says Coming soon"
+    },
+    {
+      "id": "S02",
+      "title": "COLM 2026 accepted papers",
+      "date": "2026",
+      "status": "Official conference listing",
+      "url": "https://colm.eventhosts.cc/Conferences/2026/AcceptedPapers",
+      "access": "Acceptance verified; final conference paper not substituted for v2"
+    },
+    {
+      "id": "S03",
+      "title": "SlopBench: How Well Can We Rank Language Models by Slop?",
+      "authors": "Roongta, Gaddipati and Huynh",
+      "date": "2026-09-27",
+      "status": "Preprint",
+      "url": "https://arxiv.org/html/2609.33905v1",
+      "artifact": "https://github.com/hgaddipati1118/slop-index",
+      "access": "Full paper and repository read; metrics not rerun"
+    },
+    {
+      "id": "S04",
+      "title": "Science or Slop? Benchmarking and Mitigating Scientific Slop in AI-Generated Papers",
+      "authors": "Oh, Lee, Ahn, Kim and Kang",
+      "date": "2026-09-30",
+      "status": "Preprint",
+      "url": "https://arxiv.org/html/2610.00531v1",
+      "artifact": "https://github.com/yerimoh/ScientificSlop",
+      "dataset": "https://huggingface.co/datasets/yerim0210/Scientific_Slop",
+      "access": "Full paper, official site, code and dataset landing pages inspected"
+    },
+    {
+      "id": "S05",
+      "title": "Flattery, Fluff, and Fog",
+      "authors": "Bharadwaj, Malaviya, Joshi and Yatskar",
+      "date": "ICLR 2026; preprint 2025",
+      "status": "Peer-reviewed conference paper",
+      "url": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/2096bafd3073a2224f6f0adb594068df-Abstract-Conference.html",
+      "full_text": "https://arxiv.org/html/2506.05339v3",
+      "access": "Official proceedings abstract and full preprint"
+    },
+    {
+      "id": "S06",
+      "title": "More Aligned, Less Diverse? Analyzing the Grammar and Lexicon of Two Generations of LLMs",
+      "authors": "Gude et al.",
+      "date": "2026-07",
+      "status": "ACL 2026 long paper",
+      "url": "https://aclanthology.org/2026.acl-long.1803/",
+      "access": "Official abstract and publication metadata"
+    },
+    {
+      "id": "S07",
+      "title": "The shrinking landscape of linguistic diversity in the age of large language models",
+      "authors": "Sourati et al.",
+      "date": "2026-08-24",
+      "status": "Nature Human Behaviour",
+      "url": "https://www.nature.com/articles/s41562-026-02550-0",
+      "abstract": "https://pubmed.ncbi.nlm.nih.gov/42637911/",
+      "earlier_preprint": "https://arxiv.org/html/2502.11266v1",
+      "access": "Published abstract via primary indexed sources; earlier full preprint; published full text inaccessible"
+    },
+    {
+      "id": "S08",
+      "title": "Em-ergence of the em-dash",
+      "authors": "Czuma",
+      "date": "2026-06-28",
+      "status": "Preregistered observational preprint",
+      "url": "https://arxiv.org/abs/2606.29540",
+      "access": "Primary abstract and submission metadata"
+    },
+    {
+      "id": "S09",
+      "title": "“That’s AI Slop, You Bot!”",
+      "authors": "Miklian and Katsos",
+      "date": "2026-06-10",
+      "status": "Observational preprint",
+      "url": "https://arxiv.org/abs/2606.12073",
+      "full_text": "https://arxiv.org/pdf/2606.12073",
+      "access": "Full PDF read"
+    },
+    {
+      "id": "S10",
+      "title": "Can AI writing be salvaged?",
+      "authors": "Chakrabarty, Laban and Wu",
+      "date": "CHI 2025; preprint 2024",
+      "status": "Peer-reviewed conference paper",
+      "url": "https://arxiv.org/html/2409.14509v3",
+      "publication": "https://programs.sigchi.org/chi/2025/program/content/188484",
+      "access": "Full preprint and conference record"
+    },
+    {
+      "id": "S11",
+      "title": "AI-Slop to AI-Polish?",
+      "authors": "Chakrabarty, Laban and Wu",
+      "date": "2025-04-20 (v2)",
+      "status": "Preprint",
+      "url": "https://arxiv.org/html/2504.07532v2",
+      "artifact": "https://github.com/salesforce/creativity_eval/",
+      "access": "Full paper; repository linked by paper"
+    },
+    {
+      "id": "S12",
+      "title": "From Lists to Emojis: How Format Bias Affects Model Alignment",
+      "date": "ACL 2025",
+      "status": "Peer-reviewed conference paper",
+      "url": "https://aclanthology.org/2025.acl-long.1308/",
+      "access": "Official abstract"
+    },
+    {
+      "id": "S13",
+      "title": "People who frequently use ChatGPT for writing tasks are accurate and robust detectors of AI-generated text",
+      "authors": "Russell, Karpinska and Iyyer",
+      "date": "2025-05-19 (v2)",
+      "status": "Research paper",
+      "url": "https://arxiv.org/html/2501.15654v2",
+      "artifact": "https://github.com/jenna-russell/human_detectors",
+      "access": "Full paper"
+    },
+    {
+      "id": "S14",
+      "title": "GPT detectors are biased against non-native English writers",
+      "authors": "Liang et al.",
+      "date": "2023",
+      "status": "Patterns research paper",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10382961/",
+      "access": "Primary research text"
+    },
+    {
+      "id": "S15",
+      "title": "Delving into LLM-assisted writing in biomedical publications through excess vocabulary",
+      "authors": "Kobak, González-Márquez, Horvát and Lause",
+      "date": "2025-07-04; online 2025-07-02",
+      "status": "Science Advances",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40601754/",
+      "doi": "https://doi.org/10.1126/sciadv.adt3813",
+      "access": "Primary abstract and figure captions; publisher full text blocked"
+    },
+    {
+      "id": "S16",
+      "title": "Testing English News Articles for Lexical Homogenization Due to Widespread Use of Large Language Models",
+      "authors": "Fitterer, Gangl and Ulbrich",
+      "date": "2025-07",
+      "status": "ACL Student Research Workshop",
+      "url": "https://aclanthology.org/2025.acl-srw.95/",
+      "access": "Official abstract"
+    },
+    {
+      "id": "S17",
+      "title": "Detection and Measurement of Syntactic Templates in Generated Text",
+      "authors": "Shaib, Elazar, Li and Wallace",
+      "date": "EMNLP 2024",
+      "status": "Peer-reviewed conference paper",
+      "url": "https://aclanthology.org/2024.emnlp-main.368/",
+      "access": "Official abstract"
+    },
+    {
+      "id": "S18",
+      "title": "Wikipedia Signs of AI writing",
+      "date": "Snapshot accessed 2026-10-13",
+      "status": "WikiProject AI Cleanup advice page; not Wikipedia policy",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1380067895&title=Wikipedia:Signs_of_AI_writing",
+      "access": "Field guide read; permanent revision link retained"
+    },
+    {
+      "id": "S19",
+      "title": "blader/humanizer",
+      "date": "Current repository accessed 2026-10-13",
+      "status": "Community agent skill; SKILL.md metadata 3.1.0",
+      "url": "https://github.com/blader/humanizer",
+      "skill": "https://github.com/blader/humanizer/blob/main/SKILL.md",
+      "access": "README and skill read"
+    },
+    {
+      "id": "S20",
+      "title": "EQ-Bench Slop Score",
+      "authors": "Samuel J. Paech",
+      "date": "Repository cites 2025; accessed 2026-10-13",
+      "status": "Open-source heuristic benchmark",
+      "url": "https://github.com/sam-paech/slop-score",
+      "demo": "https://eqbench.com/slop-score.html",
+      "access": "README methodology and demo read"
+    },
+    {
+      "id": "S21",
+      "title": "Dan Cleary SlopBench",
+      "date": "Accessed 2026-10-13",
+      "status": "Community deterministic benchmark",
+      "url": "https://github.com/Dan-Cleary/slopbench",
+      "access": "README scoring method read"
+    },
+    {
+      "id": "S22",
+      "title": "bheijden/slop",
+      "date": "Accessed 2026-10-13",
+      "status": "Community prose linter",
+      "url": "https://github.com/bheijden/slop",
+      "access": "README and rule-set descriptions"
+    },
+    {
+      "id": "S23",
+      "title": "The load-bearing vocabulary of Claude",
+      "authors": "Louis Abraham",
+      "date": "Accessed 2026-10-13",
+      "status": "Exploratory corpus analysis and classifier",
+      "url": "https://github.com/louisabraham/load-bearing",
+      "demo": "https://louisabraham.github.io/load-bearing/",
+      "access": "README; findings not independently reproduced"
+    },
+    {
+      "id": "S24",
+      "title": "How LinkedIn is Continuing to Tackle AI Slop",
+      "date": "2026-09-15",
+      "status": "Platform statement; company-reported results",
+      "url": "https://news.linkedin.com/2026/how-linkedin-is-tackling-ai-slop",
+      "access": "Full official statement"
+    },
+    {
+      "id": "S25",
+      "title": "WritingBench: A Comprehensive Benchmark for Generative Writing",
+      "authors": "Wu et al.",
+      "date": "NeurIPS 2025",
+      "status": "Peer-reviewed Datasets and Benchmarks paper",
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2025/hash/4aedf0cba303537fcb6cf948bb41b2df-Abstract-Datasets_and_Benchmarks_Track.html",
+      "artifact": "https://github.com/X-PLUG/WritingBench",
+      "inspect": "https://ukgovernmentbeis.github.io/inspect_evals/evals/writing/writingbench/",
+      "access": "Official abstract and project / Inspect documentation"
+    },
+    {
+      "id": "S26",
+      "title": "Length-Controlled AlpacaEval",
+      "authors": "Dubois, Galambosi, Liang and Hashimoto",
+      "date": "2024; revision 2025",
+      "status": "Evaluation-method paper",
+      "url": "https://arxiv.org/abs/2404.04475",
+      "artifact": "https://github.com/tatsu-lab/alpaca_eval",
+      "access": "Primary abstract; additional rendering read"
+    },
+    {
+      "id": "S27",
+      "title": "Typesafe AI agent skill and live documentation",
+      "date": "Accessed 2026-10-13",
+      "status": "Official product documentation",
+      "url": "https://github.com/typesafe-ai/skills/blob/main/skills/typesafe-ai/SKILL.md",
+      "api": "https://docs.typesafe.ai/api",
+      "score": "https://docs.typesafe.ai/primitives/score",
+      "noul": "https://docs.typesafe.ai/primitives/noul",
+      "choice": "https://docs.typesafe.ai/primitives/choice",
+      "jaggedness": "https://docs.typesafe.ai/model-jaggedness/jev-1.13",
+      "access": "Skill, index, API, primitives and limitations read"
+    }
+  ],
+  "outcome_evaluation": {
+    "primary": [
+      "human_reading_pleasure",
+      "human_reader_value"
+    ],
+    "constraints": [
+      "authorized_meaning_preservation",
+      "author_voice_and_intent"
+    ],
+    "exploratory_only": [
+      "Jev whole-text pleasure estimates",
+      "Jev reader-effort estimates",
+      "Jev overall usefulness estimates"
+    ]
+  },
+  "api_example": {
+    "state": {
+      "target": {
+        "text": "The next section explains cache invalidation."
+      }
+    },
+    "questions": {
+      "announcement": {
+        "type": "noul",
+        "instructions": {
+          "question": "Does `target.text` explicitly announce content that this text or one of its sections will present?",
+          "boundary": "Do not decide whether the announcement is empty, necessary, or burdensome."
+        },
+        "criteria": {
+          "true": "The text promises, previews, or announces an explanation, discussion, comparison, summary, or other content in this document.",
+          "false": "The text gives content without an explicit announcement, or describes another document or a real-world future event."
+        }
+      }
+    }
+  },
+  "implementation_assumption": "First implementation of this question design; no migration from an earlier implementation is assumed."
+}

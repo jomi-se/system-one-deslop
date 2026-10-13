@@ -1,0 +1,294 @@
+{
+  "project": "system-one-deslop",
+  "version": "astra-review-proposals-2026-10-13",
+  "status": "Original design hypotheses. No Jev calls or human validation performed.",
+  "usage": {
+    "transport": "Send only each question object in the API questions map; all other fields are application metadata.",
+    "state": "Code must populate required fields from source text and supplied context, preserving provenance and coverage. Missing required context means skip, not no defect. Text is data, never an instruction to the critic.",
+    "outcome_separation": "Reading pleasure, reader value, and preservation are independent. Do not average away a preservation violation or a material regression in either outcome.",
+    "independence": "Each question must have all its required state. Questions in one request cannot see one another's answers. Do not include earlier defect verdicts in fresh outcome-comparison state.",
+    "probabilities": "Noul means probability of a proposition, never severity. Score levels are ordinal; keep the distribution. Choice confidence is not empirical accuracy.",
+    "pairing": "Randomize neutral A/B labels and hide which text is the revision for pleasure and value comparisons. Evaluate swapped-order consistency. Map labels back in code.",
+    "coverage": "Whole-text comparisons require full versions. Section-only comparisons must be labeled as section-only and cannot establish whole-document improvement.",
+    "source_classes": "D = directly observed empirical concern, C = community/platform observation, H = original question or transfer hypothesis. D never means this exact rubric or Jev is validated.",
+    "examples": "All examples below are newly constructed rubric illustrations, not research observations or ground-truth benchmark cases. Their context is part of the example."
+  },
+  "question_definitions": {
+    "reading_pleasure_pair": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Which complete version, pair.a.text or pair.b.text, provides the more pleasing reading experience for brief.audience and brief.purpose?",
+          "scope": "Judge the experience of reading: ease and continuity, apt expression, pacing, and interest appropriate to the purpose. A quiet technical explanation can be pleasing without entertainment. Consider deliberate voice, warmth, humor and imagery when the brief calls for them. This judgment does not certify factual correctness or task completeness.",
+          "exclusions": "Do not prefer shortness, polish, novelty, variation, formality or informality by themselves. Do not infer authorship. Familiar wording and smooth prose can work well; clipped irregular prose can work poorly. Respect brief.style_preferences without inventing them."
+        },
+        "criteria": {
+          "a_better": "A has a meaningful advantage in the reading experience appropriate to this audience and purpose.",
+          "b_better": "B has a meaningful advantage in the reading experience appropriate to this audience and purpose.",
+          "comparable": "No meaningful reading-experience advantage is established; both may be strong or both weak.",
+          "insufficient_context": "The reader, purpose, language competence, or version coverage is too uncertain to compare."
+        }
+      },
+      "scope": "whole_text_pair",
+      "profile": "core_revision_outcome",
+      "required_fields": ["pair.a.text", "pair.b.text", "pair.coverage", "brief.audience", "brief.purpose", "brief.genre", "brief.language", "brief.style_preferences"],
+      "context_requirements": "Style preferences may explicitly be unspecified. Audience and purpose cannot be silently invented. For voice-specific tasks include relevant samples, identically for both versions.",
+      "replaces_or_extends": ["rewrite_usefulness"],
+      "ancestry": [{"sources": ["S10", "S11"], "class": "D", "supports": "Expert writing preference and edit evaluation are meaningful empirical targets, with domain limits."}, {"class": "H", "supports": "This independent reading-pleasure comparison and its application to professional prose are proposed."}],
+      "examples": [
+        {"context": "Explain a confusing process to a beginner. Both versions retain all steps.", "a": "An accurate compressed paragraph with tangled references.", "b": "A somewhat longer version with clear transitions and an apt, simple analogy.", "expected": "b_better", "reason": "Longer can be more pleasant; brevity is not the target."},
+        {"context": "A factual outage update; identical content and clear phrasing in both versions.", "a": "Uses a legitimate em dash.", "b": "Replaces that dash with parentheses.", "expected": "comparable", "reason": "Punctuation alone does not establish an experiential gain."}
+      ],
+      "action": "A preference is a predicted outcome for evaluation, not an edit authorization. Compare reader value and preservation independently."
+    },
+    "reader_value_pair": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Which complete version better gives brief.audience the understanding, decision support, practical result or other reader benefit explicitly required by brief.goal?",
+          "scope": "Compare pair.a.text and pair.b.text against brief.required_outcomes and source evidence where provided. Credit useful distinctions, explanation and appropriately bounded certainty. Assess the stated purpose; do not substitute more information as the goal. Reading pleasure is assessed separately.",
+          "exclusions": "Do not prefer a version just because it is shorter, richer in names or numbers, more polished, more confident or more heavily formatted. Do not invent missing facts or certify unsupported claims as true. For an experiential task use its specified intended experience, not an arbitrary demand for factual density."
+        },
+        "criteria": {
+          "a_better": "A gives a material advantage in the reader benefit required by the brief.",
+          "b_better": "B gives a material advantage in the reader benefit required by the brief.",
+          "comparable": "Neither version has a material advantage for that benefit, even if their style differs.",
+          "insufficient_context": "The required reader benefit or necessary source coverage is too unclear to judge."
+        }
+      },
+      "scope": "whole_text_pair",
+      "profile": "core_revision_outcome",
+      "required_fields": ["pair.a.text", "pair.b.text", "pair.coverage", "brief.goal", "brief.audience", "brief.required_outcomes", "evidence.coverage"],
+      "context_requirements": "Supply evidence.excerpts when benefit depends on claim correctness. Evidence coverage can state not required, unknown, partial or supplied-complete; do not equate unknown with absent.",
+      "replaces_or_extends": ["rewrite_usefulness"],
+      "ancestry": [{"sources": ["S01", "S05"], "class": "D", "supports": "Utility, relevance and vague apparent substance matter in studied tasks; evaluators can prefer superficial features."}, {"class": "H", "supports": "This exact pairwise utility rubric is proposed."}],
+      "examples": [
+        {"context": "Engineers need to budget warm and cold build times.", "a": "Warm builds take nine minutes; cold builds still take thirty.", "b": "Builds are dramatically faster.", "expected": "a_better", "reason": "The essential limitation and measurements provide value."},
+        {"context": "The user asked only when the meeting starts.", "a": "It starts at 10 a.m.", "b": "It starts at 10 a.m., followed by an accurate but unsolicited history of the meeting series.", "expected": "a_better", "reason": "Extra true content can make the needed benefit harder to obtain."}
+      ],
+      "action": "Do not interpret comparable as proof either version meets the goal; retain document_goal_gap as an absolute check."
+    },
+    "avoidable_reader_effort": {
+      "question": {
+        "type": "score",
+        "instructions": {
+          "question": "How much avoidable processing effort does passage.text impose on brief.audience in this context?",
+          "scope": "Judge effort created by expression or organization: needless detours, repeated staging, unresolved references, or needless verbal complexity. Compare effort with the communicative benefit actually served. Use context.before and context.after to avoid treating delayed payoff as absent.",
+          "exclusions": "Do not penalize inherent subject difficulty, necessary detail, deliberate suspense, useful repetition, tact, aesthetic pacing or scaffolding needed by this reader. Do not count length, sentence complexity or unfamiliar words as defects by themselves."
+        },
+        "criteria": [
+          "No clear avoidable burden; the wording and organization earn the effort required for this reader.",
+          "A small local burden briefly slows reading but the intended meaning remains easy to follow.",
+          "A substantial or recurring avoidable burden makes the reader work unnecessarily to recover the point.",
+          "Avoidable expression or organization seriously obstructs the reader's understanding or intended use."
+        ]
+      },
+      "scope": "passage_in_context",
+      "profile": "core_diagnostic",
+      "required_fields": ["passage.text", "context.before", "context.after", "context.coverage", "brief.goal", "brief.audience", "brief.genre", "brief.reading_mode"],
+      "context_requirements": "Reading mode identifies continuous reading, skimming, reference use or another supplied use. Unknown audience or missing essential surrounding text requires skipping this Score rather than encoding uncertainty as a middle level.",
+      "replaces_or_extends": ["information_padding", "irrelevant_detour", "sentence_empty_announcement"],
+      "ancestry": [{"sources": ["S01", "S10"], "class": "D", "supports": "Observed issues include relevance, verbosity, coherence and awkward phrasing."}, {"class": "H", "supports": "An effort-versus-function rubric is a proposed synthesis."}],
+      "examples": [
+        {"context": "A three-line factual reply immediately following the question.", "text": "Before diving into the answer, it is important to first consider the key point that will guide our response.", "expected_level": 2, "reason": "Substantial staging delays the answer without a useful function."},
+        {"context": "A beginner's tutorial about recursion.", "text": "A worked example slowly traces each call and return.", "expected_level": 0, "reason": "Teaching detail earns its length."}
+      ],
+      "action": "A high level nominates a passage for inspection; it does not determine which words to delete."
+    },
+    "communicative_contribution": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "What useful contribution does passage.text make at this location for brief.goal and brief.audience?",
+          "scope": "Consider prior relevant material, following development and the intended reading mode. Assess the best-supported useful function, not factual novelty alone. If several functions are equally central choose multiple_useful_functions.",
+          "exclusions": "An emotional acknowledgment, an orienting transition, a moment of humor, or a scene detail may serve the brief without supplying a new fact. Do not assume a passage is new merely because retrieval omitted earlier material."
+        },
+        "criteria": {
+          "substantive_development": "Adds relevant understanding through a fact, reason, distinction, example, consequence or qualification.",
+          "useful_repetition": "Revisits material to support recall, emphasis, orientation or the specified reading mode.",
+          "other_useful_function": "Primarily serves a warranted interpersonal, navigational, aesthetic or pacing function.",
+          "multiple_useful_functions": "Several of the useful contribution types are substantial and none clearly predominates.",
+          "no_identifiable_useful_function": "No useful contribution is identifiable at this location under the stated brief.",
+          "insufficient_context": "Coverage, purpose or reader context is too incomplete to determine the contribution."
+        }
+      },
+      "scope": "passage_in_document",
+      "profile": "core_diagnostic",
+      "required_fields": ["passage.text", "passage.location", "context.prior_relevant_text", "context.after", "context.coverage", "brief.goal", "brief.audience", "brief.genre", "brief.reading_mode"],
+      "context_requirements": "Source prior and following text, not only a generated summary. Coverage must distinguish none exists from not retrieved.",
+      "replaces_or_extends": ["paragraph_new_contribution", "paragraph_relevance", "transition_connection"],
+      "ancestry": [{"sources": ["S01"], "class": "D", "supports": "Utility and relevance are empirical concerns."}, {"class": "H", "supports": "Positive noninformational functions and this role partition are original design choices."}],
+      "examples": [
+        {"context": "A polite refusal to a colleague whose substantial effort is known from the supplied exchange.", "text": "Thank you for putting the proposal together.", "expected": "other_useful_function", "reason": "Proportionate acknowledgment serves the relationship."},
+        {"context": "A factual update after all relevant results, with no requested recap or rhetorical purpose.", "text": "Ultimately, this shows the enduring importance of progress in a changing world.", "expected": "no_identifiable_useful_function", "reason": "The sentence neither develops the result nor serves a supported reader function."}
+      ],
+      "action": "Only no_identifiable_useful_function nominates removal for consideration. Role categories are not ordered quality levels."
+    },
+    "needed_specificity": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does passage.text provide the specific understanding needed for brief.local_question, considering context.before and context.after?",
+          "scope": "Look for a relevant mechanism, observation, example, distinction or reason that answers the actual question. Generic assurances and descriptions of the topic do not count as an explanation. Proper nouns, numbers and anecdotes count only if their relationship to the question is clear.",
+          "exclusions": "A concise general principle can be exactly what was asked for. Do not demand a case study for a greeting, a definition, an overview or a deliberately general statement. Do not invent missing specifics."
+        },
+        "criteria": {
+          "specific_enough": "The needed understanding is supplied at a level appropriate to the audience.",
+          "generic_substitute": "Broad assurance, labels or transferable advice substitute for the actual explanation or detail the question needs.",
+          "detail_without_connection": "Concrete-seeming details are present but do not explain or substantiate the relevant point.",
+          "specificity_not_needed": "The local task does not call for additional specificity.",
+          "insufficient_context": "The local question, reader or relevant development is unavailable."
+        }
+      },
+      "scope": "passage_with_target_question",
+      "profile": "core_diagnostic",
+      "required_fields": ["passage.text", "context.before", "context.after", "context.coverage", "brief.local_question", "brief.local_question_provenance", "brief.audience"],
+      "context_requirements": "The target question must come from the supplied brief or an anchored explicit promise in the text; do not fabricate a harder question and fault the paragraph for not answering it.",
+      "replaces_or_extends": ["generic_assertion", "explanation_mechanism"],
+      "ancestry": [{"sources": ["S05", "S10"], "class": "D", "supports": "Vagueness and lack of meaningful detail are observed concerns in bounded domains."}, {"sources": ["S24"], "class": "C", "supports": "Generic substance is a platform-described slop concern."}, {"class": "H", "supports": "This question and distinction between real specificity and decorative detail are proposed."}],
+      "examples": [
+        {"context": "Why did our build get faster?", "text": "Caching is an innovative approach that improves efficiency and streamlines workflows.", "expected": "generic_substitute", "reason": "No process explaining this speedup is supplied."},
+        {"context": "Explain the basic principle of caching to a beginner.", "text": "A cache stores a previous result so the program can reuse it instead of doing the same work again.", "expected": "specific_enough", "reason": "A general statement supplies the requested mechanism."},
+        {"context": "Why does the report recommend this option?", "text": "The report has 47 pages and was presented in Berlin on a Tuesday.", "expected": "detail_without_connection", "reason": "Specific facts can still be irrelevant to the required reason."}
+      ],
+      "action": "Often calls for development or evidence, not deletion. Any factual addition needs supplied support."
+    },
+    "rhetorical_payoff": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does candidate.text earn the insight, importance or emotional resolution it signals, within the surrounding passage and brief?",
+          "scope": "Judge the relationship between rhetorical emphasis and the meaning the passage actually develops. Useful emphasis may make a real distinction memorable or carry an intended emotional or aesthetic effect; it need not add another fact. Evaluate the candidate in context, not through a phrase list.",
+          "exclusions": "Do not penalize a contrast, metaphor, balanced sentence, strong conclusion or opinion by itself. Do not exempt every claim merely because it is labeled opinion or marketing. If the judgment depends on unavailable supporting evidence, choose insufficient_context."
+        },
+        "criteria": {
+          "earned_payoff": "The emphasis makes a developed distinction, implication or intended experience effective for the reader.",
+          "unearned_payoff": "The wording signals a revelation, significance or resolution that the passage does not develop or substantiate at the claimed level.",
+          "no_special_payoff_claimed": "The candidate makes no substantial rhetorical promise of insight, importance or resolution.",
+          "insufficient_context": "Intent, surrounding development or necessary support is too incomplete to assess."
+        }
+      },
+      "scope": "rhetorical_candidate_in_context",
+      "profile": "core_targeted_diagnostic",
+      "required_fields": ["candidate.text", "context.enclosing_passage", "context.before", "context.after", "context.coverage", "brief.goal", "brief.audience", "brief.genre", "evidence.coverage"],
+      "context_requirements": "Include evidence.excerpts for externally supported significance claims; distinguish rhetorical hollowness visible in the text from unverified real-world importance.",
+      "replaces_or_extends": ["decorative_reframe", "inflated_significance"],
+      "ancestry": [{"sources": ["S18", "S19", "S24"], "class": "C", "supports": "Inflated importance, decorative framing and absent substance recur in community/platform descriptions; S19 is derivative of S18."}, {"class": "H", "supports": "Rhetorical payoff is an original unifying construct requiring validation."}],
+      "examples": [
+        {"context": "Release notes for a one-pixel icon alignment fix.", "text": "This is not merely a patch; it is a turning point in the future of human collaboration.", "expected": "unearned_payoff", "reason": "The scale of the announced revelation has no development in the stated change."},
+        {"context": "Explain why adding threads did not help.", "text": "The service is I/O-bound, not CPU-bound; extra workers cannot shorten the wait for storage.", "expected": "earned_payoff", "reason": "The contrast earns emphasis through a useful distinction."},
+        {"context": "A commemorative speech whose supplied story develops the theme of mutual help.", "text": "A deliberate return to that theme in a balanced final sentence.", "expected": "earned_payoff", "reason": "Meaningful rhetorical closure need not provide a new datum."}
+      ],
+      "action": "Do not infer real-world falsity. Route evidence-dependent overstatement separately when needed."
+    },
+    "packaging_burden": {
+      "question": {
+        "type": "score",
+        "instructions": {
+          "question": "How much does the visible formatting of document.text make its content harder to read or use for brief.audience and brief.reading_mode?",
+          "scope": "Assess headings, labels, emphasis, lists and fragmentation in relation to real content hierarchy. Judge whether the reader must navigate artificial divisions, repeatedly restart a thought or scan excessive labels for little content.",
+          "exclusions": "Lists, headings, bold text, tables and whitespace are not defects by themselves. Preserve numbered procedures, parallel comparisons, reference navigation and accessibility needs. Do not judge a format that is absent from the supplied rendering."
+        },
+        "criteria": [
+          "Formatting supports use or creates no identifiable burden.",
+          "A small amount of unnecessary labeling or fragmentation creates a minor local burden.",
+          "Repeated packaging obscures relationships or makes useful content unnecessarily cumbersome to locate or follow.",
+          "Packaging dominates the presentation and seriously obstructs the intended reading or use."
+        ]
+      },
+      "scope": "rendered_document_or_section",
+      "profile": "core_when_formatting_present",
+      "required_fields": ["document.text", "document.format_representation", "document.coverage", "brief.goal", "brief.audience", "brief.reading_mode", "brief.accessibility_requirements"],
+      "context_requirements": "The representation must preserve actual heading/list/emphasis hierarchy. Accessibility requirements can be explicitly unspecified. Plain text stripped of structure cannot justify this score.",
+      "replaces_or_extends": [],
+      "ancestry": [{"sources": ["S05", "S12"], "class": "D", "supports": "Formatting can bias evaluators; this does not imply readers generally dislike it."}, {"sources": ["S18", "S19"], "class": "C", "supports": "Excessive packaging is a community observation."}, {"class": "H", "supports": "The burden scale and its reader-function boundary are proposed."}],
+      "examples": [
+        {"context": "A short answer to a simple scheduling question.", "text": "Six bold micro-headings divide six sentences that make one simple point.", "expected_level": 2, "reason": "Unnecessary divisions disrupt a continuous answer."},
+        {"context": "An operator must execute five deployment steps in order.", "text": "Five numbered steps, with one necessary warning clearly emphasized.", "expected_level": 0, "reason": "Formatting directly supports correct use."}
+      ],
+      "action": "Verify with content-preserving format variants; do not reward removing formatting automatically."
+    },
+    "formulaic_cadence_cost": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does a recurring rhetorical pattern in passage.text impose an identifiable cost on the intended reading experience?",
+          "scope": "Look across the supplied contiguous passage for repeated setups, contrasts, climactic fragments or moral closers that predictably reset attention, flatten emphasis or interrupt development. The issue is a repeated pattern's effect, not whether it resembles AI writing.",
+          "exclusions": "Do not infer this from sentence-length counts, one repeated construction or familiar words alone. Deliberate parallelism, anaphora, ritual, mnemonic repetition and consistent procedure structure may be useful. Do not require random variation."
+        },
+        "criteria": {
+          "costly_recurrence": "The repeated rhetorical pattern has an identifiable adverse effect on pacing, emphasis or development in this context.",
+          "purposeful_recurrence": "The recurring pattern serves a supported rhetorical, mnemonic, emotional or procedural purpose.",
+          "no_clear_recurrence_cost": "No recurring pattern with a clear reading cost is established.",
+          "insufficient_context": "The passage is too short or the reader purpose too unclear to assess recurrence and its effect."
+        }
+      },
+      "scope": "contiguous_multi_paragraph_passage",
+      "profile": "optional_narrative_essay_or_social",
+      "required_fields": ["passage.text", "passage.coverage", "brief.goal", "brief.audience", "brief.genre", "brief.style_preferences"],
+      "context_requirements": "Supply enough contiguous text to observe recurrence; do not assemble only selected similar sentences and omit their surrounding development.",
+      "replaces_or_extends": ["document_repeated_thesis"],
+      "ancestry": [{"sources": ["S03", "S17"], "class": "D", "supports": "Structural regularities are measurable; their reader costs are not established by these measures."}, {"class": "H", "supports": "The effect-based cadence question is a design hypothesis, not a validated slop dimension."}],
+      "examples": [
+        {"context": "A short explanatory essay repeatedly introduces new evidence.", "text": "Every paragraph interrupts that evidence with an identical 'This is not X. It is Y. And that changes everything.' climax.", "expected": "costly_recurrence", "reason": "The repeated climax can flatten meaningful distinctions and impede development; the complete passage must support that judgment."},
+        {"context": "A speech deliberately uses a refrain to organize three concrete experiences.", "text": "The same opening clause returns before each distinct experience.", "expected": "purposeful_recurrence", "reason": "Parallel form can strengthen, rather than weaken, reading experience."}
+      ],
+      "action": "Use only after domain-specific validation; never translate this into a sentence-variance target."
+    },
+    "narrative_overexplanation": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does candidate.text explain an emotion, implication or lesson that the surrounding narrative already conveys clearly enough for brief.audience, thereby weakening the intended effect?",
+          "scope": "Compare the explicit explanation with what the supplied scene and narration establish. Consider whether the sentence adds a new perspective, an unreliable narrator's interpretation, irony, or a necessary clarification. Mere explicitness is not a fault.",
+          "exclusions": "Preserve explanation needed for accessibility, young readers, unfamiliar context, deliberate narrator voice or an intended interpretive turn. Do not assume all readers infer the same emotion. Do not apply 'show, do not tell' as an absolute rule."
+        },
+        "criteria": {
+          "weakening_explanation": "It redundantly spells out an already clear implication and weakens the brief's intended narrative effect.",
+          "useful_interpretation": "It clarifies, complicates, redirects or purposefully voices the implication for this reader.",
+          "not_an_explanatory_tag": "It does not primarily explain an implication, emotion or lesson of the surrounding narrative.",
+          "insufficient_context": "The scene, narrative voice, reader needs or intended effect is too unclear to judge."
+        }
+      },
+      "scope": "candidate_with_scene",
+      "profile": "optional_narrative",
+      "required_fields": ["candidate.text", "context.scene", "context.after", "context.coverage", "brief.audience", "brief.intended_effect", "brief.narrative_voice"],
+      "context_requirements": "Use the actual scene, not a summary of what it supposedly implies. Intended effect and narrative voice must be supplied or explicitly tentative.",
+      "replaces_or_extends": ["redundant_restatement"],
+      "ancestry": [{"sources": ["S10"], "class": "D", "supports": "Creative-writing editors identified redundant exposition and show/tell concerns."}, {"class": "H", "supports": "This typed function-and-effect judgment is proposed and requires native-reader evaluation."}],
+      "examples": [
+        {"context": "An adult literary scene makes a character's isolation explicit through sustained action and setting; restraint is the stated goal.", "text": "This showed that she was very lonely and felt isolated from everyone.", "expected": "weakening_explanation", "reason": "The tag repeats rather than develops the already established effect."},
+        {"context": "An unreliable narrator gives a self-serving explanation that clashes with the scene.", "text": "I told myself she had left because she trusted me to manage alone.", "expected": "useful_interpretation", "reason": "The explanation adds character and irony."}
+      ],
+      "action": "Preserve author control; this is an aesthetic hypothesis, not a factual defect."
+    },
+    "revision_authorized_fidelity": {
+      "question": {
+        "type": "choice",
+        "instructions": {
+          "question": "Does revision.text preserve the substantive meaning and constraints of original.text except for changes explicitly authorized by edit_mandate?",
+          "scope": "Compare facts, quantities, negations, causal direction, uncertainty, qualifications, attribution, commitments and intended stance. Use context and supplied evidence for authorized corrections. Changing emphasis can change meaning. Removal of an unsupported claim is substantive even when beneficial.",
+          "exclusions": "Do not treat a stylistic improvement as permission for a factual change. Do not reject an expressly authorized correction merely because it changes the original. Do not invent authorization from a prior critic's verdict. New personal experience requires supplied facts or explicit fictional permission."
+        },
+        "criteria": {
+          "preserved": "No material meaning or constraint changed; permitted expression changes preserve the intended substance.",
+          "authorized_material_change": "Material changes occur, all within the explicit mandate and supported where the mandate requires evidence.",
+          "unauthorized_material_change": "At least one material addition, omission or alteration falls outside the mandate or violates a protected constraint.",
+          "uncertain": "Meaning, context, evidence or authorization is too ambiguous to determine compliance."
+        }
+      },
+      "scope": "revision_pair",
+      "profile": "mandatory_preservation_gate",
+      "required_fields": ["original.text", "revision.text", "pair.coverage", "context.relevant_text", "edit_mandate.allowed_changes", "edit_mandate.protected_constraints", "edit_mandate.provenance", "evidence.coverage"],
+      "context_requirements": "Default mandate is expression-only when substantive changes were not authorized. Include evidence.excerpts when correcting claims. Mandate comes from the user or explicit application policy within their request, not inferred aesthetic preference.",
+      "replaces_or_extends": ["rewrite_fidelity"],
+      "ancestry": [{"sources": ["S04"], "class": "D", "supports": "Optimizing style-related metrics can damage useful evidence in scientific revision."}, {"class": "H", "supports": "An authorization-aware preservation gate is an original implementation safeguard."}],
+      "examples": [
+        {"context": "Expression-only editing.", "original": "Warm builds take nine minutes; cold builds take thirty.", "revision": "Builds take nine minutes.", "expected": "unauthorized_material_change", "reason": "A consequential condition is erased."},
+        {"context": "The author explicitly asked to correct unsupported consensus claims using the supplied review, which finds disagreement.", "original": "All experts agree this approach is optimal.", "revision": "The supplied review reports disagreement about which approach works best.", "expected": "authorized_material_change", "reason": "A supported substantive correction should not be mislabeled as pure stylistic preservation or automatically rejected."},
+        {"context": "Expression-only editing.", "original": "It is important to note that cold builds still take thirty minutes.", "revision": "Cold builds still take thirty minutes.", "expected": "preserved", "reason": "Empty staging is removed without changing the condition or claim."}
+      ],
+      "action": "Unauthorized or uncertain changes block automatic acceptance. Authorized material changes remain visibly substantive and must not be reported as meaning-preserving stylistic edits. Evaluate value, pleasure and voice separately."
+    }
+  }
+}

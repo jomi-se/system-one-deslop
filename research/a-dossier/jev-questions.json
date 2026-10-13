@@ -1,0 +1,1033 @@
+{
+  "schema_version": "1.0",
+  "registry_version": "0.1.0",
+  "project": "system-one-deslop",
+  "status": "proposed; uncalibrated and unbenchmarked",
+  "source": "DOSSIER.md Appendix A",
+  "date": "2026-10-13",
+  "api_projection": "For each relevant question, send only {type, instructions, criteria} under its stable ID in the TypeSafe questions map. Metadata fields are not API fields.",
+  "questions": {
+    "D01": {
+      "title": "Purpose clarity",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does `document.text` make its intended question, claim, or practical purpose clear to `document.audience`?",
+      "criteria": [
+        "The reader can identify the main purpose without reconstructing it from hints.",
+        "A purpose is discernible but buried under preamble or competing aims.",
+        "After reading the document the central point or reader task remains unclear."
+      ]
+    },
+    "D02": {
+      "title": "Argument progression",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Do the document sections build an intelligible progression toward its intended conclusion or outcome?",
+      "criteria": [
+        "Each major section advances the topic in a logical order.",
+        "Most sections connect, but some appear interchangeable or out of order.",
+        "Sections read as disconnected units or repeated resets without an accumulating argument."
+      ]
+    },
+    "D03": {
+      "title": "Cross-section redundancy",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "How much do later sections restate points already made without adding a new implication, example, or distinction?",
+      "criteria": [
+        "Later sections contribute distinct information or analysis.",
+        "One or two sections repeat earlier material with little development.",
+        "Multiple sections largely restate one another, occupying substantial space without progress."
+      ]
+    },
+    "D04": {
+      "title": "Information value",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R08"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Relative to length and audience, how much of the document is occupied by generic sentences rather than useful distinctions, evidence, or actionable information?",
+      "criteria": [
+        "Most space conveys audience-relevant substance at an appropriate level of detail.",
+        "Several stretches are low-content but meaningful material remains dominant.",
+        "Generic exposition consumes much of the document and concrete information is hard to find."
+      ]
+    },
+    "D05": {
+      "title": "Reader relevance",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "How much of the document addresses peripheral topics rather than what `document.audience` needs for `document.purpose`?",
+      "criteria": [
+        "Material is relevant and necessary for the stated reader and purpose.",
+        "Some digressions are weakly related or overexplained.",
+        "Long detours or broad background dominate over the purpose and audience needs."
+      ]
+    },
+    "D06": {
+      "title": "Concrete grounding",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the document make claims or recommendations without enough inspectable examples, mechanisms, measurements, or source support for its genre?",
+      "criteria": [
+        "Core claims have the genre-appropriate supporting detail available in `document.evidence` or text.",
+        "Important claims are supported, but some key parts remain generic or underillustrated.",
+        "The central argument relies on abstractions and assertions with little checkable detail."
+      ]
+    },
+    "D07": {
+      "title": "Claim-to-evidence continuity",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "When the document introduces an important conclusion, is the supporting evidence or reasoning linked to it in the text?",
+      "criteria": [
+        "Readers can trace major conclusions to specific premises, examples, or records.",
+        "Some connections exist but several central claims are underexplained.",
+        "Major conclusions appear without visible inferential support or citations are merely decorative."
+      ]
+    },
+    "D08": {
+      "title": "Overclaiming",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the document assert broader significance or stronger certainty than its own evidence warrants?",
+      "criteria": [
+        "Importance and certainty remain proportional to evidence and scope.",
+        "A few conclusions overreach or use unsupported significance claims.",
+        "Broad transformations, inevitabilities, or strong outcomes are repeatedly asserted without warrant."
+      ]
+    },
+    "D09": {
+      "title": "Voice consistency",
+      "phase": "document",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the voice change between incompatible registers without an audience- or genre-related reason?",
+      "criteria": [
+        "Register and point of view fit the purpose and shifts are intentional.",
+        "Occasional abrupt shifts in formality, personality, or point of view.",
+        "The document alternates between incompatible voices in a way that obstructs reading."
+      ]
+    },
+    "D10": {
+      "title": "Generic synthesis",
+      "phase": "document",
+      "priority": "high",
+      "applicability": [
+        "argumentative",
+        "explanatory",
+        "opinion",
+        "research"
+      ],
+      "references": [
+        "R01",
+        "R03"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the document merely summarize commonplace observations without adding a useful distinction, synthesis, test, implication, or non-obvious connection?",
+      "criteria": [
+        "The document contributes a clear reader benefit beyond a generic topical survey.",
+        "Some genuinely useful ideas are present among familiar, unelaborated statements.",
+        "Nearly every major point is common knowledge or generic framing with no new reader utility."
+      ]
+    },
+    "D11": {
+      "title": "Opening efficiency",
+      "phase": "document",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the opening delay its actual point through grandiose scene-setting, self-referential setup, or general truths?",
+      "criteria": [
+        "The opening quickly establishes the topic, stakes, or useful question.",
+        "A short expendable preamble delays the useful material.",
+        "Multiple opening paragraphs announce relevance or intentions without getting to the point."
+      ]
+    },
+    "D12": {
+      "title": "Ending value",
+      "phase": "document",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the conclusion merely repeat earlier points or offer a broad inspirational ending instead of completing the reader task?",
+      "criteria": [
+        "The ending resolves the argument or provides a concrete next implication appropriate to the genre.",
+        "The ending partly recaps but includes at least one real synthesis or action.",
+        "The ending is mostly empty optimism, a generic summary, or a chatbot offer to continue."
+      ]
+    },
+    "D13": {
+      "title": "Template domination",
+      "phase": "document",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R07"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does repeated heading/list/three-part organization impose an artificial symmetry that undermines the material?",
+      "criteria": [
+        "Form follows the amount and relationships of actual content.",
+        "Some sections are shoehorned into parallel formats or unnecessary lists.",
+        "Nearly everything uses identical formats regardless of purpose, flattening distinctions."
+      ]
+    },
+    "P01": {
+      "title": "Paragraph purpose",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does `focus.text` contain unrelated claims or moves that prevent the paragraph from serving a coherent rhetorical purpose?",
+      "criteria": [
+        "The paragraph has a coherent local function even if it contains multiple sentences or ideas.",
+        "One subordinate idea distracts from an otherwise clear function.",
+        "Several unrelated claims or rhetorical moves compete without connective logic."
+      ]
+    },
+    "P02": {
+      "title": "New information",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Relative to `neighbors.previous` and `document.summary`, is this paragraph mostly a restatement of points already made?",
+      "criteria": [
+        "It advances the text with a new claim, detail, distinction, or necessary synthesis.",
+        "It repeats a familiar idea but supplies some useful added information.",
+        "It almost entirely rephrases earlier content without adding value."
+      ]
+    },
+    "P03": {
+      "title": "Local relevance",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does this paragraph fail to help the nearby section deliver its stated purpose for the intended audience?",
+      "criteria": [
+        "Every part directly contributes or is a clearly useful aside.",
+        "Some sentences are tangential to the section goal.",
+        "The whole paragraph is largely unrelated to the nearby claim or reader task."
+      ]
+    },
+    "P04": {
+      "title": "Specificity gap",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph make an explanation or assertion that needs a concrete example, actor, mechanism, or limit to be useful?",
+      "criteria": [
+        "The level of specificity is sufficient for its function and genre.",
+        "A useful detail is missing from one central statement.",
+        "Most claims remain abstract even where a concrete mechanism or example is necessary."
+      ]
+    },
+    "P05": {
+      "title": "Evidence gap",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph contain checkable claims that are unsupported by the provided sources or neighboring argument?",
+      "criteria": [
+        "Checkable claims have identifiable support in the supplied records or are clearly qualified.",
+        "A secondary factual or causal claim lacks identifiable support.",
+        "One or more central factual claims lack support despite the passage treating them as established."
+      ]
+    },
+    "P06": {
+      "title": "Padding",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R08"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph use sentences that explain the obvious, announce what it will say, or restate its own point?",
+      "criteria": [
+        "Sentences make distinct necessary contributions.",
+        "One sentence could disappear with no meaningful loss.",
+        "Much of the paragraph could be cut without losing any claim or necessary nuance."
+      ]
+    },
+    "P07": {
+      "title": "Internal repetition",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph repeat information, imagery, or phrasing without a deliberate rhetorical reason?",
+      "criteria": [
+        "Repetition is absent or deliberate and effective.",
+        "A phrase or claim recurs without sufficient payoff.",
+        "Several sentences say effectively the same thing or mechanically echo one another."
+      ]
+    },
+    "P08": {
+      "title": "Unjustified transition",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph use a connective phrase suggesting contrast, causality, sequence, or summary that the adjacent content does not warrant?",
+      "criteria": [
+        "Connective language accurately reflects the relation between adjacent ideas.",
+        "One transition is weak or ornamental but recoverable.",
+        "One or more transitions imply a relationship that is missing or misleading."
+      ]
+    },
+    "P09": {
+      "title": "Coherence break",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Are the internal sentences ordered so poorly that the reader must infer missing steps to understand the paragraph?",
+      "criteria": [
+        "Sentences connect and advance intelligibly.",
+        "One inferential link or ordering decision is awkward.",
+        "The reader cannot follow the claim-development sequence without supplying major missing steps."
+      ]
+    },
+    "P10": {
+      "title": "Register mismatch",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R05",
+        "R07"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Is the paragraph’s register too promotional, didactic, formal, breezy, or excited for its audience and surrounding text?",
+      "criteria": [
+        "Tone matches reader, stakes, and neighboring prose.",
+        "One or two expressions jar against the intended register.",
+        "The tone substantially undermines credibility or reader fit."
+      ]
+    },
+    "P11": {
+      "title": "Missing agent or mechanism",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "When actions or decisions matter, does the paragraph obscure who acted or how an outcome occurred?",
+      "criteria": [
+        "Actors and mechanisms are clear where they affect meaning.",
+        "One central action is expressed vaguely or agentlessly.",
+        "Important events are recited without enough agency or mechanism to be informative."
+      ]
+    },
+    "P12": {
+      "title": "Causal handwaving",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph claim that one thing causes, enables, transforms, or demonstrates another without explaining the connection?",
+      "criteria": [
+        "Causal links are explained or appropriately qualified.",
+        "A causal link is plausible but underdeveloped.",
+        "The main argument depends on an unsupported or circular causal connection."
+      ]
+    },
+    "P13": {
+      "title": "Formulaic rhetorical pattern",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R06"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph rely on repeated contrasts, parallel clauses, or triads when the rhetorical structure adds no clarity?",
+      "criteria": [
+        "Rhetorical structure serves an identifiable purpose.",
+        "One patterned device sounds mechanical or redundant.",
+        "Several patterned devices make the paragraph sound engineered rather than meaning-led."
+      ]
+    },
+    "P14": {
+      "title": "Unnecessary hedging",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R08"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph hedge statements repeatedly despite their being supported or directly observable?",
+      "criteria": [
+        "Qualifications accurately express uncertainty.",
+        "Some qualifying words weaken claims without clarifying uncertainty.",
+        "The main point is obscured by stacked or contradictory caveats."
+      ]
+    },
+    "P15": {
+      "title": "Unwarranted certainty",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph use categorical or confident statements where the supplied evidence is limited or mixed?",
+      "criteria": [
+        "The degree of certainty matches the evidence.",
+        "One categorical statement needs scope or qualification.",
+        "Central claims are treated as settled despite material evidence limitations."
+      ]
+    },
+    "P16": {
+      "title": "Cliché saturation",
+      "phase": "paragraph",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "Does the paragraph depend on conventional imagery or generic aphorisms in place of actual description or reasoning?",
+      "criteria": [
+        "Figurative wording is purposeful, distinctive, and suitable for the genre.",
+        "One familiar metaphor or aphorism contributes little.",
+        "The paragraph repeatedly substitutes stock imagery or slogans for substance."
+      ]
+    },
+    "P17": {
+      "title": "Value of paragraph as a unit",
+      "phase": "paragraph",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "score",
+      "instructions": "If this paragraph were removed, would the reader lose no necessary fact, argument step, example, or deliberate pacing effect?",
+      "criteria": [
+        "Removing the paragraph would remove meaningful content or necessary pacing.",
+        "Most could be removed, but a useful sentence would need relocation.",
+        "The entire paragraph contributes no indispensable information or justified stylistic function."
+      ]
+    },
+    "S01": {
+      "title": "Empty content",
+      "phase": "sentence",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does `focus.text` communicate no distinct claim, example, necessary transition, or meaningful stylistic effect in its context?",
+      "criteria": {
+        "true": "The sentence can be deleted without reducing reader understanding or intended effect.",
+        "false": "It adds a distinct point or has a clear rhetorical function."
+      }
+    },
+    "S02": {
+      "title": "Inflated significance",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R01"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the sentence portray an ordinary fact or event as pivotal, profound, transformative, historic, or emblematic without supporting that significance?",
+      "criteria": {
+        "true": "Importance is asserted through sweeping significance language without specific warrant.",
+        "false": "Significance is modest or grounded by relevant evidence in the context."
+      }
+    },
+    "S03": {
+      "title": "Promotional diction",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R08"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the sentence use advertising-style praise or hype in a context that calls for explanation or analysis?",
+      "criteria": {
+        "true": "Praise replaces informative description, or adopts a marketing register against the genre.",
+        "false": "Positive wording is factual, attributed, or appropriate to the intended genre."
+      }
+    },
+    "S04": {
+      "title": "Stock AI diction used unnaturally",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R06",
+        "R07"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Is the sentence’s vocabulary noticeably prefabricated or inflated for this topic and audience, rather than the clearest available wording?",
+      "criteria": {
+        "true": "The wording is needlessly ornamental, buzzword-heavy, or conspicuously formulaic.",
+        "false": "The vocabulary is natural and precise, even if it contains a word sometimes associated with AI text."
+      }
+    },
+    "S05": {
+      "title": "Unmotivated false contrast",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the sentence use a \"not just X but Y\" or \"rather than X, Y\" construction without a real contrast that matters to the argument?",
+      "criteria": {
+        "true": "The contrast is invented, trivial, or merely increases dramatic emphasis.",
+        "false": "The contrast distinguishes genuinely competing ideas or corrects a likely misconception."
+      }
+    },
+    "S06": {
+      "title": "Forced triad",
+      "phase": "sentence",
+      "priority": "low",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does a three-item list or three-part rhythm contain filler added to reach a neat trio?",
+      "criteria": {
+        "true": "One of the three elements adds nothing, duplicates another, or is included only for symmetry.",
+        "false": "Each element is necessary and meaningfully distinct, regardless of list length."
+      }
+    },
+    "S07": {
+      "title": "Vague attribution",
+      "phase": "sentence",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the sentence attribute a substantive claim to unnamed experts, studies, critics, or observers despite lacking a specific available source?",
+      "criteria": {
+        "true": "A vague authority label stands in for a source the reader would need to assess.",
+        "false": "The source is specified, the claim is clearly opinion, or attribution is unnecessary."
+      }
+    },
+    "S08": {
+      "title": "Superficial participial analysis",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does an -ing clause such as \"highlighting\", \"reflecting\", or \"underscoring\" merely attach unsupported significance to a fact?",
+      "criteria": {
+        "true": "The trailing interpretation is generic or unsupported by a shown relationship.",
+        "false": "The clause gives a necessary, well-grounded description or consequence."
+      }
+    },
+    "S09": {
+      "title": "Unnecessary lexical complexity",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R07"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Would simpler vocabulary communicate the same precise meaning more naturally to `document.audience`?",
+      "criteria": {
+        "true": "Complex synonyms or jargon obscure meaning without supplying technical precision.",
+        "false": "The terms are standard for the audience or have necessary nuanced meaning."
+      }
+    },
+    "S10": {
+      "title": "Obscured actor",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does passive or agentless construction hide who performs an action when that identity is needed to understand responsibility or causation?",
+      "criteria": {
+        "true": "The missing actor is important and context does not identify it.",
+        "false": "Agentless phrasing is appropriate, or the responsible actor is obvious or irrelevant."
+      }
+    },
+    "S11": {
+      "title": "Unclear referent",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does this sentence contain a pronoun, abstraction, or reference with multiple plausible antecedents that materially impair meaning?",
+      "criteria": {
+        "true": "The reader cannot confidently identify the referent from the neighboring sentences.",
+        "false": "References resolve naturally from surrounding context."
+      }
+    },
+    "S12": {
+      "title": "Stacked qualifications",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R08"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does this sentence stack synonyms, qualifiers, or caveats that can be reduced without changing uncertainty or nuance?",
+      "criteria": {
+        "true": "At least two qualifiers perform the same role or obscure a clear claim.",
+        "false": "Multiple qualifiers express genuinely different conditions or necessary uncertainty."
+      }
+    },
+    "S13": {
+      "title": "Purple prose",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "creative",
+        "editorial",
+        "essays",
+        "evocative prose"
+      ],
+      "references": [
+        "R02"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Is the imagery or metaphor overworked, sentimental, or discordant with the scene or informational purpose?",
+      "criteria": {
+        "true": "Figurative language overwhelms the fact or effect, adding generic atmosphere rather than accuracy.",
+        "false": "Imagery gives useful specificity, emotion, or a deliberate stylistic effect."
+      }
+    },
+    "S14": {
+      "title": "Manufactured drama",
+      "phase": "sentence",
+      "priority": "low",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R05",
+        "R12"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does a standalone fragment or short sentence create artificial gravitas without conveying a meaningful turn?",
+      "criteria": {
+        "true": "Short dramatic syntax is interchangeable with a slogan and adds no interpretive value.",
+        "false": "Brevity serves contrast, pacing, character, or emphasis supported by the content."
+      }
+    },
+    "S15": {
+      "title": "Meta-announcement",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R05"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the sentence merely announce what the author will discuss or ask a rhetorical question with an obvious answer?",
+      "criteria": {
+        "true": "The announcement or question creates no meaningful orientation or reader curiosity.",
+        "false": "The sentence frames a genuine problem, needed roadmap, or consequential question."
+      }
+    },
+    "S16": {
+      "title": "Awkward construction",
+      "phase": "sentence",
+      "priority": "medium",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R07"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Is the sentence syntactically awkward in a way that slows comprehension without a deliberate stylistic reason?",
+      "criteria": {
+        "true": "Word order, clause attachment, or rhythm makes comprehension unnecessarily difficult.",
+        "false": "The sentence is readable for its genre, even if its style is unusual or complex."
+      }
+    },
+    "V01": {
+      "title": "Unsupported new specificity",
+      "phase": "verification",
+      "priority": "blocking",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R04",
+        "R12"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does `candidate.text` introduce any concrete fact, quote, named entity, number, example, or citation not grounded in `original.text` or `evidence`?",
+      "criteria": {
+        "true": "At least one added concrete detail lacks the required grounding.",
+        "false": "Every new concrete detail is supported by source text or provided evidence."
+      }
+    },
+    "V02": {
+      "title": "Meaning changed",
+      "phase": "verification",
+      "priority": "blocking",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the candidate materially alter any claim, qualifier, causal relationship, commitment, or important implication of the original without authorization?",
+      "criteria": {
+        "true": "A material change to intended meaning appears in the revision.",
+        "false": "Meaning is preserved or changed only where authorized by the instructions."
+      }
+    },
+    "V03": {
+      "title": "Citation integrity broken",
+      "phase": "verification",
+      "priority": "blocking",
+      "applicability": [
+        "text with citations or quotes"
+      ],
+      "references": [
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the candidate remove, misattach, or change a citation or quoted passage such that an important assertion no longer has its original source context?",
+      "criteria": {
+        "true": "A reference, quote, or source-to-claim relationship is lost or distorted.",
+        "false": "Source pointers and the claims they justify retain their intended relationships."
+      }
+    },
+    "V04": {
+      "title": "Distinctive voice erased",
+      "phase": "verification",
+      "priority": "blocking",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R02",
+        "R07",
+        "R12"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the candidate flatten deliberate humor, idiom, sentence rhythm, technical voice, stance, or personality that the author intended to keep?",
+      "criteria": {
+        "true": "A distinctive intentional feature is replaced by generic neutral copy without reader benefit.",
+        "false": "The revision retains author choices unless they are specifically approved for editing."
+      }
+    },
+    "V05": {
+      "title": "Reader-value comparison",
+      "phase": "verification",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R03",
+        "R07"
+      ],
+      "orientation": "preference among labeled outcomes",
+      "type": "choice",
+      "instructions": "Compared with `original.text`, which statement best describes `candidate.text` for the specified reader and purpose?",
+      "criteria": {
+        "better": "The revision is more useful or more pleasurable to read, without losing important substance or voice.",
+        "equivalent": "Changes are mainly stylistic; a reader receives about the same value and clarity.",
+        "worse": "The revision loses useful meaning, precision, voice, or ease of reading.",
+        "unclear": "The difference is too ambiguous to judge reliably from the supplied state."
+      }
+    },
+    "V06": {
+      "title": "Substantive defect remains",
+      "phase": "verification",
+      "priority": "high",
+      "applicability": [
+        "general"
+      ],
+      "references": [
+        "R01",
+        "R04"
+      ],
+      "orientation": "higher=more problematic",
+      "type": "noul",
+      "instructions": "Does the revision leave the specific verified issue in `finding` substantially unresolved, even if its surface phrasing has changed?",
+      "criteria": {
+        "true": "The targeted relevance, reasoning, specificity, or structure failure remains.",
+        "false": "The specific issue is resolved, or was already shown to be a false positive."
+      }
+    }
+  }
+}
