@@ -4,7 +4,7 @@ Planned: a tool to detect and rewrite “AI slop” in prose using TypeSafe
 System One judgments (Jev). This is pre-alpha scaffolding; detection and
 rewriting are not implemented, and quality claims have not been established.
 
-Requires Node.js 20.19+ (20.x) or 22.12+ and npm. CI uses Node.js 24.15.0.
+Requires Node.js 24+ and npm. CI uses Node.js 24.21.0.
 
 ```sh
 npm ci
