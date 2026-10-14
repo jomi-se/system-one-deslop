@@ -141,10 +141,11 @@ export function buildAuditPlan(
       ]
         .filter(Boolean)
         .join("\n");
-      add(sentence, "sentence-c", AUDIT_QUESTIONS.sentence.c, {
-        document: { ...metadata },
-        target: { text: sentence.text, context: targetContext },
-      });
+      if (sentence.quoted_fraction <= 0.5)
+        add(sentence, "sentence-c", AUDIT_QUESTIONS.sentence.c, {
+          document: { ...metadata },
+          target: { text: sentence.text, context: targetContext },
+        });
     }
   }
   return plan;

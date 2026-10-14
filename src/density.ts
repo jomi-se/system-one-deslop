@@ -110,14 +110,20 @@ export function codeMetrics(document: MarkdownDocument): CodeMetrics {
 
 export interface Density {
   prose_words: number;
+  texture_prose_words: number;
+  texture_sentences: number;
+  quoted_sentences: number;
   code: CodeMetrics | null;
   questions: Record<
     string,
     {
       count: number | null;
+      hits: number | null;
+      expected_count: number | null;
       valid: number;
       expected: number;
       per_1000_words: number | null;
+      expected_per_1000_words: number | null;
     }
   >;
 }
@@ -129,26 +135,68 @@ export function measureDensity(
   options: { code: boolean; texture: boolean },
 ): Density {
   const metrics = codeMetrics(document);
+  const sentences = document.sections.flatMap((section) =>
+    section.paragraphs.flatMap((paragraph) => paragraph.sentences),
+  );
+  const skipped = sentences.filter((sentence) => sentence.quoted_fraction > 0.5);
+  const eligible = new Set(
+    sentences.filter((sentence) => sentence.quoted_fraction <= 0.5).map((sentence) => sentence.id),
+  );
+  const quotedHeadingWords = document.sections.reduce(
+    (total, section) =>
+      total +
+      (section.heading && section.heading.quoted_fraction > 0.5
+        ? wordCount(section.heading.title)
+        : 0),
+    0,
+  );
+  const texture_prose_words = Math.max(
+    0,
+    metrics.prose_words -
+      skipped.reduce((total, sentence) => total + wordCount(sentence.text), 0) -
+      quotedHeadingWords,
+  );
   const questions = Object.fromEntries(
     questionIds.map((id) => {
       const valid = answers.filter(
-        (answer) => answer.question_id === id && answer.answer?.type === "noul" && !answer.error,
+        (answer) =>
+          answer.question_id === id &&
+          eligible.has(answer.unit_id) &&
+          answer.answer?.type === "noul" &&
+          !answer.error,
       );
-      const complete = options.texture && valid.length === metrics.sentences;
+      const complete = options.texture && valid.length === eligible.size;
       const count = complete
         ? valid.filter((answer) => answer.answer?.type === "noul" && answer.answer.noul >= 0.5)
             .length
+        : null;
+      const expected_count = complete
+        ? valid.reduce(
+            (total, answer) => total + (answer.answer?.type === "noul" ? answer.answer.noul : 0),
+            0,
+          )
         : null;
       return [
         id,
         {
           count,
+          hits: count,
+          expected_count,
           valid: valid.length,
-          expected: metrics.sentences,
-          per_1000_words: count === null ? null : rate(count, metrics.prose_words),
+          expected: eligible.size,
+          per_1000_words: count === null ? null : rate(count, texture_prose_words),
+          expected_per_1000_words:
+            expected_count === null ? null : rate(expected_count, texture_prose_words),
         },
       ];
     }),
   );
-  return { prose_words: metrics.prose_words, code: options.code ? metrics : null, questions };
+  return {
+    prose_words: metrics.prose_words,
+    texture_prose_words,
+    texture_sentences: eligible.size,
+    quoted_sentences: skipped.length,
+    code: options.code ? metrics : null,
+    questions,
+  };
 }

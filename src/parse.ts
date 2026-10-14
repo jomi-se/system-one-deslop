@@ -1,3 +1,5 @@
+import { wordCount } from "./density.js";
+
 export interface Span {
   id: string;
   start: number;
@@ -6,6 +8,7 @@ export interface Span {
 }
 export interface Sentence extends Span {
   kind: "sentence";
+  quoted_fraction: number;
 }
 export interface Paragraph extends Span {
   kind: "paragraph";
@@ -16,6 +19,7 @@ export interface Heading extends Span {
   kind: "heading";
   level: number;
   title: string;
+  quoted_fraction: number;
 }
 export interface Section extends Span {
   kind: "section";
@@ -31,6 +35,55 @@ interface Line {
   start: number;
   end: number;
   text: string;
+}
+
+interface QuoteRange {
+  start: number;
+  end: number;
+}
+
+// Quotes of at most three prose words are usually terms, not borrowed prose.
+// Mask inline code without changing offsets before looking for quote delimiters.
+function quotationRanges(text: string, blockquotes = true): QuoteRange[] {
+  const view = text
+    .replace(/(?<!`)(`+)(?!`)[\s\S]*?\1(?!`)/g, (code) => " ".repeat(code.length))
+    .replace(
+      /(!?\[[^\]]*\])\((?:[^()]|\([^()]*\))*\)/g,
+      (link: string, label: string) => label + " ".repeat(link.length - label.length),
+    );
+  const ranges: QuoteRange[] = [];
+  const quotes =
+    /“[\s\S]*?”(?![\p{L}\p{N}])|‘[\s\S]*?’(?![\p{L}\p{N}])|«[\s\S]*?»|(?<!\\)"[\s\S]*?(?<!\\)"|(?<![\p{L}\p{N}])'[\s\S]*?'(?![\p{L}\p{N}])/gu;
+  for (const match of view.matchAll(quotes))
+    if (wordCount(text.slice(match.index, match.index + match[0].length)) > 3)
+      ranges.push({ start: match.index, end: match.index + match[0].length });
+  // An unmarked soft continuation after '>' belongs to the same blockquote.
+  const lines = linesOf(text);
+  const firstQuote = lines.findIndex((line) => /^ {0,3}>/.test(line.text));
+  const line = lines[firstQuote];
+  if (blockquotes && line && wordCount(text.slice(line.start)) > 3)
+    ranges.push({ start: line.start, end: text.length });
+  return ranges.sort((a, b) => a.start - b.start);
+}
+
+function quoteFraction(text: string, ranges: QuoteRange[], start = 0, end = text.length): number {
+  const total = wordCount(text.slice(start, end));
+  if (!total) return 0;
+  let quoted = "";
+  let previousEnd = start;
+  for (const range of ranges) {
+    const from = Math.max(start, previousEnd, range.start);
+    const to = Math.min(end, range.end);
+    if (to > from) {
+      quoted += " " + text.slice(from, to);
+      previousEnd = to;
+    }
+  }
+  return Math.min(1, wordCount(quoted) / total);
+}
+
+export function quotedFraction(text: string): number {
+  return quoteFraction(text, quotationRanges(text));
 }
 
 function span(source: string, kind: string, start: number, end: number): Span {
@@ -111,7 +164,12 @@ export function parseMarkdown(source: string): MarkdownDocument {
           p.start + segment.index,
           p.start + segment.index + segment.segment.length,
         );
-        if (s.text) sentences.push({ ...s, kind: "sentence" });
+        if (s.text)
+          sentences.push({
+            ...s,
+            kind: "sentence",
+            quoted_fraction: 0,
+          });
       }
       section.paragraphs.push({ ...p, kind: "paragraph", list_item: paragraphIsList, sentences });
     }
@@ -214,6 +272,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
         kind: "heading",
         level: atx[1].length,
         title: (atx[2] ?? "").replace(/[ \t]+#+[ \t]*$/, "").trim(),
+        quoted_fraction: quotedFraction(line.text),
       });
       continue;
     }
@@ -225,6 +284,7 @@ export function parseMarkdown(source: string): MarkdownDocument {
         kind: "heading",
         level: setext[1]?.[0] === "=" ? 1 : 2,
         title: line.text.trim(),
+        quoted_fraction: quotedFraction(source.slice(line.start, next.end)),
       });
       index += 1;
       continue;
@@ -251,6 +311,44 @@ export function parseMarkdown(source: string): MarkdownDocument {
   flushParagraph();
   if (fence) codeBlocks.push(span(source, "code", fence.start, source.length));
   if (section.text || section.heading) sections.push(section);
+  // Pair quotation marks across paragraphs, while excluding front matter/code.
+  // Equal-length masking keeps every quote range in original UTF-16 offsets.
+  const units = sections
+    .flatMap((part) => [...(part.heading ? [part.heading] : []), ...part.paragraphs])
+    .sort((a, b) => a.start - b.start);
+  let view = "";
+  let previousEnd = 0;
+  for (const unit of units) {
+    view += " ".repeat(unit.start - previousEnd) + unit.text;
+    previousEnd = unit.end;
+  }
+  const globalQuotes = quotationRanges(view, false);
+  for (const part of sections) {
+    for (const paragraph of part.paragraphs) {
+      const ranges = [
+        ...globalQuotes,
+        ...quotationRanges(paragraph.text).map((range) => ({
+          start: range.start + paragraph.start,
+          end: range.end + paragraph.start,
+        })),
+      ].sort((a, b) => a.start - b.start);
+      for (const sentence of paragraph.sentences)
+        sentence.quoted_fraction = quoteFraction(source, ranges, sentence.start, sentence.end);
+    }
+    if (part.heading)
+      part.heading.quoted_fraction = quoteFraction(
+        source,
+        [
+          ...globalQuotes,
+          ...quotationRanges(part.heading.text).map((range) => ({
+            start: range.start + part.heading!.start,
+            end: range.end + part.heading!.start,
+          })),
+        ].sort((a, b) => a.start - b.start),
+        part.heading.start,
+        part.heading.end,
+      );
+  }
   return {
     ...span(source, "document", 0, source.length),
     kind: "document",

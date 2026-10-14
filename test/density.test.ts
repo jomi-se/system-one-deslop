@@ -53,7 +53,7 @@ await test("density includes the 0.5 boundary and never turns missing judgments 
   const document = parseMarkdown("One two. Three four.");
   function answer(id: string, probability: number): AuditAnswer {
     return {
-      unit_id: id,
+      unit_id: document.sections[0]?.paragraphs[0]?.sentences[id === "s1" ? 0 : 1]?.id ?? id,
       kind: "sentence",
       offsets: [0, 1],
       question_id: "c.signal",
@@ -66,6 +66,9 @@ await test("density includes the 0.5 boundary and never turns missing judgments 
   const measured = measureDensity(document, answers, ["c.signal"], { code: true, texture: true });
   assert.deepEqual(measured.questions["c.signal"], {
     count: 1,
+    hits: 1,
+    expected_count: 0.99,
+    expected_per_1000_words: 247.5,
     valid: 2,
     expected: 2,
     per_1000_words: 250,

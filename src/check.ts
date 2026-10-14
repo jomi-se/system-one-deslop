@@ -3,6 +3,8 @@ import { wordCount } from "./density.js";
 import type { AuditAnswer, auditDocument } from "./audit.js";
 import type { Span } from "./parse.js";
 import { invariant, object } from "./registry.js";
+import { poissonInterval } from "./interval.js";
+import type { Interval } from "./interval.js";
 
 interface Habit {
   id: string;
@@ -79,7 +81,10 @@ export function readCheckBaseline(input: unknown): CheckBaseline {
     note: value.note,
     values: Object.fromEntries(
       CHECK_HABITS.map((habit) => {
-        const number = object(value[habit.baseline], "Baseline metrics")[habit.id];
+        const number = object(
+          value[habit.source.startsWith("c.") ? "expected_metrics" : habit.baseline],
+          "Baseline metrics",
+        )[habit.id];
         invariant(
           typeof number === "number" && Number.isFinite(number) && number >= 0,
           `Missing baseline metric: ${habit.id}`,
@@ -96,6 +101,10 @@ export interface CheckRow {
   value: number | null;
   baseline: number;
   ratio: number | "infinity" | null;
+  lower_ratio: number | "infinity" | null;
+  count: number | null;
+  hits: number | null;
+  interval: Interval | null;
   flagged: boolean;
   rule: Habit["rule"];
   source: Habit["source"];
@@ -119,21 +128,31 @@ export function checkDensity(density: Density, baseline: CheckBaseline, maxRatio
     Number.isSafeInteger(density.prose_words) && density.prose_words >= 0,
     "Invalid prose word count",
   );
-  const too_short = density.prose_words < 200;
+  const too_short = density.texture_prose_words < 200;
   const code = object(density.code, "Code metrics");
   const rows = CHECK_HABITS.map((habit): CheckRow => {
     let value: unknown;
+    let count: unknown = null;
+    let hits: number | null = null;
+    let denominator = density.prose_words;
     if (habit.source.startsWith("c.")) {
       const question = density.questions[habit.source];
       invariant(
         question &&
           question.count !== null &&
           question.valid === question.expected &&
-          question.expected === density.code?.sentences,
+          question.expected_count !== null &&
+          question.expected === density.texture_sentences,
         `Incomplete texture judgments: ${habit.source}`,
       );
-      value = question.per_1000_words;
-    } else value = code[habit.source];
+      value = question.expected_per_1000_words;
+      count = question.expected_count;
+      hits = question.hits;
+      denominator = density.texture_prose_words;
+    } else {
+      value = code[habit.source];
+      if (habit.unit === "/1k") count = code[habit.source.replace("_per_1000_words", "")];
+    }
     invariant(
       value === null || (typeof value === "number" && Number.isFinite(value) && value >= 0),
       `Invalid check metric: ${habit.id}`,
@@ -145,15 +164,40 @@ export function checkDensity(density: Density, baseline: CheckBaseline, maxRatio
     );
     const ratio =
       value === null ? null : reference > 0 ? value / reference : value > 0 ? "infinity" : null;
+    invariant(
+      count === null || (typeof count === "number" && Number.isFinite(count) && count >= 0),
+      "Invalid habit count",
+    );
+    const bounds = count === null || denominator === 0 ? null : poissonInterval(count);
+    const interval = bounds
+      ? { lower: (bounds.lower / denominator) * 1_000, upper: (bounds.upper / denominator) * 1_000 }
+      : null;
+    const lower_ratio =
+      interval === null
+        ? null
+        : reference > 0
+          ? interval.lower / reference
+          : interval.lower > 0
+            ? "infinity"
+            : null;
     const flagged =
-      !too_short &&
       value !== null &&
       (habit.rule === "high"
-        ? ratio === "infinity" || (typeof ratio === "number" && ratio > maxRatio)
+        ? lower_ratio === "infinity" || (typeof lower_ratio === "number" && lower_ratio > maxRatio)
         : habit.rule === "short"
-          ? value < 0.8 * reference
+          ? !too_short && value < 0.8 * reference
           : false);
-    return { ...habit, value, baseline: reference, ratio, flagged };
+    return {
+      ...habit,
+      value,
+      baseline: reference,
+      ratio,
+      lower_ratio,
+      count,
+      hits,
+      interval,
+      flagged,
+    };
   });
   return {
     prose_words: density.prose_words,
@@ -172,14 +216,21 @@ interface Example {
 }
 function examples(row: CheckRow, audit: TextureAudit): Example[] {
   const paragraphs = audit.document.sections.flatMap((section) => section.paragraphs);
+  const eligible = new Set(
+    paragraphs
+      .flatMap((paragraph) => paragraph.sentences)
+      .filter((sentence) => sentence.quoted_fraction <= 0.5)
+      .map((sentence) => sentence.id),
+  );
   if (row.source.startsWith("c.")) {
     return audit.answers
       .filter(
         (answer): answer is AuditAnswer & { answer: { type: "noul"; noul: number } } =>
           answer.question_id === row.source &&
+          eligible.has(answer.unit_id) &&
           !answer.error &&
           answer.answer?.type === "noul" &&
-          answer.answer.noul >= 0.5,
+          answer.answer.noul > 0,
       )
       .sort((a, b) => b.answer.noul - a.answer.noul || a.offsets[0] - b.offsets[0])
       .slice(0, 5)
@@ -221,16 +272,19 @@ function examples(row: CheckRow, audit: TextureAudit): Example[] {
 export function renderCheckReport(file: string, audit: TextureAudit, report: CheckReport): string {
   const lines = [
     `${file}: ${report.prose_words} prose words; human n=${report.baseline.n}; max ratio ${report.max_ratio}×`,
+    `C denominator: ${audit.density.texture_prose_words} words; ${audit.density.quoted_sentences} quoted sentences excluded. Count bands: 90% Poisson score; flags use the lower limit.`,
     report.baseline.note,
   ];
   if (report.too_short)
-    lines.push("Too short to judge rates (under 200 prose words); flags suppressed.");
+    lines.push(
+      "Under 200 authored prose words: count flags use interval bounds; sentence-length flag suppressed.",
+    );
   for (const row of report.rows) {
     const value = row.value === null ? "—" : row.value.toFixed(2);
     const ratio =
       row.ratio === "infinity" ? "∞×" : row.ratio === null ? "—" : row.ratio.toFixed(2) + "×";
     lines.push(
-      `${row.flagged ? "!" : " "} ${row.label}: ${value}${row.unit === "/1k" ? "/1k" : " words"} | human ${row.baseline.toFixed(2)} | ${ratio}${row.flagged && row.rule === "short" ? " (below 0.8×)" : ""}`,
+      `${row.flagged ? "!" : " "} ${row.label}: ${value}${row.unit === "/1k" ? "/1k" : " words"}${row.interval ? ` [90% ${row.interval.lower.toFixed(2)}–${row.interval.upper.toFixed(2)}]` : ""} | human ${row.baseline.toFixed(2)} | ${ratio}${row.hits !== null ? ` | expected ${row.count?.toFixed(2)}, hits ${row.hits}` : ""}${row.flagged && row.rule === "short" ? " (below 0.8×)" : ""}`,
     );
     if (row.flagged)
       for (const example of examples(row, audit)) {

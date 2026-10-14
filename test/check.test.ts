@@ -15,16 +15,23 @@ function reference(): CheckBaseline {
     ),
   };
 }
+function roundHeadings(words: number): number {
+  return Math.round(words * 0.03);
+}
 function fixture(words = 1_000, events = 30): Density {
   return {
     prose_words: words,
+    texture_prose_words: words,
+    texture_sentences: 100,
+    quoted_sentences: 0,
     code: {
       ...codeMetrics(parseMarkdown("A sentence.")),
       prose_words: words,
       sentences: 100,
       sentence_length_mean_words: 16,
       sentence_length_stdev_words: 50,
-      headings_per_1000_words: 30,
+      headings: roundHeadings(words),
+      headings_per_1000_words: (roundHeadings(words) / words) * 1_000,
       bullets_per_1000_words: 0,
       bold_spans_per_1000_words: 0,
     },
@@ -33,9 +40,12 @@ function fixture(words = 1_000, events = 30): Density {
         habit.source,
         {
           count: events,
+          hits: events,
+          expected_count: events,
           valid: 100,
           expected: 100,
           per_1000_words: (events / words) * 1_000,
+          expected_per_1000_words: (events / words) * 1_000,
         },
       ]),
     ),
@@ -45,21 +55,22 @@ await test("high ratios are strictly above the threshold; short mean is strictly
   const exact = checkDensity(fixture(), reference());
   assert.equal(exact.flagged, 0);
   assert.equal(exact.rows.find((row) => row.id === "sentence_length_mean_words")?.ratio, 0.8);
-  const higher = fixture(1_000, 31);
+  const higher = fixture(1_000, 40);
   assert.ok(higher.code);
-  higher.code.headings_per_1000_words = 31;
+  higher.code.headings = 40;
+  higher.code.headings_per_1000_words = 40;
   higher.code.sentence_length_mean_words = 15.9;
   const report = checkDensity(higher, reference());
-  assert.equal(report.rows.find((row) => row.id === "disclaimer_per_1000_words")?.ratio, 3.1);
+  assert.equal(report.rows.find((row) => row.id === "disclaimer_per_1000_words")?.ratio, 4);
   assert.equal(report.flagged, 7);
   assert.equal(report.rows.find((row) => row.id === "sentence_length_stdev_words")?.flagged, false);
   assert.equal(checkDensity(fixture(), reference(), 2).flagged, 6);
   assert.equal(checkDensity(fixture(), reference(), 4).flagged, 0);
 });
-await test("199 words suppresses every flag but preserves rates; 200 words permits flags", () => {
+await test("count intervals allow strong short-text flags; zero prose produces undefined rates", () => {
   const short = checkDensity(fixture(199, 50), reference());
   assert.equal(short.too_short, true);
-  assert.equal(short.flagged, 0);
+  assert.equal(short.flagged, 5);
   assert.equal(short.rows[0]?.value, (50 / 199) * 1_000);
   assert.equal(short.rows[0]?.ratio, ((50 / 199) * 1_000) / 10);
   const boundary = checkDensity(fixture(200, 50), reference());
@@ -67,11 +78,22 @@ await test("199 words suppresses every flag but preserves rates; 200 words permi
   assert.equal(boundary.flagged, 5);
   const empty: Density = {
     prose_words: 0,
+    texture_prose_words: 0,
+    texture_sentences: 0,
+    quoted_sentences: 0,
     code: codeMetrics(parseMarkdown("```\ncode only\n```")),
     questions: Object.fromEntries(
       CHECK_HABITS.filter((habit) => habit.source.startsWith("c.")).map((habit) => [
         habit.source,
-        { count: 0, valid: 0, expected: 0, per_1000_words: null },
+        {
+          count: 0,
+          hits: 0,
+          expected_count: 0,
+          valid: 0,
+          expected: 0,
+          per_1000_words: null,
+          expected_per_1000_words: null,
+        },
       ]),
     ),
   };
@@ -90,7 +112,7 @@ await test("a zero baseline cannot silently hide positive observations or produc
   assert.equal(positive.rows[0]?.ratio, "infinity");
   assert.equal(positive.rows[0]?.flagged, true);
   assert.match(JSON.stringify(positive), /"ratio":"infinity"/);
-  assert.equal(checkDensity(fixture(199, 1), baseline).flagged, 0);
+  assert.equal(checkDensity(fixture(199, 1), baseline).flagged, 1);
 });
 await test("invalid thresholds and incomplete densities cannot yield a clean result", () => {
   for (const limit of [0, -1, NaN, Infinity])

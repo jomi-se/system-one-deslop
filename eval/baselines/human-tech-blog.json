@@ -2,17 +2,17 @@
   "schema_version": "1.0",
   "n": 13,
   "note": "Tiny selected sample (n=13), one genre (technical blog posts); not a universal style target or a validated authorship threshold.",
-  "source": "Unweighted document means from eval/corpus/human; catalogue C 0.2.",
+  "source": "Unweighted document means from eval/corpus/human; catalogue C 0.2, quote filtering applied to saved raw answers.",
   "metrics": {
-    "general_maxim_per_1000_words": 4.482454864381755,
-    "triplet_per_1000_words": 1.9518266611176076,
-    "playful_flourish_per_1000_words": 0.6547522828367435,
-    "disclaimer_per_1000_words": 1.0634902219629059,
+    "general_maxim_per_1000_words": 4.581594864162293,
+    "triplet_per_1000_words": 1.9475097339952387,
+    "playful_flourish_per_1000_words": 0.6704896414597086,
+    "disclaimer_per_1000_words": 1.090438994422544,
     "precaution_per_1000_words": 0.07031359864997891,
-    "contrast_reframe_per_1000_words": 3.3439100086392624,
-    "setup_line_per_1000_words": 12.305651348427165,
-    "headings_per_1000_words": 3.8380427776140627,
-    "bullets_per_1000_words": 2.538529565654305,
+    "contrast_reframe_per_1000_words": 3.4111525776840015,
+    "setup_line_per_1000_words": 12.43570513490932,
+    "headings_per_1000_words": 3.8380427776140618,
+    "bullets_per_1000_words": 2.5385295656543048,
     "bold_spans_per_1000_words": 0.7034028773159208
   },
   "held_out": {
@@ -21,5 +21,18 @@
     "semicolons_per_1000_words": 2.532782397658685,
     "clause_intro_colons_per_1000_words": 7.863980485867866,
     "em_dashes_per_1000_words": 0.1450231829589262
+  },
+  "estimator": "metrics: hits (noul >= 0.5); expected_metrics: sum(noul). C rates exclude sentence spans with quoted_fraction > 0.5 and use the authored-word denominator.",
+  "expected_metrics": {
+    "general_maxim_per_1000_words": 9.491718254971135,
+    "triplet_per_1000_words": 6.277975911445035,
+    "playful_flourish_per_1000_words": 3.9271545947164745,
+    "disclaimer_per_1000_words": 4.243505948135168,
+    "precaution_per_1000_words": 1.3976557301728874,
+    "contrast_reframe_per_1000_words": 7.884289030521649,
+    "setup_line_per_1000_words": 18.4976078810147,
+    "headings_per_1000_words": 3.8380427776140618,
+    "bullets_per_1000_words": 2.5385295656543048,
+    "bold_spans_per_1000_words": 0.7034028773159208
   }
 }

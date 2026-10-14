@@ -26,8 +26,10 @@ npm run check -- draft.md --genre "blog post" --audience "Backend engineers"
 ```
 
 It prints each habit's rate next to the human rate and lists the sentences
-behind any habit that occurs more than three times as often as in the
-human posts. A check of a
+behind any habit that runs well above it: the 90% interval on its rate has to
+clear three times the human rate, so a short text needs more than one
+offending sentence to get flagged. Long quotations don't count as the
+author's. [eval/CHECK.md](eval/CHECK.md) has the details. A check of a
 2,000-word post costs a fraction of a cent.
 
 The rest of the tooling is for research. `npm run eval` scores Jev on
