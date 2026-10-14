@@ -19,7 +19,9 @@
     "check": "npm run build --silent && node --env-file-if-exists=.env dist/scripts/check.js",
     "corpus-report": "npm run build --silent && node dist/scripts/corpus-report.js",
     "deslop": "npm run build --silent && node --env-file=.env dist/scripts/deslop.js",
-    "brief-experiment": "npm run build --silent && node --env-file=.env dist/scripts/brief-experiment.js"
+    "brief-experiment": "npm run build --silent && node --env-file=.env dist/scripts/brief-experiment.js",
+    "provenance-baseline": "npm run build --silent && node --env-file=.env dist/scripts/provenance-baseline.js",
+    "normalize-punctuation": "npm run build --silent && node dist/scripts/normalize-punctuation.js"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "0.6.0"
