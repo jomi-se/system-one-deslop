@@ -1,3 +1,10 @@
+> **Note:** As will be absurdly obvious to any human reading any text in this repo,
+> this approach does not work at all. It looks more like the fever dream of a
+> couple of models banging their latent space heads against a problem impossible
+> for them to solve.
+
+---
+
 # system-one-deslop
 
 Ask Sol for a blog post on when Rust code should panic and you get a correct,
