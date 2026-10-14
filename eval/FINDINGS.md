@@ -3,7 +3,7 @@
 What we learned the first night we pointed Jev at real text. Run artifacts
 stay outside the repo; the numbers below come from them, and every step is
 reproducible with the scripts in this directory. Jev cost for the whole night,
-including two dozen editor runs, was under a dollar.
+including 75 editor runs, came to roughly $1.20.
 
 ## 1. Jev answers both question styles well on clear cases
 
