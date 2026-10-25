@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentence review</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #252a2a;
+        background: #f4f3ee;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 32px 22px;
+      }
+      main {
+        max-width: 920px;
+        margin: auto;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 28px;
+      }
+      h1 {
+        font-size: 23px;
+        font-weight: 650;
+        letter-spacing: -0.6px;
+        margin: 0 0 8px;
+      }
+      .muted {
+        color: #6d7371;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      p {
+        margin: 0;
+      }
+      #progress-text {
+        font-size: 14px;
+        text-align: right;
+        white-space: nowrap;
+      }
+      progress {
+        display: block;
+        width: 170px;
+        height: 6px;
+        margin-top: 10px;
+        accent-color: #355f51;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      select {
+        border: 1px solid #d8dcd5;
+        background: transparent;
+        color: inherit;
+        border-radius: 8px;
+        padding: 8px 28px 8px 10px;
+        font: inherit;
+        font-size: 14px;
+      }
+      article {
+        background: #fffefa;
+        border: 1px solid #dfe0d8;
+        border-radius: 18px;
+        padding: 40px;
+        min-height: 220px;
+        box-shadow: 0 6px 24px #252a2a05;
+      }
+      #sentence {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(22px, 3.1vw, 30px);
+        line-height: 1.55;
+        letter-spacing: -0.25px;
+        overflow-wrap: anywhere;
+        user-select: text;
+      }
+      ::selection {
+        background: #f4d89b;
+      }
+      details {
+        margin-top: 24px;
+        border-top: 1px solid #e7e8e1;
+        padding-top: 18px;
+      }
+      summary {
+        cursor: pointer;
+        font-size: 14px;
+        color: #58645d;
+      }
+      #context-text {
+        font-size: 16px;
+        line-height: 1.7;
+        margin-top: 14px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      mark {
+        background: #f4e7bd;
+        color: inherit;
+      }
+      .ratings {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 9px;
+        margin-top: 22px;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 1px solid #d8dcd5;
+        border-radius: 11px;
+        padding: 13px 12px;
+        background: #fffefa;
+        color: inherit;
+      }
+      button:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible,
+      a:focus-visible {
+        outline: 3px solid #578674;
+        outline-offset: 3px;
+      }
+      .ratings button {
+        min-height: 75px;
+        font-weight: 600;
+      }
+      .ratings kbd {
+        display: block;
+        font-size: 11px;
+        opacity: 0.5;
+        font-weight: 400;
+        margin-top: 7px;
+      }
+      [data-label="very_ai"] {
+        background: #f2dfd8;
+        border-color: #dbb7a9;
+      }
+      [data-label="a_bit_ai"] {
+        background: #f6ebd6;
+        border-color: #dfcca5;
+      }
+      [data-label="neutral"] {
+        background: #edece6;
+        border-color: #d7d7cb;
+      }
+      [data-label="good"] {
+        background: #e4eee3;
+        border-color: #bfd1bb;
+      }
+      [data-label="very_good"] {
+        background: #d7e8dd;
+        border-color: #a9c7b4;
+      }
+      .ratings button[aria-pressed="true"] {
+        box-shadow: inset 0 0 0 2px #355f51;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .notes {
+        margin-top: 20px;
+      }
+      label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      textarea {
+        width: 100%;
+        resize: vertical;
+        min-height: 65px;
+        max-height: 230px;
+        border: 1px solid #d8dcd5;
+        border-radius: 9px;
+        background: #fffefa;
+        padding: 12px;
+        font: inherit;
+        font-size: 15px;
+      }
+      #highlight {
+        min-height: 22px;
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      nav {
+        display: flex;
+        gap: 8px;
+        margin-top: 18px;
+        align-items: center;
+      }
+      #undo {
+        margin-left: auto;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-top: 22px;
+      }
+      #status {
+        font-size: 13px;
+        color: #496350;
+      }
+      a {
+        color: #355f51;
+        font-size: 13px;
+        text-underline-offset: 3px;
+      }
+      .hint {
+        margin-top: 16px;
+        font-size: 12px;
+        color: #858a83;
+      }
+      @media (max-width: 580px) {
+        body {
+          padding: 20px 14px;
+        }
+        header {
+          margin-bottom: 20px;
+          gap: 12px;
+        }
+        progress {
+          width: 110px;
+        }
+        h1 {
+          font-size: 21px;
+        }
+        article {
+          padding: 25px 21px;
+          min-height: 190px;
+        }
+        .ratings {
+          grid-template-columns: repeat(6, 1fr);
+          gap: 7px;
+        }
+        .ratings button {
+          grid-column: span 2;
+          min-height: 66px;
+          font-size: 14px;
+          padding: 11px 5px;
+        }
+        .ratings button:nth-last-child(-n + 2) {
+          grid-column: span 3;
+        }
+        .ratings kbd {
+          display: none;
+        }
+        nav button {
+          padding: 11px 13px;
+          font-size: 14px;
+        }
+        footer {
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Sentence review</h1>
+          <p class="muted">Read it, then pick how it feels. Sources are hidden.</p>
+        </div>
+        <div>
+          <p id="progress-text">Loading…</p>
+          <progress id="progress" max="1" value="0" aria-label="Ratings completed"></progress>
+        </div>
+      </header>
+      <div class="toolbar">
+        <span id="position" class="muted"></span
+        ><select id="filter" aria-label="Sentences to show">
+          <option value="unrated">Unrated</option>
+          <option value="rated">Rated</option>
+          <option value="all">All sentences</option>
+        </select>
+      </div>
+      <article>
+        <p id="sentence">Loading the batch…</p>
+        <details id="context">
+          <summary>Read the surrounding paragraph</summary>
+          <p id="context-text"></p>
+        </details>
+      </article>
+      <div class="notes">
+        <label for="note">Why this rating? <span class="muted">Optional</span></label
+        ><textarea
+          id="note"
+          rows="2"
+          maxlength="4000"
+          placeholder="A phrase, a reason, anything you want to keep."
+        ></textarea>
+        <p id="highlight" class="muted"></p>
+      </div>
+      <div class="ratings" role="group" aria-label="Rate this sentence">
+        <button data-label="very_ai">Very AI<kbd>1</kbd></button
+        ><button data-label="a_bit_ai">A bit AI<kbd>2</kbd></button
+        ><button data-label="neutral">Neutral<kbd>3</kbd></button
+        ><button data-label="good">Good<kbd>4</kbd></button
+        ><button data-label="very_good">Very good<kbd>5</kbd></button>
+      </div>
+      <nav>
+        <button id="previous">← Previous</button><button id="next">Skip →</button
+        ><button id="undo">Undo last rating</button>
+      </nav>
+      <footer>
+        <span id="status" role="status" aria-live="polite"></span
+        ><a href="/api/export" download>Download ratings</a>
+      </footer>
+      <p class="hint">1–5 to rate · arrows to move · ratings save before advancing</p>
+    </main>
+    <script type="module" src="/client.js"></script>
+  </body>
+</html>
