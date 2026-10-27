@@ -14,3 +14,5 @@ They disagree on purpose, and the eval harness exists to settle it with data.
 
 Neither set had been run against Jev when these were written. Results of
 running them live in `eval/`.
+
+`ui-habits.md` is a later idea, not yet run: the same method for UI copy.
