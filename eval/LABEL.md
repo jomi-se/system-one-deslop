@@ -24,6 +24,12 @@ They are the reader's categories, not an AI probability scale. Optional notes
 and selected phrase offsets are saved with each rating. Saving is acknowledged
 after the journal has been synced. Undo appends a restoration event instead
 of erasing history. An incomplete journal stops startup without truncating it.
+After a journal write or sync error, further saves stop until the server is
+restarted and the journal replayed. A failed response may still have appended
+an event; inspect the preserved journal rather than retrying into uncertain
+state. A final event without its newline also stops startup. Request bodies
+are limited to 20,000 bytes and decoded as UTF-8 after all chunks arrive;
+invalid UTF-8 is rejected.
 
 Keys 1–5 rate; arrows navigate. Skip leaves an item unrated. Use the Rated or
 All sentences view to revisit earlier choices. Download ratings includes text,

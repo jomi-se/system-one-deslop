@@ -51,6 +51,15 @@ function visible(): PublicCard[] {
 function current(): PublicCard | undefined {
   return visible()[position];
 }
+function updateControls(): void {
+  const card = current();
+  filter.disabled = busy;
+  note.disabled = busy || !card;
+  element("undo", HTMLButtonElement).disabled = busy || !state.canUndo;
+  for (const button of buttons) button.disabled = busy || !card;
+  element("next", HTMLButtonElement).disabled = busy || !card;
+  element("previous", HTMLButtonElement).disabled = busy || !card || position === 0;
+}
 function render(): void {
   const queue = visible();
   position = Math.max(0, Math.min(position, queue.length - 1));
@@ -73,13 +82,10 @@ function render(): void {
     highlight && card
       ? `Marked: “${card.text.slice(highlight.start, highlight.end)}”`
       : "Select a phrase in the sentence to mark it (optional).";
-  element("undo", HTMLButtonElement).disabled = busy || !state.canUndo;
   for (const button of buttons) {
-    button.disabled = busy || !card;
     button.setAttribute("aria-pressed", String(button.dataset.label === saved?.label));
   }
-  element("next", HTMLButtonElement).disabled = busy || !card;
-  element("previous", HTMLButtonElement).disabled = busy || !card || position === 0;
+  updateControls();
   const context = element("context-text", HTMLElement);
   context.replaceChildren();
   if (card) {
@@ -105,9 +111,8 @@ async function rate(label: Label): Promise<void> {
       start: Math.min(selection.anchorOffset, selection.focusOffset),
       end: Math.max(selection.anchorOffset, selection.focusOffset),
     };
-  const draft = { note: note.value, highlight };
   let saved = false;
-  for (const button of buttons) button.disabled = true;
+  updateControls();
   try {
     state = await api("/api/rate", isLabelState, {
       id: card.id,
@@ -123,11 +128,8 @@ async function rate(label: Label): Promise<void> {
     status.textContent = error instanceof Error ? error.message : "Save failed. Please retry.";
   } finally {
     busy = false;
-    render();
-    if (!saved) {
-      note.value = draft.note;
-      highlight = draft.highlight;
-    }
+    if (saved) render();
+    else updateControls();
   }
 }
 for (const button of buttons)
@@ -148,15 +150,19 @@ element("previous", HTMLElement).addEventListener("click", () => {
   }
 });
 filter.addEventListener("change", () => {
+  if (busy) return;
   position = 0;
   render();
 });
 element("undo", HTMLElement).addEventListener("click", () => {
   if (busy) return;
   busy = true;
+  updateControls();
+  let undone = false;
   void api("/api/undo", isUndoResult, {})
     .then((result) => {
       state = result.state;
+      undone = true;
       if (result.id) {
         if (!visible().some((card) => card.id === result.id)) filter.value = "all";
         position = visible().findIndex((card) => card.id === result.id);
@@ -168,10 +174,12 @@ element("undo", HTMLElement).addEventListener("click", () => {
     })
     .finally(() => {
       busy = false;
-      render();
+      if (undone) render();
+      else updateControls();
     });
 });
 document.addEventListener("selectionchange", () => {
+  if (busy) return;
   const selection = window.getSelection();
   if (
     selection?.anchorNode === sentence.firstChild &&

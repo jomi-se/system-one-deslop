@@ -1,21 +1,11 @@
 import { createServer } from "node:http";
-import type { IncomingMessage } from "node:http";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createDataset, LabelStore, isDataset } from "../src/labels.js";
 import type { Dataset } from "../src/labels.js";
 import { invariant, object, ValidationError } from "../src/registry.js";
+import { labelBody } from "../src/label-http.js";
 
-async function body(request: IncomingMessage): Promise<unknown> {
-  invariant(request.headers["content-type"]?.startsWith("application/json"), "JSON required");
-  let value = "";
-  for await (const chunk of request) {
-    invariant(Buffer.isBuffer(chunk), "Invalid request body");
-    value += chunk.toString("utf8");
-    invariant(Buffer.byteLength(value) <= 20_000, "Request too large");
-  }
-  return JSON.parse(value) as unknown;
-}
 function privatePeer(address: string | undefined): boolean {
   const ip = address?.replace(/^::ffff:/, "");
   if (ip === "127.0.0.1" || ip === "::1") return true;
@@ -106,7 +96,7 @@ try {
       } else if (request.method === "GET" && url.pathname === "/api/state")
         json({ cards: store.publicCards(), ...store.state() });
       else if (request.method === "POST" && url.pathname === "/api/rate") {
-        const value = object(await body(request), "Rating request");
+        const value = object(await labelBody(request), "Rating request");
         invariant(typeof value.id === "string", "Missing sentence id");
         json(store.rate(value.id, value));
       } else if (request.method === "POST" && url.pathname === "/api/undo") json(store.undo());

@@ -4,7 +4,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseMarkdown } from "./parse.js";
 import { wordCount } from "./density.js";
-import { invariant, object } from "./registry.js";
+import { invariant, object, ValidationError } from "./registry.js";
 
 import { isLabel, isRecord } from "./label-types.js";
 import type { Highlight, Rating, LabelState, PublicCard } from "./label-types.js";
@@ -196,6 +196,7 @@ export class LabelStore {
   private ratings = new Map<string, Rating>();
   private undoable: Event[] = [];
   private seq = 0;
+  private writeFailed = false;
   private cards: Map<string, Card>;
   constructor(
     readonly path: string,
@@ -209,6 +210,10 @@ export class LabelStore {
       if (error instanceof Error && "code" in error && error.code === "ENOENT") return;
       throw error;
     }
+    invariant(
+      text === "" || text.endsWith("\n"),
+      "Incomplete rating journal; preserve it for recovery",
+    );
     for (const line of text.split("\n").filter(Boolean)) {
       const event = object(JSON.parse(line) as unknown, "Rating event");
       invariant(
@@ -273,6 +278,9 @@ export class LabelStore {
     this.seq = event.seq;
   }
   private append(action: Event["action"], id: string, value: Rating | null): void {
+    const failureMessage =
+      "Saving stopped after a journal error; restart the server to recover before saving again.";
+    invariant(!this.writeFailed, failureMessage);
     const event: Event = {
       seq: this.seq + 1,
       at: new Date().toISOString(),
@@ -281,12 +289,17 @@ export class LabelStore {
       value,
       before: this.ratings.get(id) ?? null,
     };
-    const fd = openSync(this.path, "a", 0o600);
     try {
-      appendFileSync(fd, JSON.stringify(event) + "\n");
-      fsyncSync(fd);
-    } finally {
-      closeSync(fd);
+      const fd = openSync(this.path, "a", 0o600);
+      try {
+        appendFileSync(fd, JSON.stringify(event) + "\n");
+        fsyncSync(fd);
+      } finally {
+        closeSync(fd);
+      }
+    } catch (cause: unknown) {
+      this.writeFailed = true;
+      throw new ValidationError(failureMessage, { cause });
     }
     this.apply(event);
   }
