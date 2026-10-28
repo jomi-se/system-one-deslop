@@ -36,6 +36,9 @@ All sentences view to revisit earlier choices. Download ratings includes text,
 effective labels, notes, highlights and provenance for joining with later Jev
 results. The UI does not call Jev or reveal predictions.
 
+Use [the offline comparison command](COMPARE-RATINGS.md) to join a downloaded
+export with saved Jev audits, preserving the reader's five categories.
+
 The default listener is 127.0.0.1:8842. Set `--host` and `--port` when needed.
 The server accepts only loopback/Tailscale peers and same-origin browser
 writes, serves only its UI/API, and never serves repository files. It is a
