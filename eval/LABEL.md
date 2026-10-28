@@ -31,6 +31,13 @@ state. A final event without its newline also stops startup. Request bodies
 are limited to 20,000 bytes and decoded as UTF-8 after all chunks arrive;
 invalid UTF-8 is rejected.
 
+Loaded journals are checked by file identity and byte size before and after
+saving. Replacement, deletion, truncation or unexpected appended bytes stop
+further writes; a deleted loaded journal is not recreated. Replay also checks
+that the file remains stable while reading. These checks do not detect
+same-size edits inside the same file and do not replace writer coordination.
+Journal maintenance still requires a stopped server.
+
 Keys 1–5 rate; arrows navigate. Skip leaves an item unrated. Use the Rated or
 All sentences view to revisit earlier choices. Download ratings includes text,
 effective labels, notes, highlights and provenance for joining with later Jev

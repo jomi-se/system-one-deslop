@@ -1,5 +1,14 @@
 import { createHash } from "node:crypto";
-import { appendFileSync, fsyncSync, openSync, closeSync, readFileSync } from "node:fs";
+import {
+  appendFileSync,
+  fsyncSync,
+  openSync,
+  closeSync,
+  readFileSync,
+  fstatSync,
+  statSync,
+  constants,
+} from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseMarkdown } from "./parse.js";
@@ -192,23 +201,38 @@ export async function createDataset(
   };
 }
 
+type JournalIdentity = { dev: bigint; ino: bigint; size: bigint };
+
 export class LabelStore {
   private ratings = new Map<string, Rating>();
   private undoable: Event[] = [];
   private seq = 0;
   private writeFailed = false;
+  private journal: JournalIdentity | undefined;
   private cards: Map<string, Card>;
   constructor(
     readonly path: string,
     readonly dataset: Dataset,
   ) {
     this.cards = new Map(dataset.cards.map((card) => [card.id, card]));
-    let text: string;
+    let fd: number;
     try {
-      text = readFileSync(path, "utf8");
+      fd = openSync(path, "r");
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && error.code === "ENOENT") return;
       throw error;
+    }
+    let text: string;
+    try {
+      const identity = fstatSync(fd, { bigint: true });
+      this.assertJournal(fd, identity);
+      const bytes = readFileSync(fd);
+      this.assertJournal(fd, identity);
+      invariant(BigInt(bytes.length) === identity.size, "Rating journal changed during replay");
+      this.journal = identity;
+      text = bytes.toString("utf8");
+    } finally {
+      closeSync(fd);
     }
     invariant(
       text === "" || text.endsWith("\n"),
@@ -235,6 +259,20 @@ export class LabelStore {
       };
       this.apply(entry);
     }
+  }
+  private assertJournal(fd: number, expected: JournalIdentity): void {
+    const opened = fstatSync(fd, { bigint: true });
+    const current = statSync(this.path, { bigint: true });
+    invariant(
+      [opened, current].every(
+        (file) =>
+          file.isFile() &&
+          file.dev === expected.dev &&
+          file.ino === expected.ino &&
+          file.size === expected.size,
+      ),
+      "Rating journal changed; preserve it for recovery",
+    );
   }
   private validate(id: string, input: unknown): Rating {
     const card = this.cards.get(id);
@@ -290,10 +328,20 @@ export class LabelStore {
       before: this.ratings.get(id) ?? null,
     };
     try {
-      const fd = openSync(this.path, "a", 0o600);
+      const fd = openSync(
+        this.path,
+        this.journal ? constants.O_WRONLY | constants.O_APPEND : "ax",
+        0o600,
+      );
       try {
-        appendFileSync(fd, JSON.stringify(event) + "\n");
+        const identity = this.journal ?? { ...fstatSync(fd, { bigint: true }), size: 0n };
+        this.assertJournal(fd, identity);
+        const line = JSON.stringify(event) + "\n";
+        appendFileSync(fd, line);
         fsyncSync(fd);
+        const expected = { ...identity, size: identity.size + BigInt(Buffer.byteLength(line)) };
+        this.assertJournal(fd, expected);
+        this.journal = expected;
       } finally {
         closeSync(fd);
       }
