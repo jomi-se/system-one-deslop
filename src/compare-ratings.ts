@@ -6,7 +6,7 @@ import type { Card, Origin } from "./labels.js";
 import { invariant, object } from "./registry.js";
 
 type JsonObject = Record<string, unknown>;
-interface RatedCard extends Card {
+export interface RatedCard extends Card {
   rating: Rating | null;
 }
 interface Unit {
@@ -81,7 +81,7 @@ function offsets(value: unknown): [number, number] {
 function probability(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
 }
-function readExport(exportValue: unknown): RatedCard[] {
+export function readRatingsExport(exportValue: unknown): RatedCard[] {
   const input = object(exportValue, "Ratings export");
   invariant(input.version === 1, "Unsupported ratings export version");
   const dataset = object(input.dataset, "Export dataset");
@@ -362,7 +362,7 @@ function readAudit(auditValue: unknown): ParsedAudit {
 }
 
 export function compareRatings(exportValue: unknown, inputs: AuditInput[]) {
-  const cards = readExport(exportValue);
+  const cards = readRatingsExport(exportValue);
   const identities = new Set<string>();
   const audits = inputs.map((input) => {
     const key = canonical([input.origin_file, input.audit_id]);

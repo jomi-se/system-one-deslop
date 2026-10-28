@@ -38,6 +38,9 @@ results. The UI does not call Jev or reveal predictions.
 
 Use [the offline comparison command](COMPARE-RATINGS.md) to join a downloaded
 export with saved Jev audits, preserving the reader's five categories.
+For new predictions from a frozen question catalogue, use the explicit
+[hosted reader experiment](READER-EVAL.md). Its predictions remain separate
+from this blind rating interface.
 
 The default listener is 127.0.0.1:8842. Set `--host` and `--port` when needed.
 The server accepts only loopback/Tailscale peers and same-origin browser
