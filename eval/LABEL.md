@@ -47,3 +47,18 @@ The server accepts only loopback/Tailscale peers and same-origin browser
 writes, serves only its UI/API, and never serves repository files. It is a
 single-reader research tool. Stop it with Ctrl+C; restarting with the same data
 directory resumes the ratings.
+
+Each upgraded server exclusively owns `.label-writer.lock` in its data
+directory, even when servers use different ports. Ownership is acquired before
+snapshot creation or journal replay and retained until active requests finish
+during shutdown. If the lock disappears or is replaced, that server stops
+saving. Read-only replay and offline exports do not acquire this server lock.
+
+Stop every older server using the directory before upgrading: already-running
+older code does not participate in this ownership protocol. An existing lock
+always blocks a new server. After an abrupt kill, first verify that no writer
+remains; only then remove the stale lock manually and restart. The server
+does not guess from PIDs or remove replacement locks. This is cooperative
+local ownership, not protection against adversarial filesystem changes.
+Replacing the journal while a server runs is unsupported and is not prevented
+by the writer lock; stop the server before any journal maintenance.

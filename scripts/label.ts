@@ -5,6 +5,8 @@ import { createDataset, LabelStore, isDataset } from "../src/labels.js";
 import type { Dataset } from "../src/labels.js";
 import { invariant, object, ValidationError } from "../src/registry.js";
 import { labelBody } from "../src/label-http.js";
+import { acquireLabelWriter } from "../src/label-writer.js";
+import type { LabelWriter } from "../src/label-writer.js";
 
 function privatePeer(address: string | undefined): boolean {
   const ip = address?.replace(/^::ffff:/, "");
@@ -14,6 +16,13 @@ function privatePeer(address: string | undefined): boolean {
     octets?.length === 4 && octets[0] === 100 && (octets[1] ?? 0) >= 64 && (octets[1] ?? 999) <= 127
   );
 }
+let ownership: LabelWriter | undefined;
+let closeServer: (() => void) | undefined;
+let stopping = false;
+const stop = () => {
+  stopping = true;
+  closeServer?.();
+};
 try {
   const args = process.argv.slice(2);
   let directory: string | undefined;
@@ -42,6 +51,9 @@ try {
   );
   invariant(Number.isSafeInteger(port) && port > 1023 && port < 65536, "Invalid port");
   await mkdir(directory, { recursive: true, mode: 0o700 });
+  const writer = acquireLabelWriter(directory);
+  ownership = writer;
+  for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, stop);
   const datasetFile = join(directory, "dataset.json");
   let dataset: Dataset;
   try {
@@ -98,9 +110,12 @@ try {
       else if (request.method === "POST" && url.pathname === "/api/rate") {
         const value = object(await labelBody(request), "Rating request");
         invariant(typeof value.id === "string", "Missing sentence id");
+        writer.assertOwned();
         json(store.rate(value.id, value));
-      } else if (request.method === "POST" && url.pathname === "/api/undo") json(store.undo());
-      else if (request.method === "GET" && url.pathname === "/api/export") {
+      } else if (request.method === "POST" && url.pathname === "/api/undo") {
+        writer.assertOwned();
+        json(store.undo());
+      } else if (request.method === "GET" && url.pathname === "/api/export") {
         const rows = store.export();
         response.setHeader("Content-Disposition", 'attachment; filename="sentence-ratings.json"');
         json({
@@ -129,16 +144,29 @@ try {
       );
     });
   });
-  server.on("error", () => {
-    console.error("Label server could not listen; check the address and port.");
-    process.exitCode = 1;
-  });
-  server.listen(port, host, () =>
-    console.log(
-      `Sentence review: http://${host}:${port}/ · ${dataset.cards.length} cards from ${dataset.documents} documents. Ratings: ${directory}`,
-    ),
-  );
-  for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, () => server.close());
+  closeServer = () => server.close();
+  if (!stopping)
+    await new Promise<void>((resolveClosed, reject) => {
+      let failure: ValidationError | undefined;
+      server.once("error", (cause: Error) => {
+        failure = new ValidationError(
+          "Label server could not listen; check the address and port.",
+          {
+            cause,
+          },
+        );
+        server.close();
+      });
+      server.once("close", () => {
+        if (failure) reject(failure);
+        else resolveClosed();
+      });
+      server.listen(port, host, () =>
+        console.log(
+          `Sentence review: http://${host}:${port}/ · ${dataset.cards.length} cards from ${dataset.documents} documents. Ratings: ${directory}`,
+        ),
+      );
+    });
 } catch (error: unknown) {
   console.error(
     error instanceof ValidationError
@@ -146,4 +174,12 @@ try {
       : "Label server failed; check dataset, journal and permissions. Existing data was preserved.",
   );
   process.exitCode = 1;
+} finally {
+  for (const signal of ["SIGINT", "SIGTERM"] as const) process.off(signal, stop);
+  try {
+    ownership?.release();
+  } catch {
+    console.error("Could not release the label writer lock; inspect it before restarting.");
+    process.exitCode = 1;
+  }
 }
