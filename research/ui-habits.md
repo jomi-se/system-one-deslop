@@ -1,49 +1,61 @@
-# Idea: the same check, for UI copy
+# Idea: observe explanatory UI copy
 
-Not run yet. Written down on 27 October 2026, after José looked at a page an
-agent had just built for artifex-box and asked for its footer to go: "That
-line is click AI overexplaining text UI lol." The footer said "Read live from
-Tailscale Serve and the listening sockets on every load." It was true. It
-also answered the question José had asked when he requested the page ("is
-that doable dynamically?"), which made it a note to the reviewer printed
-where the user looks.
+Not evaluated. This proposal concerns copy that explains the implementation
+or answers the person who commissioned a screen, even though it appears on
+the screen itself. For example, a footer saying "Data is refreshed from the
+service on every load" may belong in documentation rather than beside a
+working control. Whether a particular line earns its place needs reader
+judgments with the surrounding screen visible.
 
-José, on why this might belong here: "is this a classic AI modismo in UI? I
-think Jev could detect that."
+The proposed policy gives persistent explanation a high bar on working
+screens, including after onboarding and repeated use. It is a preference to
+test, not a finding that all explanation is unnecessary. No UI-copy question
+catalogue, labelled evaluation, or measured detection result exists yet.
 
-## Why it might work better than prose did
+## Narrow observations
 
-The prose check measured the accent but editing didn't remove it; a brief
-before writing did most of the work. UI copy might be easier for Jev. The
-strings are short. Each one has a role (heading, label, footer, empty state,
-button) and neighbours. The questions can be narrow and close to yes/no,
-which is where Jev did best on prose and where the agent-co-regulation run
-got about 0.82 AUROC.
+Compose separate observations in code. Don't ask one question to infer
+whether the reader will become an expert and then decide if the copy belongs.
 
-## How it could look
+| Observation                                                         | Evidence                                                                     |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Does the string explain how something works?                        | String, role and nearby visible copy.                                        |
+| Does it report the current state?                                   | String and the state actually shown.                                         |
+| Does it instruct the reader to take an action?                      | String and the relevant controls.                                            |
+| Does it repeat a nearby heading or status?                          | Both strings and their roles.                                                |
+| Is the surface help, documentation, onboarding or a working screen? | Product metadata where available; otherwise a labelled inference or unknown. |
+| How often is the screen used?                                       | Usage evidence or product knowledge; unknown when unavailable.               |
+| Does the nearby action cost money?                                  | Explicit action semantics.                                                   |
+| Does it delete something?                                           | Explicit action semantics.                                                   |
+| Can the action be undone?                                           | Observed behavior or reviewed implementation.                                |
+| Does the copy disappear when the state changes?                     | Compared states or reviewed implementation.                                  |
 
-- **Unit:** each visible string, pulled from the rendered DOM with Playwright,
-  with its element role and the text right around it.
-- **Observer questions,** in the style of `b-handoff`. For example:
-  - Is this line addressed to whoever asked for the page, not to its user?
-  - Does it repeat what a nearby element already shows (a red dot and
-    "Status: down")?
-  - Does it explain how the page works?
-  - Does a line under a heading say what the heading already says?
-  - Is an empty state longer than one sentence?
-- **Baseline:** the same screens in products people already think are well
-  designed (iOS Settings and Mail, GitHub, Linear). Count strings per screen
-  and the rate for each habit, the way the 13 pre-LLM posts work for prose.
-- **First labelled cases:** the artifex-box ports footer above, and the team
-  board brief, where José warned before any design that "you guys do shit
-  designs if left alone… too much text".
+Cost, deletion and reversibility are separate facts. Explanation, state and
+instruction can overlap; don't force them into one exclusive category. A
+model's estimate of typical use for a kind of screen can be retained as an
+estimate, separate from measured frequency. Neither actual frequency nor
+disappearing copy can be established from one screenshot alone.
 
-## What is out of reach
+## Cases before a checker
 
-Visual habits (purple gradients, a card for everything, emoji in headings,
-three feature boxes with icons) need screenshots, not text, so Jev can't
-judge them. And if this ends where the prose work did, the useful part will
-be a short brief given before building, not a checker run after: "start from
-a real product and keep only the copy it would have."
+Start with visible strings from a rendered DOM, their roles, nearby copy,
+the relevant screen state, and supplied product facts. Keep unknown facts
+explicit. Pair those inputs with a reader's keep/remove judgment and reason.
+Repeated headings, implementation footers, help text, errors and instructions
+for consequential actions should all appear in the cases.
 
-— Maestro (Claude, artifex-box), 2026-10-27
+The first evaluation should inspect which observations agree with those
+labels and where they fail. Code can combine the observations into a proposed
+policy once there are cases to assess it. No single observation is currently
+a validated deletion rule. A short brief before building may prove more
+useful than a checker afterward; the prose experiments in
+[FINDINGS.md](../eval/FINDINGS.md) are a reason to test that possibility.
+
+## What text alone misses
+
+Gradients, repeated card layouts, icons and visual emphasis need visual
+evidence. Jev's text input cannot establish those properties. A text checker
+would also need supplied or measured product facts for observations that
+depend on use over time or action behavior.
+
+Proposed 2026-10-27; observation method clarified 2026-10-28.
