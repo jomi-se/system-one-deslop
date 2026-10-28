@@ -17,7 +17,7 @@ export const INPUT_USD_PER_MILLION = 0.042;
 export type JevResponse = SystemOneResult<Questions>;
 export interface RequestGroup {
   state_hash: string;
-  state: EvalCase["state"];
+  state: SystemOneRequestPayload["state"];
   cases: EvalCase[];
   questions: Questions;
   variant: "original" | "reversed";
@@ -50,7 +50,7 @@ function stableJson(value: JsonValue): string {
   return JSON.stringify(value);
 }
 
-export function stateHash(state: EvalCase["state"]): string {
+export function stateHash(state: JsonValue): string {
   return createHash("sha256").update(stableJson(state)).digest("hex");
 }
 
@@ -192,45 +192,58 @@ export async function runGroups(
   );
   const records: RequestRecord[] = [];
   let next = 0;
+  let failure: { cause: unknown } | undefined;
   async function worker(): Promise<void> {
-    while (next < groups.length) {
-      const index = next++;
-      const group = groups[index];
-      invariant(group, "Missing request group");
-      const request = { model: MODEL, state: group.state, questions: group.questions };
-      const started_at = new Date().toISOString();
-      const start = performance.now();
-      let response: JevResponse | null = null;
-      let usage: Usage | null = null;
-      let error: RequestRecord["error"] = null;
-      try {
-        response = await client.systemOne(request, { signal: AbortSignal.timeout(60_000) });
-        usage = readUsage(object(response, "Response").usage);
-        validateResponse(response, group.questions);
-      } catch (cause: unknown) {
-        // Raw SDK errors may contain credentials or private service bodies.
-        error =
-          cause instanceof APIError
-            ? { kind: "api", status: cause.status }
-            : { kind: cause instanceof ValidationError ? "validation" : "transport" };
+    try {
+      while (next < groups.length) {
+        if (failure) return;
+        const index = next++;
+        const group = groups[index];
+        invariant(group, "Missing request group");
+        const request = { model: MODEL, state: group.state, questions: group.questions };
+        const started_at = new Date().toISOString();
+        const start = performance.now();
+        let response: JevResponse | null = null;
+        let usage: Usage | null = null;
+        let error: RequestRecord["error"] = null;
+        try {
+          response = await client.systemOne(request, { signal: AbortSignal.timeout(60_000) });
+          usage = readUsage(object(response, "Response").usage);
+          validateResponse(response, group.questions);
+        } catch (cause: unknown) {
+          // Raw SDK errors may contain credentials or private service bodies.
+          error =
+            cause instanceof APIError
+              ? { kind: "api", status: cause.status }
+              : { kind: cause instanceof ValidationError ? "validation" : "transport" };
+        }
+        const record: RequestRecord = {
+          index,
+          state_hash: group.state_hash,
+          variant: group.variant,
+          case_ids: group.cases.map((c) => c.case_id),
+          request,
+          response,
+          usage,
+          started_at,
+          duration_ms: performance.now() - start,
+          error,
+        };
+        // Another worker may have failed while this request was in flight. Its sink
+        // is no longer usable; finish the request without invoking that sink again.
+        if (failure) return;
+        options.onRecord?.(record);
+        records.push(record);
       }
-      const record: RequestRecord = {
-        index,
-        state_hash: group.state_hash,
-        variant: group.variant,
-        case_ids: group.cases.map((c) => c.case_id),
-        request,
-        response,
-        usage,
-        started_at,
-        duration_ms: performance.now() - start,
-        error,
-      };
-      options.onRecord?.(record);
-      records.push(record);
+    } catch (cause: unknown) {
+      // Stop scheduling synchronously, including for failures outside the API call.
+      failure ??= { cause };
     }
   }
+  // Workers capture fatal failures so every in-flight request settles before the
+  // caller can close its record sink in a finally block.
   await Promise.all(Array.from({ length: Math.min(concurrency, groups.length) }, worker));
+  if (failure) throw failure.cause;
   return records.sort((a, b) => a.index - b.index);
 }
 

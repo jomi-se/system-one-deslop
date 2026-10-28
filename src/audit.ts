@@ -51,7 +51,7 @@ export function auditPasses(value?: string): AuditPass[] {
 export interface AuditRequest {
   unit: Span;
   pass: Exclude<AuditPass, "code">;
-  group: RequestGroup;
+  group: RequestGroup & { state: { [key: string]: JsonValue } };
 }
 export interface AuditAnswer {
   unit_id: string;
