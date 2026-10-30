@@ -22,6 +22,7 @@ export interface LabelState {
 }
 export interface Snapshot extends LabelState {
   cards: PublicCard[];
+  unit?: "sentence" | "excerpt";
 }
 export interface UndoResult {
   state: LabelState;
@@ -56,6 +57,7 @@ export function isLabelState(value: unknown): value is LabelState {
 export function isSnapshot(value: unknown): value is Snapshot {
   return (
     isLabelState(value) &&
+    (!("unit" in value) || value.unit === "sentence" || value.unit === "excerpt") &&
     "cards" in value &&
     Array.isArray(value.cards) &&
     value.cards.every(

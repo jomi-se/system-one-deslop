@@ -81,7 +81,7 @@ function render(): void {
   element("highlight", HTMLElement).textContent =
     highlight && card
       ? `Marked: “${card.text.slice(highlight.start, highlight.end)}”`
-      : "Select a phrase in the sentence to mark it (optional).";
+      : "Select a phrase in the passage to mark it (optional).";
   for (const button of buttons) {
     button.setAttribute("aria-pressed", String(button.dataset.label === saved?.label));
   }
@@ -219,6 +219,26 @@ document.addEventListener("keydown", (event) => {
 });
 try {
   const result = await api("/api/state", isSnapshot);
+  if (result.unit === "excerpt") {
+    document.body.classList.add("excerpt");
+    document.title = "Excerpt review";
+    element("review-title", HTMLElement).textContent = "Excerpt review";
+    element("review-description", HTMLElement).textContent =
+      "Read the whole excerpt. Rate how AI-like it feels, not how polished it is. Sources are hidden.";
+    element("context", HTMLDetailsElement).hidden = true;
+    filter.setAttribute("aria-label", "Excerpts to show");
+    const all = filter.querySelector<HTMLOptionElement>('option[value="all"]');
+    if (all) all.textContent = "All excerpts";
+    const names: Record<string, string> = {
+      neutral: "Unsure",
+      good: "Feels human",
+      very_good: "Very human",
+    };
+    for (const button of buttons) {
+      const name = names[button.dataset.label ?? ""];
+      if (name && button.firstChild) button.firstChild.textContent = name;
+    }
+  }
   cards = result.cards;
   state = result;
   status.textContent = "Saved ratings loaded";

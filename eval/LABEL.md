@@ -69,3 +69,47 @@ does not guess from PIDs or remove replacement locks. This is cooperative
 local ownership, not protection against adversarial filesystem changes.
 Replacing the journal while a server runs is unsupported and is not prevented
 by the writer lock; stop the server before any journal maintenance.
+
+## Longer excerpts
+
+For longer passages, prepare one Markdown file per excerpt and a manifest:
+
+```json
+{
+  "version": 1,
+  "unit": "excerpt",
+  "sources": [
+    { "file": "sources/control.md", "group": "human" },
+    { "file": "sources/generated.md", "group": "generated" }
+  ]
+}
+```
+
+File paths resolve relative to the manifest. Start the new round with:
+
+```sh
+npm run label -- --data NEW_OUTPUT_DIR --manifest batch.json --seed excerpt-round-1
+```
+
+The manifest selects the complete batch; `--count`, `--runs` and `--include` are
+for sentence sampling. Excerpts retain their entire source text, paragraph
+breaks and code fences. The page displays Markdown as text, so code and inline
+punctuation remain available when rating or highlighting. There is no HTML or
+external-resource rendering. Display order is reproducible from the seed.
+
+The blind page receives only passage IDs and text. Source groups and paths are
+kept in the local export. The two human-feeling buttons retain the original
+`good` and `very_good` journal keys; their meaning in an excerpt round is a human
+authorship impression, not a writing-quality grade. Neutral means unsure.
+
+Prepare controls and generated passages on matching subtopics, for the same
+audience and genre, with comparable prose lengths and code. Retain generation
+prompts, source attribution and licenses separately. Avoid familiar sources and
+keep test topics/source families out of pattern discovery. A single human
+source is a pilot, not evidence of generalization across writers.
+
+Excerpt exports declare `dataset.unit: "excerpt"`. The reader-eval loader can
+preserve that raw text, but running it sends the passages to a hosted service and
+requires separate authorization. Sentence-audit matching rejects excerpt exports
+rather than silently matching a different unit. Tests and the review page make
+no hosted calls.

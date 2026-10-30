@@ -87,6 +87,12 @@
         overflow-wrap: anywhere;
         user-select: text;
       }
+      body.excerpt #sentence {
+        white-space: pre-wrap;
+        font-size: 17px;
+        line-height: 1.65;
+        letter-spacing: normal;
+      }
       ::selection {
         background: #f4d89b;
       }
@@ -274,8 +280,10 @@
     <main>
       <header>
         <div>
-          <h1>Sentence review</h1>
-          <p class="muted">Read it, then pick how it feels. Sources are hidden.</p>
+          <h1 id="review-title">Sentence review</h1>
+          <p id="review-description" class="muted">
+            Read it, then pick how it feels. Sources are hidden.
+          </p>
         </div>
         <div>
           <p id="progress-text">Loading…</p>

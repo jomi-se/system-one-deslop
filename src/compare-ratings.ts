@@ -85,6 +85,11 @@ export function readRatingsExport(exportValue: unknown): RatedCard[] {
   const input = object(exportValue, "Ratings export");
   invariant(input.version === 1, "Unsupported ratings export version");
   const dataset = object(input.dataset, "Export dataset");
+  invariant(
+    dataset.unit === undefined || dataset.unit === "sentence" || dataset.unit === "excerpt",
+    "Unknown labeling unit",
+  );
+  const normalize = dataset.unit === "excerpt" ? (text: string) => text : readingText;
   string(dataset.seed);
   for (const count of [dataset.documents, dataset.total_unique])
     invariant(
@@ -106,7 +111,7 @@ export function readRatingsExport(exportValue: unknown): RatedCard[] {
       const span = offsets(origin.offsets);
       const raw_text = string(origin.raw_text);
       invariant(
-        raw_text.length === span[1] - span[0] && cardId(readingText(raw_text)) === id,
+        raw_text.length === span[1] - span[0] && cardId(normalize(raw_text)) === id,
         "Origin text does not match card identity or offsets",
       );
       const paragraph = string(origin.paragraph);
@@ -122,7 +127,7 @@ export function readRatingsExport(exportValue: unknown): RatedCard[] {
       };
     });
     invariant(
-      origins.length > 0 && readingText(origins[0]?.raw_text ?? "") === text,
+      origins.length > 0 && normalize(origins[0]?.raw_text ?? "") === text,
       "Invalid primary reading text",
     );
     let rating: Rating | null = null;
@@ -362,6 +367,10 @@ function readAudit(auditValue: unknown): ParsedAudit {
 }
 
 export function compareRatings(exportValue: unknown, inputs: AuditInput[]) {
+  invariant(
+    object(object(exportValue, "Ratings export").dataset, "Export dataset").unit !== "excerpt",
+    "Sentence audit matching cannot compare excerpt ratings",
+  );
   const cards = readRatingsExport(exportValue);
   const identities = new Set<string>();
   const audits = inputs.map((input) => {

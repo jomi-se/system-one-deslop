@@ -34,6 +34,7 @@ export interface Card {
 }
 export interface Dataset {
   version: 1;
+  unit?: "sentence" | "excerpt";
   seed: string;
   documents: number;
   total_unique: number;
@@ -52,6 +53,7 @@ export function isDataset(value: unknown): value is Dataset {
   return (
     isRecord(value) &&
     value.version === 1 &&
+    (value.unit === undefined || value.unit === "sentence" || value.unit === "excerpt") &&
     typeof value.seed === "string" &&
     typeof value.documents === "number" &&
     typeof value.total_unique === "number" &&

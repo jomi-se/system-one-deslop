@@ -7,6 +7,7 @@ import { invariant, object, ValidationError } from "../src/registry.js";
 import { labelBody } from "../src/label-http.js";
 import { acquireLabelWriter } from "../src/label-writer.js";
 import type { LabelWriter } from "../src/label-writer.js";
+import { createExcerptDataset } from "../src/excerpt-labels.js";
 
 function privatePeer(address: string | undefined): boolean {
   const ip = address?.replace(/^::ffff:/, "");
@@ -27,6 +28,7 @@ try {
   const args = process.argv.slice(2);
   let directory: string | undefined;
   let runs: string | undefined;
+  let manifest: string | undefined;
   let count = 200;
   let seed = "reader-batch-1";
   let host = "127.0.0.1";
@@ -37,6 +39,7 @@ try {
     const value = args[++index];
     invariant(value && !value.startsWith("--"), "Label options require values");
     if (flag === "--data") directory = resolve(value);
+    else if (flag === "--manifest") manifest = resolve(value);
     else if (flag === "--runs") runs = resolve(value);
     else if (flag === "--count") count = Number(value);
     else if (flag === "--seed") seed = value;
@@ -47,7 +50,11 @@ try {
   }
   invariant(
     directory,
-    "Usage: npm run label -- --data OUTSIDE_GIT_DIR [--runs RUNS_DIR] [--count 200] [--include FILE.md] [--host IP] [--port N]",
+    "Usage: npm run label -- --data OUTSIDE_GIT_DIR [--manifest EXCERPTS.json | --runs RUNS_DIR] [--count 200] [--include FILE.md] [--host IP] [--port N]",
+  );
+  invariant(
+    !manifest || (!runs && extras.length === 0),
+    "An excerpt manifest cannot mix sentence sources",
   );
   invariant(Number.isSafeInteger(port) && port > 1023 && port < 65536, "Invalid port");
   await mkdir(directory, { recursive: true, mode: 0o700 });
@@ -59,10 +66,16 @@ try {
   try {
     const value: unknown = JSON.parse(await readFile(datasetFile, "utf8"));
     invariant(isDataset(value), "Invalid dataset snapshot");
+    invariant(
+      !manifest || value.unit === "excerpt",
+      "Use a new data directory for excerpts; existing sentence data was preserved",
+    );
     dataset = value;
   } catch (error: unknown) {
     if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
-    dataset = await createDataset(process.cwd(), runs, count, seed, extras);
+    dataset = manifest
+      ? await createExcerptDataset(manifest, seed)
+      : await createDataset(process.cwd(), runs, count, seed, extras);
     await writeFile(datasetFile, JSON.stringify(dataset, null, 2) + "\n", {
       flag: "wx",
       mode: 0o600,
@@ -106,7 +119,7 @@ try {
         response.setHeader("Content-Type", "text/javascript; charset=utf-8");
         response.end(types);
       } else if (request.method === "GET" && url.pathname === "/api/state")
-        json({ cards: store.publicCards(), ...store.state() });
+        json({ cards: store.publicCards(), ...store.state(), unit: dataset.unit ?? "sentence" });
       else if (request.method === "POST" && url.pathname === "/api/rate") {
         const value = object(await labelBody(request), "Rating request");
         invariant(typeof value.id === "string", "Missing sentence id");
@@ -117,13 +130,17 @@ try {
         json(store.undo());
       } else if (request.method === "GET" && url.pathname === "/api/export") {
         const rows = store.export();
-        response.setHeader("Content-Disposition", 'attachment; filename="sentence-ratings.json"');
+        response.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${dataset.unit === "excerpt" ? "excerpt" : "sentence"}-ratings.json"`,
+        );
         json({
           version: 1,
           dataset: {
             seed: dataset.seed,
             documents: dataset.documents,
             total_unique: dataset.total_unique,
+            unit: dataset.unit ?? "sentence",
           },
           rows,
         });
@@ -163,7 +180,7 @@ try {
       });
       server.listen(port, host, () =>
         console.log(
-          `Sentence review: http://${host}:${port}/ · ${dataset.cards.length} cards from ${dataset.documents} documents. Ratings: ${directory}`,
+          `${dataset.unit === "excerpt" ? "Excerpt" : "Sentence"} review: http://${host}:${port}/ · ${dataset.cards.length} cards from ${dataset.documents} documents. Ratings: ${directory}`,
         ),
       );
     });
