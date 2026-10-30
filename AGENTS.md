@@ -1,5 +1,7 @@
 # Repository invariants
 
+- Target reader-noticed AI tells; preserve useful prose and human imperfections
+  rather than polishing toward a universal ideal or detecting all AI authorship.
 - Keep this public repository free of credentials, private prose, personal
   identifiers, local machine paths, and deployment evidence.
 - Use strict TypeScript, npm, and ESM. Pin `@typesafe-ai/sdk` exactly; keep

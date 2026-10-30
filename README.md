@@ -14,6 +14,12 @@ those quotable rules per thousand words, where chapters of the Rust book and
 posts on the Go blog average about four. Readers who have read a lot of model output
 hear that rate as an accent, even when every sentence is accurate.
 
+The goal is to remove repetitive tells that make a reader feel there is no real
+weight behind the text. Useful or pleasant AI-written prose is a success and can
+stay. Human quirks and imperfect phrasing can stay too. Removing a distracting
+tell need not make the writing objectively "better" or more polished; this is
+not a search for perfect prose or a test that must identify every AI-written sentence.
+
 This repository measures that accent and tries to remove it. TypeSafe's Jev
 model answers narrow questions about each sentence (is this a general maxim?
 a three-part series? a disclaimer?), code counts the answers per thousand
