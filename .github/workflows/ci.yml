@@ -24,7 +24,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Node.js from mise.toml
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
       - name: Install locked dependencies
         run: ./scripts/quiet-run.sh "dependencies" npm ci
       - name: Typecheck
